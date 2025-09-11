@@ -2,17 +2,20 @@ import { Module } from "@nestjs/common";
 import { SequelizeModule } from '@nestjs/sequelize';
 
 @Module({
-    imports :[
+    imports: [
         SequelizeModule.forRoot({
-            dialect : 'postgres',
-            host : 'localhost',
-            port: 5432,
-      username: 'postgres',
-      password: 'password',
-      database: 'mydb',
-      models: [User],
-      autoLoadModels: true,
-      synchronize: true,
+            dialect: 'postgres',
+            host: '' + process.env.DB_HOST || 'localhost',
+            port: parseInt((process.env.DB_PORT ?? '5432'), 10),
+            username: '' + process.env.DB_USER || 'postgres',
+            password: '' + process.env.DB_PASSWORD || 'password',
+            database: '' + process.env.DB_NAME || 'profinder',
+            autoLoadModels: true,
+            synchronize: true,
+            logging: console.log,
+            timezone: '+05:30',
         })
     ]
 })
+
+export class DatabaseModule { }
