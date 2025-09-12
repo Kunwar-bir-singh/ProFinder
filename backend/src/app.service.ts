@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { TestModule } from './others/test.module';
+import { TestModel } from './others/test.model';
 
 @Injectable()
 export class AppService {
   constructor(
-    @InjectModel(TestModule) private readonly testModel: typeof TestModule
+    @InjectModel(TestModel) private readonly testModel: typeof TestModel
   ){}
 
   getHealth(): string {
