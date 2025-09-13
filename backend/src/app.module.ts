@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { TestModel } from './others/test.model';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/exceptions.filter';
 @Module({
   imports:
     [ConfigModule.forRoot({
@@ -26,6 +28,9 @@ import { ConfigModule } from '@nestjs/config';
       [TestModel]
     )],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_FILTER,
+    useClass: HttpExceptionFilter
+  }],
 })
 export class AppModule { }
