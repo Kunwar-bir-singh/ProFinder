@@ -13,5 +13,10 @@ export class TestModel extends Model<TestModel> {
     @Column({
         type: DataType.STRING
     })
-    name: string
+    username: string
+
+    @Column({
+        type: DataType.STRING
+    })
+    password: string
 }
