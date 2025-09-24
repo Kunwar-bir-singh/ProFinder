@@ -3,7 +3,9 @@ import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'seque
 @Table({
     tableName: 'professions',
     schema: 'main', // Specify the schema name here
-    timestamps: false,
+    timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
 })
 export class ProfessionsModel extends Model<ProfessionsModel> { // Use a class name Projsubmodule
     @AutoIncrement
@@ -21,17 +23,6 @@ export class ProfessionsModel extends Model<ProfessionsModel> { // Use a class n
         allowNull: false,
     })
     professionName?: string;
-    
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    professionCity?: string;
 
-    @Column({
-        type: DataType.ARRAY(DataType.INTEGER),
-        allowNull: true,
-    })
-    providersLinked!: number[];
 
 }

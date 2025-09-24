@@ -3,7 +3,9 @@ import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'seque
 @Table({
     tableName: 'users',
     schema: 'main', // Specify the schema name here
-    timestamps: false,
+    timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
 })
 export class UsersModel extends Model<UsersModel> { // Use a class name Projsubmodule
     @AutoIncrement
@@ -20,7 +22,13 @@ export class UsersModel extends Model<UsersModel> { // Use a class name Projsubm
         type: DataType.STRING,
         allowNull: false,
     })
-    userName?: string;
+    username?: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+    })
+    password?: string;
 
     @Column({
         type: DataType.STRING,
@@ -44,38 +52,29 @@ export class UsersModel extends Model<UsersModel> { // Use a class name Projsubm
         type: DataType.STRING,
         allowNull: false,
     })
-    imageUrl?: string;
+    address?: string;
 
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.STRING,
         allowNull: false,
     })
-    isVerified?: boolean;
+    city?: string;
 
     @Column({
-        type: DataType.BOOLEAN,
+        type: DataType.STRING,
         allowNull: false,
     })
-    isProvider?: boolean;
-    
-    @Column({
-        type: DataType.BOOLEAN,
-        allowNull: false,
-    })
-    isAvailable?: boolean;
+    profileImageUrl?: string;
 
     @Column({
         type: DataType.ARRAY(DataType.INTEGER),
         allowNull: true,
     })
     bookmarkedProviders!: number[];
-    
+
     @Column({
-        type: DataType.ARRAY(DataType.INTEGER),
-        allowNull: true,
+        type: DataType.BOOLEAN,
+        allowNull: false,
     })
-    profession!: number[];
-
-
-
+    isVerified?: boolean;
 }

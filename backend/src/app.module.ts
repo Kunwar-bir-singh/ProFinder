@@ -7,6 +7,10 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/exceptions.filter';
 import { ProfessionModule } from './modules/profession/profession.module';
+import { ProvidersModule } from './modules/providers/providers.module';
+import { UsersModule } from './modules/users/users.module';
+import { GlobalModule } from './modules/global/global.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports:
@@ -31,7 +35,7 @@ import { ProfessionModule } from './modules/profession/profession.module';
 
     SequelizeModule.forFeature(
       [TestModel]
-    ), ProfessionModule],
+    ), GlobalModule, AuthModule, UsersModule,ProvidersModule, ProfessionModule ],
   
     controllers: [AppController],
     providers: [AppService, {
