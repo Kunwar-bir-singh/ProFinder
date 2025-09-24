@@ -17,7 +17,8 @@ import { Exception } from "src/common/interface/exception.interface";
 
 export function handleError(error: any) {
     let exception: Exception;
-
+    console.log("error", error);
+    
     switch (true) {
         case error instanceof ValidationError: {
             exception = {
