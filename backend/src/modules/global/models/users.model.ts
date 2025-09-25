@@ -64,13 +64,18 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
     })
     email?: string;
 
-
     @Column({
         type: DataType.ARRAY(DataType.INTEGER),
         allowNull: true,
         defaultValue: [],
     })
     bookmarkedProviders?: number[];
+
+    @Column({
+        type: DataType.DATE,
+        allowNull: true,
+    })
+    lastPasswordChange?: Date;
 
     @Column({
         type: DataType.BOOLEAN,

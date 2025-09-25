@@ -1,0 +1,53 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/modules/users/users.service';
+import { JwtPayload } from 'src/common/interface/auth.interface';
+import { AuthService } from '../auth.service';
+
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+    constructor(
+        configService: ConfigService,
+        private readonly userService: UsersService,
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: configService.get<string>('JWT_ACCESS_SECRET') as string,
+        });
+    }
+
+    async validate(payload: JwtPayload) {
+
+        const user = await this.userService.getUser(payload.sub);
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        if (user.lastPasswordChange && payload.lastPasswordChange) {
+            if (user.lastPasswordChange > payload.lastPasswordChange) {
+                throw new UnauthorizedException('Password has been changed. Please login again.');
+            }
+        }
+
+        return {
+            id: user.userID,
+            username: user.username,
+        };
+    }
+}
+
+@Injectable()
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+    constructor(
+        configService: ConfigService,
+        private authService: AuthService,
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') as string,
+        });
+    }
+} 
