@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IDTokenDto } from './dto/id-token.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +20,7 @@ export class AuthController {
     }
 
     @Post('refresh')
+    @UseGuards(AuthGuard('jwt-refresh'))
     async refreshTokens(@Body() dto: IDTokenDto) {
         const { userID, refreshToken } = dto;
         return this.authService.refreshTokens(userID, refreshToken);

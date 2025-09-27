@@ -50,4 +50,12 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
             secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') as string,
         });
     }
+
+    async validate(req : any, payload : JwtPayload) {
+        const refreshToken = req.body.refreshToken;
+
+        if(!refreshToken) throw new UnauthorizedException('Refresh token not found');
+
+        return this.authService.validateRefreshToken(payload.sub, refreshToken);
+    }
 } 

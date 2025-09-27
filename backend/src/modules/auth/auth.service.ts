@@ -5,12 +5,29 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from '../global/models/users.model';
 import { handleError } from 'src/utils/handle.error';
-import { RecordDuplicateException } from 'src/common/utils/throw.exceptions.util';
+import { RecordDuplicateException, RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenModel } from './models/refreshToken.model';
 import { JwtPayload } from 'src/common/interface/auth.interface';
 
+// This service is used to hash and compare passwords
+@Injectable()
+export class HashService {
+    private readonly saltRounds: number;
+
+    constructor(private configService: ConfigService) {
+        this.saltRounds = parseInt(this.configService.get('SALT_ROUNDS', '12'));
+    }
+
+    async hashPassword(password: string): Promise<string> {
+        return bcrypt.hash(password, this.saltRounds);
+    }
+
+    async comparePassword(password: string, hash: string): Promise<boolean> {
+        return bcrypt.compare(password, hash);
+    }
+}
 
 @Injectable()
 export class AuthService {
@@ -148,6 +165,9 @@ export class AuthService {
     }
 
     async deleteRefreshToken(userID: number, refreshToken: string) {
+        
+        await RecordNotFoundException(this.refreshTokenModel, { userID, token: refreshToken });
+        
         await this.refreshTokenModel.destroy({
             where: {
                 userID: userID,
@@ -160,20 +180,3 @@ export class AuthService {
 }
 
 
-// This service is used to hash and compare passwords
-@Injectable()
-export class HashService {
-    private readonly saltRounds: number;
-
-    constructor(private configService: ConfigService) {
-        this.saltRounds = parseInt(this.configService.get('SALT_ROUNDS', '12'));
-    }
-
-    async hashPassword(password: string): Promise<string> {
-        return bcrypt.hash(password, this.saltRounds);
-    }
-
-    async comparePassword(password: string, hash: string): Promise<boolean> {
-        return bcrypt.compare(password, hash);
-    }
-}

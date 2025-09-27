@@ -1,5 +1,4 @@
-import { Model } from "sequelize";
-import { BelongsTo, Column, DataType, ForeignKey, Index, PrimaryKey, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, Index, Model, PrimaryKey, Table } from "sequelize-typescript";
 import { UsersModel } from "src/modules/global/models/users.model";
 
 interface RefreshTokenAttributes {
@@ -8,7 +7,10 @@ interface RefreshTokenAttributes {
     expiresAt: Date;
 }
 
-@Table
+@Table({
+    tableName: 'refreshTokens',
+    timestamps: true
+})
 export class RefreshTokenModel extends Model<RefreshTokenAttributes> {
     @PrimaryKey
     @ForeignKey(() => UsersModel)
