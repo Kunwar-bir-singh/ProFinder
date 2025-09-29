@@ -61,12 +61,19 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
     @Column({
         type: DataType.STRING,
         allowNull: true,
+        unique: true
+    })
+    phone? : string; 
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
     })
     email?: string;
 
     @Column({
         type: DataType.ARRAY(DataType.INTEGER),
-        allowNull: true,
+        allowNull: true, 
         defaultValue: [],
     })
     bookmarkedProviders?: number[];
@@ -81,5 +88,5 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
         type: DataType.BOOLEAN,
         defaultValue: false,
     })
-    isVerified?: boolean;
+    isVerified?: boolean; 
 }

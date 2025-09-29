@@ -31,6 +31,9 @@ import { AuthModule } from './modules/auth/auth.module';
       sync: { alter: true },
       logging: console.log,
       timezone: '+05:30',
+      retry: {
+        max: 1,
+      },
     }),
 
     SequelizeModule.forFeature(

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from '../global/models/users.model';
 import { handleError } from 'src/utils/handle.error';
@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenModel } from './models/refreshToken.model';
 import { JwtPayload } from 'src/common/interface/auth.interface';
+import { Response } from 'express';
 
 // This service is used to hash and compare passwords
 @Injectable()
@@ -49,8 +50,8 @@ export class AuthService {
                 where: {
                     [Op.or]: [
                         { username: username },
-                        { email: email },
-                        { phone: phone }
+                        { email: email || null },
+                        { phone: phone || null }
                     ]
                 }
             });
@@ -58,7 +59,7 @@ export class AuthService {
             if (userExists) throw new ConflictException('User already exists');
             const hashedPassword = await this.hashService.hashPassword(password);
 
-            await this.userModel.create({ password: hashedPassword, ...dto });
+            await this.userModel.create({ ...dto, password: hashedPassword, });
             return;
 
         } catch (error) {
@@ -66,17 +67,18 @@ export class AuthService {
         }
     }
 
-    async loginUser(dto: any) {
+    async loginUser(dto: any, res: Response) {
         const { username, phone, email, password } = dto;
 
         const userExists = await this.userModel.findOne({
             where: {
                 [Op.or]: [
                     { username: username },
-                    { email: email },
-                    { phone: phone }
+                    { email: email || null },
+                    { phone: phone || null }
                 ]
-            }
+            },
+            raw: true
         });
 
         if (!userExists) throw new UnauthorizedException('User does not exist');
@@ -85,15 +87,17 @@ export class AuthService {
 
         if (!isPasswordValid) throw new UnauthorizedException('Invalid password');
 
-        return this.generateTokens(userExists);
+        return this.generateTokens(userExists, res);
     }
 
-    async logoutUser(userID: number, refreshToken: string) {
+    async logoutUser(userID: number, refreshToken: string, res: Response) {
+        res.clearCookie('refreshToken', { path: '/' });
+
         await this.deleteRefreshToken(userID, refreshToken);
     }
 
     /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
-    async generateTokens(user: any) {
+    async generateTokens(user: any, res: Response) {
         const payload: JwtPayload = {
             sub: user.userID,
             username: user.username,
@@ -116,11 +120,22 @@ export class AuthService {
         const refreshExpiry = new Date();
         refreshExpiry.setDate(refreshExpiry.getDate() + 7);
 
+        console.log("The Refresh Token is: ", refreshToken);
+
+        const hashedRefreshToken = await this.hashService.hashPassword(refreshToken);
+
         await this.refreshTokenModel.create({
             userID: user.userID,
-            token: refreshToken,
+            token: hashedRefreshToken,
             expiresAt: refreshExpiry
         })
+
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: this.configService.get('NODE_ENVIRONMENT') === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         return {
             user: {
@@ -128,11 +143,11 @@ export class AuthService {
                 username: user.username,
             },
             accessToken,
-            refreshToken
         }
     }
 
-    async refreshTokens(userID: number, refreshToken: string) {
+
+    async refreshTokens(userID: number, refreshToken: string, res: Response) {
         const userExists = await this.userModel.findByPk(userID);
         if (!userExists) throw new UnauthorizedException('The User does not exist');
 
@@ -142,14 +157,16 @@ export class AuthService {
         // Delete old refresh token
         await this.deleteRefreshToken(userID, refreshToken);
 
-        return this.generateTokens(user);
+        // Create new refresh token
+        return this.generateTokens(user, res);
     }
 
+    /* Function to validate the refresh token 
+    Used in : refreshTokens() */
     async validateRefreshToken(userID: number, refreshToken: string) {
         const record = await this.refreshTokenModel.findOne({
             where: {
                 userID: userID,
-                token: refreshToken,
                 expiresAt: { [Op.gt]: new Date() }
             },
             include: [{ model: UsersModel, as: 'user' }],
@@ -158,20 +175,30 @@ export class AuthService {
         if (!record) {
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
+
+        const isValid = await this.hashService.comparePassword(refreshToken, record.token);
+        if (!isValid) throw new UnauthorizedException('Invalid or expired refresh token');
+
         return {
             id: record.user.userID,
             username: record.user.username,
         };
     }
 
+    /* Function to delete the refresh token 
+    Used in : refreshTokens() */
     async deleteRefreshToken(userID: number, refreshToken: string) {
-        
-        await RecordNotFoundException(this.refreshTokenModel, { userID, token: refreshToken });
-        
+
+        const record = await this.refreshTokenModel.findOne({ where: { userID }, raw: true });
+        if (!record) throw new NotFoundException('No refresh token found');
+
+        const isValid = await this.hashService.comparePassword(refreshToken, record.token);
+        if (!isValid) throw new UnauthorizedException('Invalid refresh token');
+
+
         await this.refreshTokenModel.destroy({
             where: {
                 userID: userID,
-                token: refreshToken,
             },
         });
     }

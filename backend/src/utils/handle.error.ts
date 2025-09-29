@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, RequestTimeoutException } from "@nestjs/common";
-import { ForeignKeyConstraintError, Sequelize, TimeoutError, UniqueConstraintError, ValidationError } from "sequelize";
+import { ForeignKeyConstraintError, TimeoutError, UniqueConstraintError, ValidationError } from "sequelize";
 import { Exception } from "src/common/interface/exception.interface";
 
 /**

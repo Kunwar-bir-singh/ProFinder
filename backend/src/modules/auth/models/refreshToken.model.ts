@@ -9,6 +9,7 @@ interface RefreshTokenAttributes {
 
 @Table({
     tableName: 'refreshTokens',
+    schema: 'main',
     timestamps: true
 })
 export class RefreshTokenModel extends Model<RefreshTokenAttributes> {
