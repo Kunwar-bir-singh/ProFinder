@@ -21,22 +21,32 @@ export class AuthController {
         return this.authService.loginUser(dto, res);
     }
 
+    @Post('change-password')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard('jwt'))
+    async changePassword(@Body() dto: any, @Req() req: Request) {
+        const { id: userID } = req.user!;
+
+        const data = { userID, ...dto };
+        await this.authService.changePassword(data);
+    }
+
     @Post('refresh')
     @UseGuards(AuthGuard('jwt-refresh'))
-    async refreshTokens(@Req() req: Request, @Body() dto: IDTokenDto,  @Res() res: Response) {
+    async refreshTokens(@Req() req: Request, @Body() dto: IDTokenDto, @Res() res: Response) {
         const refreshToken = req.cookies['refresh_token'];
-        
-        const { userID} = dto;
-        
+
+        const { userID } = dto;
+
         return this.authService.refreshTokens(userID, refreshToken, res);
     }
 
     @Delete('logout')
-    async logoutUser(@Req() req: Request, @Res({ passthrough: true }) res : Response, @Body() dto: IDTokenDto,) {
+    async logoutUser(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Body() dto: IDTokenDto,) {
         const refreshToken = req.cookies['refresh_token'];
-        
-        const { userID} = dto;
-        
+
+        const { userID } = dto;
+
         await this.authService.logoutUser(userID, refreshToken, res);
     }
 }

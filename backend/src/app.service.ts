@@ -9,6 +9,8 @@ export class AppService {
   ){}
 
   getHealth(): string {
+    console.log("HEalth check");
+    
     return 'The server is healthy!';
   }
 

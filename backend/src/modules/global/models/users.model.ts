@@ -11,6 +11,7 @@ export interface UsersAttributes {
     city?: string;
     profileImageUrl?: string;
     bookmarkedProviders?: number[];
+    lastPasswordChange?: Date;
     isVerified?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
@@ -39,6 +40,12 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
         autoIncrement: true,
     })
     userID!: number;
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+    })
+    providerID?: number;
 
     @Column({
         type: DataType.STRING,

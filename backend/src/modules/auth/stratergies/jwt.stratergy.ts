@@ -12,6 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(
         configService: ConfigService,
         private readonly userService: UsersService,
+
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -31,12 +32,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 throw new UnauthorizedException('Password has been changed. Please login again.');
             }
         }
-
-        return {
+        
+        return  {
             id: user.userID,
             username: user.username,
         };
     }
+
 }
 
 @Injectable()
@@ -51,10 +53,10 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
         });
     }
 
-    async validate(req : any, payload : JwtPayload) {
+    async validate(req: any, payload: JwtPayload) {
         const refreshToken = req.body.refreshToken;
 
-        if(!refreshToken) throw new UnauthorizedException('Refresh token not found');
+        if (!refreshToken) throw new UnauthorizedException('Refresh token not found');
 
         return this.authService.validateRefreshToken(payload.sub, refreshToken);
     }

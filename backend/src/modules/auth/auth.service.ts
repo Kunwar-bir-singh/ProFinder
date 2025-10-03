@@ -90,6 +90,31 @@ export class AuthService {
         return this.generateTokens(userExists, res);
     }
 
+    async changePassword(dto: any) {
+        try {
+            console.log("The DTO is: ", dto);
+
+            const { userID, password } = dto;
+
+            const userExists = await this.userModel.findOne({ where: { userID }, raw: true });
+            if (!userExists) throw new NotFoundException('User does not exist');
+
+            const isPasswordValid = await this.hashService.comparePassword(password, userExists.password);
+            if (isPasswordValid) throw new BadRequestException('New password cannot be the same as old password');
+
+            const hashedPassword = await this.hashService.hashPassword(password);
+            await this.userModel.update({
+                password: hashedPassword,
+                lastPasswordChange: new Date()
+            }, { where: { userID } });
+
+            return 
+
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
     async logoutUser(userID: number, refreshToken: string, res: Response) {
         res.clearCookie('refreshToken', { path: '/' });
 
@@ -98,11 +123,13 @@ export class AuthService {
 
     /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
     async generateTokens(user: any, res: Response) {
+        
         const payload: JwtPayload = {
             sub: user.userID,
             username: user.username,
             email: user.email,
             lastPasswordChange: user.lastPasswordChange,
+            isProvider : user.providerID ? true : false
         };
 
         const [accessToken, refreshToken] = await Promise.all([
@@ -123,6 +150,8 @@ export class AuthService {
         console.log("The Refresh Token is: ", refreshToken);
 
         const hashedRefreshToken = await this.hashService.hashPassword(refreshToken);
+
+        await this.deleteRefreshToken(user.userID);
 
         await this.refreshTokenModel.create({
             userID: user.userID,
@@ -187,13 +216,15 @@ export class AuthService {
 
     /* Function to delete the refresh token 
     Used in : refreshTokens() */
-    async deleteRefreshToken(userID: number, refreshToken: string) {
+    async deleteRefreshToken(userID: number, refreshToken?: string) {
 
         const record = await this.refreshTokenModel.findOne({ where: { userID }, raw: true });
-        if (!record) throw new NotFoundException('No refresh token found');
 
-        const isValid = await this.hashService.comparePassword(refreshToken, record.token);
-        if (!isValid) throw new UnauthorizedException('Invalid refresh token');
+        if (record && refreshToken) {
+            const isValid = await this.hashService.comparePassword(refreshToken, record.token);
+
+            if (!isValid) throw new UnauthorizedException('Invalid refresh token');
+        }
 
 
         await this.refreshTokenModel.destroy({
