@@ -1,13 +1,24 @@
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
 
+export interface CityCreationAttributes extends Partial<CityAttributes> {
+    cityName: string;
+    rawName: string;
+}
+
+interface CityAttributes {
+    cityID?: number;
+    cityName?: string;
+    rawName?: string
+}
+
 @Table({
-    tableName: 'providers',
+    tableName: 'cities',
     schema: 'main', // Specify the schema name here
     timestamps: true,
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
 })
-export class ProvidersModel extends Model<ProvidersModel> { // Use a class name Projsubmodule
+export class CitiesModel extends Model<CityAttributes, CityCreationAttributes> { // Use a class name Projsubmodule
     @AutoIncrement
     @PrimaryKey
     @Column({
@@ -16,22 +27,19 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
         primaryKey: true,
         autoIncrement: true,
     })
-    providerID?: number;
+    cityID?: number;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    description?: string;
+    cityName?: string;
 
     @Column({
-        type: DataType.JSON,
+        type: DataType.STRING,
+        allowNull: false,
     })
-    rating: object
+    rawName?: string
 
-    @Column({
-        type: DataType.BOOLEAN,
-    })
-    isAvailable: boolean
 
 }

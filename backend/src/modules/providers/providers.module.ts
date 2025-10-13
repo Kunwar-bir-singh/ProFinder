@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ProvidersController } from './providers.controller';
-import { ProvidersService } from './providers.service';
+import { ProvidersController, ProvidersProfessionController } from './providers.controller';
+import { ProviderProfessionService, ProvidersService } from './providers.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ProvidersModel } from '../global/models/providers.model';
+import { ProviderProfessionModel } from '../global/models/provider-profession.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([ProvidersModel])
+    SequelizeModule.forFeature([ProvidersModel, ProviderProfessionModel])
   ],
-  controllers: [ProvidersController],
-  providers: [ProvidersService]
+  providers: [ProvidersService, ProviderProfessionService],
+  controllers: [ProvidersController, ProvidersProfessionController],
 })
-export class ProvidersModule {}
+export class ProvidersModule { }
