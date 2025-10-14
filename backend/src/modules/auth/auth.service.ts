@@ -1,34 +1,19 @@
 import { Op } from 'sequelize';
-import bcrypt from 'bcrypt';
-
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from '../global/models/users.model';
 import { handleError } from 'src/utils/handle.error';
-import { RecordDuplicateException, RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenModel } from './models/refreshToken.model';
 import { JwtPayload } from 'src/common/interface/auth.interface';
 import { Response } from 'express';
+import { Sequelize } from 'sequelize-typescript';
+import { UsersService } from '../users/users.service';
+import { HashService } from '../hash/hash.service';
 
 // This service is used to hash and compare passwords
-@Injectable()
-export class HashService {
-    private readonly saltRounds: number;
 
-    constructor(private configService: ConfigService) {
-        this.saltRounds = parseInt(this.configService.get('SALT_ROUNDS', '12'));
-    }
-
-    async hashPassword(password: string): Promise<string> {
-        return bcrypt.hash(password, this.saltRounds);
-    }
-
-    async comparePassword(password: string, hash: string): Promise<boolean> {
-        return bcrypt.compare(password, hash);
-    }
-}
 
 @Injectable()
 export class AuthService {
@@ -38,48 +23,36 @@ export class AuthService {
         @InjectModel(RefreshTokenModel)
         private readonly refreshTokenModel: typeof RefreshTokenModel,
 
+        private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly hashService: HashService,
+        private readonly sequelize: Sequelize,
     ) { }
-    async registerUser(dto: any): Promise<any> {
+    async registerUser(dto: any): Promise<Boolean> {
+        const transaction = await this.sequelize.transaction();
         try {
+            const { password } = dto;
+            const hashedPassword = await this.hashService.hashPassword(password,);
 
-            const { username, password, email, phone } = dto;
-            const userExists = await this.userModel.findOne({
-                where: {
-                    [Op.or]: [
-                        { username: username },
-                        { email: email || null },
-                        { phone: phone || null }
-                    ]
-                }
-            });
+            dto.password = hashedPassword;
 
-            if (userExists) throw new ConflictException('User already exists');
-            const hashedPassword = await this.hashService.hashPassword(password);
-
-            await this.userModel.create({ ...dto, password: hashedPassword, });
-            return;
-
+            await this.usersService.createUser(dto, transaction);
+            
+            await transaction.commit();
+            
+            return true;
         } catch (error) {
+            await transaction.rollback();
             handleError(error);
+            return false;
         }
     }
 
     async loginUser(dto: any, res: Response) {
-        const { username, phone, email, password } = dto;
+        const { password } = dto;
 
-        const userExists = await this.userModel.findOne({
-            where: {
-                [Op.or]: [
-                    { username: username },
-                    { email: email || null },
-                    { phone: phone || null }
-                ]
-            },
-            raw: true
-        });
+        const userExists = await this.usersService.checkUserExists(dto);
 
         if (!userExists) throw new UnauthorizedException('User does not exist');
 
@@ -108,7 +81,7 @@ export class AuthService {
                 lastPasswordChange: new Date()
             }, { where: { userID } });
 
-            return 
+            return
 
         } catch (error) {
             handleError(error);
@@ -123,13 +96,13 @@ export class AuthService {
 
     /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
     async generateTokens(user: any, res: Response) {
-        
+
         const payload: JwtPayload = {
             sub: user.userID,
             username: user.username,
             email: user.email,
             lastPasswordChange: user.lastPasswordChange,
-            isProvider : user.providerID ? true : false
+            isProvider: user.providerID ? true : false
         };
 
         const [accessToken, refreshToken] = await Promise.all([
@@ -174,7 +147,6 @@ export class AuthService {
             accessToken,
         }
     }
-
 
     async refreshTokens(userID: number, refreshToken: string, res: Response) {
         const userExists = await this.userModel.findByPk(userID);
@@ -226,15 +198,12 @@ export class AuthService {
             if (!isValid) throw new UnauthorizedException('Invalid refresh token');
         }
 
-
         await this.refreshTokenModel.destroy({
             where: {
                 userID: userID,
             },
         });
     }
-
-
 }
 
 

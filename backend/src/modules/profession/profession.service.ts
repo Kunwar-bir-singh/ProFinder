@@ -5,7 +5,6 @@ import { CitiesModel } from '../global/models/cities.model';
 import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
 import { LocationService } from '../location/location.service';
-import { convertCityName } from 'src/utils/convertCityName.util';
 
 @Injectable()
 export class ProfessionService {
@@ -51,6 +50,22 @@ export class ProfessionService {
 
         } catch (error) {
             handleError(error);
+        }
+    }
+
+    async checkProfessionExists(professionID: number): Promise<Boolean> {
+        try {
+            const professionExists = await this.professionModel.findOne({ where: { professionID } });
+
+            if (professionExists) {
+                return true;
+            }
+
+            return false;
+
+        } catch (error) {
+            handleError(error);
+            return false;
         }
     }
 }

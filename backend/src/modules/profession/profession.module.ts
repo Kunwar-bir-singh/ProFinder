@@ -11,6 +11,7 @@ import { LocationModule } from '../location/location.module';
     LocationModule,
   ],
   controllers: [ProfessionController],
-  providers: [ProfessionService]
+  providers: [ProfessionService],
+  exports: [ProfessionService, SequelizeModule]
 })
 export class ProfessionModule { }

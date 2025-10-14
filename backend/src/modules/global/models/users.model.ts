@@ -10,7 +10,6 @@ export interface UsersAttributes {
     address?: string;
     city?: string;
     profileImageUrl?: string;
-    bookmarkedProviders?: number[];
     lastPasswordChange?: Date;
     isVerified?: boolean;
     createdAt?: Date;
@@ -77,13 +76,6 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
         allowNull: true,
     })
     email?: string;
-
-    @Column({
-        type: DataType.ARRAY(DataType.INTEGER),
-        allowNull: true, 
-        defaultValue: [],
-    })
-    bookmarkedProviders?: number[];
 
     @Column({
         type: DataType.DATE,

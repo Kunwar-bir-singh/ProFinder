@@ -27,8 +27,8 @@ import { AuthModule } from './modules/auth/auth.module';
       username: '' + process.env.DB_USER || 'postgres',
       password: '' + process.env.DB_PASSWORD || 'postgres',
       database: '' + process.env.DB_NAME || 'profinder',
-      autoLoadModels: true,
-      sync: { alter: true },
+      // autoLoadModels: true,
+      // sync: { alter: true },
       logging: console.log,
       timezone: '+05:30',
       retry: {
