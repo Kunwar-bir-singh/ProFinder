@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Index, Model, PrimaryKey, Table } from "sequelize-typescript";
-import { UsersModel } from "src/modules/global/models/users.model";
+import { UsersModel } from "src/modules/users/model/users.model";
 
 interface RefreshTokenAttributes {
     userID: number;

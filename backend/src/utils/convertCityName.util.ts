@@ -1,3 +1,3 @@
-export function convertCityName(cityName: string) {
+export function convertNameToRaw(cityName: string) {
     return cityName.trim().toLowerCase();
 }

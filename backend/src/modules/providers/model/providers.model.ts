@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { UsersModel } from 'src/modules/users/model/users.model';
 
 @Table({
     tableName: 'providers',
@@ -18,6 +19,12 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
     })
     providerID?: number;
 
+    @ForeignKey(() => UsersModel)
+    @Column({
+        type: DataType.INTEGER,
+    })
+    userID!: number;
+
     @Column({
         type: DataType.STRING,
         allowNull: false,
@@ -34,4 +41,6 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
     })
     isAvailable: boolean
 
+    @BelongsTo(() => UsersModel)
+    user: UsersModel;
 }

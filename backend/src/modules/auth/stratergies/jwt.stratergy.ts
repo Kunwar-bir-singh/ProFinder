@@ -21,8 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     async validate(payload: JwtPayload) {
-
-        const user = await this.userService.getUser(payload.sub);
+        const user = await this.userService.getUser(payload.userID);
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
@@ -34,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         }
         
         return  {
-            id: user.userID,
+            userID: user.userID,
             username: user.username,
         };
     }
@@ -58,6 +57,6 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
 
         if (!refreshToken) throw new UnauthorizedException('Refresh token not found');
 
-        return this.authService.validateRefreshToken(payload.sub, refreshToken);
+        return this.authService.validateRefreshToken(payload.userID, refreshToken);
     }
 } 

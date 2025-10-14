@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CitiesModel } from '../global/models/cities.model';
+import { CitiesModel } from './model/cities.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
-import { RecordDuplicateException } from 'src/common/utils/throw.exceptions.util';
-import { convertCityName } from 'src/utils/convertCityName.util';
+import { convertNameToRaw } from 'src/utils/convertCityName.util';
+import { RecordDuplicateException, RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
+import { CreateCityDto } from './dto/location.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class LocationService {
@@ -23,31 +25,43 @@ export class LocationService {
         }
     }
 
-    async createCity(dto: any) {
+    async createCity(dto: CreateCityDto): Promise<CitiesModel | Boolean> {
         const transaction = await this.sequelize.transaction();
         try {
-            const { cityName } = dto;
+            const { city } = dto;
 
-            const rawName = convertCityName(cityName);
+            const rawName = convertNameToRaw(city);
 
-            const cityExists = await this.citiesModel.findOne({ where: { rawName }, transaction, raw: true });
+            await RecordDuplicateException(this.citiesModel, { rawName }, 'City already exists');
+
+            const cityExists = await this.checkCityExists<string>(rawName);
 
             if (cityExists) {
                 return cityExists;
             }
-            const city = await this.citiesModel.create(dto);
+
+            const newCity = await this.citiesModel.create({ cityName: city, rawName }, { transaction });
             await transaction.commit();
 
-            return city
+            return newCity
         } catch (error) {
             await transaction.rollback();
             handleError(error);
+            return false;
         }
     }
 
-    async checkCityExists(cityID: number): Promise<Boolean> {
+    async checkCityExists<T>(value: T): Promise<Boolean> {
         try {
-            const cityExists = await this.citiesModel.findOne({ where: { cityID } });
+            const cityExists = await this.citiesModel.findOne({
+                where: {
+                    [Op.or]: [
+                        { cityName: { [Op.eq]: String(value) } },
+                        { rawName: { [Op.eq]: String(value) } }
+                    ]
+                }
+            });
+
 
             if (cityExists) {
                 return true;
@@ -55,6 +69,18 @@ export class LocationService {
 
             return false;
 
+        } catch (error) {
+            handleError(error);
+            return false;
+        }
+    }
+
+    async deleteCity(cityID: number): Promise<Boolean> {
+        try {
+            await RecordNotFoundException(CitiesModel, { cityID }, 'City not found');
+            
+            await this.citiesModel.destroy({ where: { cityID } });
+            return true;
         } catch (error) {
             handleError(error);
             return false;

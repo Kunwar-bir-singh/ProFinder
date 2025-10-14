@@ -28,20 +28,21 @@ import { AuthModule } from './modules/auth/auth.module';
       password: '' + process.env.DB_PASSWORD || 'postgres',
       database: '' + process.env.DB_NAME || 'profinder',
       autoLoadModels: true,
-      sync: { alter: true },
+      // sync: { force : true },
       logging: console.log,
       timezone: '+05:30',
       retry: {
-        max: 1,
+        max: 3,         
+        timeout: 3000,  
       },
     }),
 
     SequelizeModule.forFeature(
       [TestModel]
-    ), GlobalModule, AuthModule, UsersModule,ProvidersModule, ProfessionModule ],
-  
-    controllers: [AppController],
-    providers: [AppService, {
+    ), GlobalModule, AuthModule, UsersModule, ProvidersModule, ProfessionModule],
+
+  controllers: [AppController],
+  providers: [AppService, {
     provide: APP_FILTER,
     useClass: HttpExceptionFilter
   }],

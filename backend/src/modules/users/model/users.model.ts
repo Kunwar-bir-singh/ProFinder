@@ -1,4 +1,6 @@
-import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, HasMany, HasOne } from 'sequelize-typescript';
+import { UsersBookmarkModel } from './users-bookmark.model';
+import { ProvidersModel } from 'src/modules/providers/model/providers.model';
 
 export interface UsersAttributes {
     userID?: number;
@@ -10,7 +12,6 @@ export interface UsersAttributes {
     address?: string;
     city?: string;
     profileImageUrl?: string;
-    bookmarkedProviders?: number[];
     lastPasswordChange?: Date;
     isVerified?: boolean;
     createdAt?: Date;
@@ -70,20 +71,13 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
         allowNull: true,
         unique: true
     })
-    phone? : string; 
+    phone?: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: true,
     })
     email?: string;
-
-    @Column({
-        type: DataType.ARRAY(DataType.INTEGER),
-        allowNull: true, 
-        defaultValue: [],
-    })
-    bookmarkedProviders?: number[];
 
     @Column({
         type: DataType.DATE,
@@ -95,5 +89,11 @@ export class UsersModel extends Model<UsersAttributes, UsersCreationAttributes> 
         type: DataType.BOOLEAN,
         defaultValue: false,
     })
-    isVerified?: boolean; 
+    isVerified?: boolean;
+
+    @HasOne(() => ProvidersModel)
+    provider: ProvidersModel;
+
+    @HasMany(() => UsersBookmarkModel)
+    bookmarkedProviders: UsersBookmarkModel[];
 }

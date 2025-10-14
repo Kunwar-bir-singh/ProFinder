@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Catch, Controller, Delete, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IDTokenDto } from './dto/id-token.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -28,6 +28,7 @@ export class AuthController {
         const { id: userID } = req.user!;
 
         const data = { userID, ...dto };
+        
         await this.authService.changePassword(data);
     }
 

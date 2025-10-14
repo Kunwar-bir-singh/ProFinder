@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { AuthService, HashService } from './auth.service';
+import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -8,8 +8,10 @@ import { UsersModule } from '../users/users.module';
 import { JwtRefreshStrategy, JwtStrategy } from './stratergies/jwt.stratergy';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { RefreshTokenModel } from './models/refreshToken.model';
-import { UsersModel } from '../global/models/users.model';
+import { UsersModel } from '../users/model/users.model';
 import { ProfessionModule } from '../profession/profession.module';
+import { ProvidersModule } from '../providers/providers.module';
+import { HashModule } from '../hash/hash.module';
 
 
 @Module({
@@ -18,6 +20,8 @@ import { ProfessionModule } from '../profession/profession.module';
     ConfigModule,
     UsersModule,
     ProfessionModule,
+    ProvidersModule,
+    HashModule,
     JwtModule.register({}),
     SequelizeModule.forFeature([UsersModel, RefreshTokenModel])
   ],
@@ -27,12 +31,11 @@ import { ProfessionModule } from '../profession/profession.module';
   providers: [
     JwtService,
     ConfigService,
-    HashService,
     AuthService,
     JwtStrategy,
     JwtRefreshStrategy,
   ],
-  exports: [AuthService, HashService],
+  exports: [AuthService],
 
 })
 export class AuthModule { }

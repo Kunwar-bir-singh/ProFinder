@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ProviderProfessionService } from './providers.service';
-import { ProviderProfessionModel } from '../global/models/provider-profession.model';
+import { ProviderProfessionModel } from './model/provider-profession.model';
 import { LinkProviderProfessionDto } from './dto/provider.profession.dto';
 
 @Controller('providers')

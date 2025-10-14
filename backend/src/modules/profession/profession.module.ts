@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProfessionController } from './profession.controller';
 import { ProfessionService } from './profession.service';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ProfessionsModel } from '../global/models/profession.model';
+import { ProfessionsModel } from './model/profession.model';
 import { LocationModule } from '../location/location.module';
 
 @Module({
@@ -11,6 +11,7 @@ import { LocationModule } from '../location/location.module';
     LocationModule,
   ],
   controllers: [ProfessionController],
-  providers: [ProfessionService]
+  providers: [ProfessionService],
+  exports: [ProfessionService, SequelizeModule]
 })
 export class ProfessionModule { }

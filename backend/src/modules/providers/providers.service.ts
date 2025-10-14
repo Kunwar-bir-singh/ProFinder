@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ProvidersModel } from '../global/models/providers.model';
-import { ProviderProfessionModel } from '../global/models/provider-profession.model';
+import { ProvidersModel } from './model/providers.model';
+import { ProviderProfessionModel } from './model/provider-profession.model';
 import { handleError } from 'src/utils/handle.error';
 import { LinkProviderProfessionDto } from './dto/provider.profession.dto';
-import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
+import { ProfessionService } from '../profession/profession.service';
+import { LocationService } from '../location/location.service';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class ProvidersService {
@@ -13,14 +15,52 @@ export class ProvidersService {
         private readonly providerModel: typeof ProvidersModel
     ) { }
 
- 
+    async createProvider(dto: any, transaction? : Transaction): Promise<Boolean> {
+        try {
+            await this.providerModel.create(dto, { transaction : transaction || null });
+            return true;
+
+        } catch (error) {
+            handleError(error);
+            return false;
+        }
+    }
+
+    async checkProviderExists(providerID: number): Promise<Boolean> {
+        try {
+            const providerExists = await this.providerModel.findOne({ where: { providerID } });
+            return providerExists ? true : false;
+        } catch (error) {
+            handleError(error);
+            return false;
+        }
+    }
+
+    async updateProvider(dto: any, transaction? : Transaction): Promise<Boolean> {
+        try {
+            const { providerID } = dto;
+
+            await this.providerModel.update(dto, { where: { providerID }, transaction : transaction || null });
+            
+            return true;
+
+        } catch (error) {
+            handleError(error);
+            return false;
+        }
+    }
+
 }
 
 @Injectable()
 export class ProviderProfessionService {
     constructor(
-       @InjectModel(ProviderProfessionModel)
-       private readonly providerProfessionModel: typeof ProviderProfessionModel
+        @InjectModel(ProviderProfessionModel)
+        private readonly providerProfessionModel: typeof ProviderProfessionModel,
+
+        private readonly professionService: ProfessionService,
+        private readonly locationService: LocationService,
+
     ) { }
 
     async linkProviderProfession(dto: LinkProviderProfessionDto) {
@@ -33,7 +73,7 @@ export class ProviderProfessionService {
             await this.providerProfessionModel.create(dto);
 
             return { message: 'Profession linked to provider successfully!' };
-            
+
         } catch (error) {
             handleError(error);
         }
@@ -49,7 +89,7 @@ export class ProviderProfessionService {
             await this.providerProfessionModel.destroy({ where: { providerID, cityID, professionID } });
 
             return { message: 'Profession unlinked from provider successfully!' };
-            
+
         } catch (error) {
             handleError(error);
         }
@@ -59,12 +99,18 @@ export class ProviderProfessionService {
         try {
             const { cityID, professionID } = dto;
 
-            await RecordNotFoundException
+            const professionExists = await this.professionService.checkProfessionExists(professionID);
+            if (!professionExists) throw new BadRequestException('Profession not found');
 
-            const provider = await this.providerProfessionModel.findOne({ where: { cityID, professionID }, raw: true });
+            const cityExists = await this.locationService.checkCityExists(cityID);
+            if (!cityExists) throw new BadRequestException('City not found');
+
+            const provider = await this.providerProfessionModel.findAndCountAll({ where: { cityID, professionID }, raw: true });
+
             return provider;
         } catch (error) {
             handleError(error);
         }
     }
 }
+

@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ProfessionsModel } from '../global/models/profession.model';
-import { CitiesModel } from '../global/models/cities.model';
+import { ProfessionsModel } from './model/profession.model';
+import { CitiesModel } from '../location/model/cities.model';
 import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
 import { LocationService } from '../location/location.service';
-import { convertCityName } from 'src/utils/convertCityName.util';
 
 @Injectable()
 export class ProfessionService {
@@ -20,9 +19,8 @@ export class ProfessionService {
     async createProfession(dto: any) {
         const transaction = await this.sequelize.transaction();
         try {
-            const { cityName } = dto;
 
-            const professionCityID = await this.locationService.createCity({ cityName });
+            const professionCityID = await this.locationService.createCity(dto);
 
             await this.professionModel.create({ ...dto, cityID: professionCityID }, { transaction });
 
@@ -51,6 +49,22 @@ export class ProfessionService {
 
         } catch (error) {
             handleError(error);
+        }
+    }
+
+    async checkProfessionExists(professionID: number): Promise<Boolean> {
+        try {
+            const professionExists = await this.professionModel.findOne({ where: { professionID } });
+
+            if (professionExists) {
+                return true;
+            }
+
+            return false;
+
+        } catch (error) {
+            handleError(error);
+            return false;
         }
     }
 }
