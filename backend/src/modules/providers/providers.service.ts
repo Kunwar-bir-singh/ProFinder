@@ -4,10 +4,9 @@ import { ProvidersModel } from './model/providers.model';
 import { ProviderProfessionModel } from './model/provider-profession.model';
 import { handleError } from 'src/utils/handle.error';
 import { LinkProviderProfessionDto } from './dto/provider.profession.dto';
-import { ProfessionService } from '../profession/profession.service';
 import { LocationService } from '../location/location.service';
 import { Transaction } from 'sequelize';
-
+import { ProfessionService } from '../profession/profession.service';
 @Injectable()
 export class ProvidersService {
     constructor(
