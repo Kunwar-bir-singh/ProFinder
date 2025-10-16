@@ -1,5 +1,5 @@
-export class LinkProviderProfessionDto {
-    providerID: number;
-    cityID: number;
-    professionID: number;
+export class ProviderProfessionDto {
+  providerID: number;
+  cityID: number;
+  professionID: number;
 }
