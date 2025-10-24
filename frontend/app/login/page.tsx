@@ -1,70 +1,78 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { User, Building2, Phone, Mail, Eye, EyeOff, AlertCircle } from "lucide-react"
-import Link from "next/link"
-import { Header } from "@/components/header"
-import { useLoginMutation } from "@/lib/hooks"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import {
+  User,
+  Building2,
+  Phone,
+  Mail,
+  Eye,
+  EyeOff,
+  AlertCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { Header } from "@/components/header";
+import { useLoginMutation } from "@/lib/hooks";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [userType, setUserType] = useState<"user" | "provider">("user")
-  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username")
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+
+  const [userType, setUserType] = useState<"user" | "provider">("user");
+  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">(
+    "username"
+  );
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     mobile: "",
     password: "",
-  })
+  });
 
-  // RTK Query hooks
-  const [login, { isLoading, error }] = useLoginMutation()
+  const [login, { isLoading, error }] = useLoginMutation();
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()    
+    e.preventDefault();
     try {
-      // Prepare login credentials based on login method
       const credentials = {
-        email: loginMethod === "username" ? formData.username : formData.mobile,
+        [loginMethod === "username" ? "username" : "mobile"]:
+          loginMethod === "username" ? formData.username : formData.mobile,
         password: formData.password,
-      }
+      };
 
-      // Call the login mutation
-      const result = await login(credentials).unwrap()
+      const result = await login(credentials).unwrap();
       console.log(credentials);
-      
-      // console.log("Login successful:", result)
-      
-      // // Redirect based on user type or user data
-      // if (userType === "provider") {
-      //   router.push("/profile/edit") // Provider dashboard
-      // } else {
-      //   router.push("/") // User dashboard/home
-      // }
+
+      console.log("Login successful:", result);
+
+      // Redirect based on user type or user data
+      if (userType === "provider") {
+        router.push("/profile/edit");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
-      console.error("Login failed:", err)
-      // Error is automatically handled by RTK Query and displayed via the error state
+      console.error("Login failed:", err);
     }
-  }
+  };
 
   const handleGoogleLogin = () => {
-    console.log("Google login for:", userType)
+    console.log("Google login for:", userType);
     // Add Google OAuth logic here
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -73,72 +81,45 @@ export default function LoginPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h1>
-            <p className="text-slate-600">Sign in to your account to continue</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Welcome Back
+            </h1>
+            <p className="text-slate-600">
+              Sign in to your account to continue
+            </p>
           </div>
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-4">
               {/* User Type Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">I am a:</Label>
+                <Label className="text-sm font-medium text-slate-700">
+                  I am a:
+                </Label>
                 <Tabs
                   value={userType}
-                  onValueChange={(value) => setUserType(value as "user" | "provider")}
+                  onValueChange={(value) =>
+                    setUserType(value as "user" | "provider")
+                  }
                   className="w-full"
                 >
                   <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                    <TabsTrigger value="user" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="user"
+                      className="flex items-center gap-2"
+                    >
                       <User className="w-4 h-4" />
                       User
                     </TabsTrigger>
-                    <TabsTrigger value="provider" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="provider"
+                      className="flex items-center gap-2"
+                    >
                       <Building2 className="w-4 h-4" />
                       Provider
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-              </div>
-
-              {/* Login Method Toggle */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">Login with:</Label>
-                <div className="relative p-1 bg-slate-100 rounded-xl border border-slate-200">
-                  <div className="grid grid-cols-2 gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod("username")}
-                      disabled={isLoading}
-                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        loginMethod === "username"
-                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      <Mail className="w-4 h-4" />
-                      Username
-                      {loginMethod === "username" && (
-                        <div className="absolute inset-0 rounded-lg ring-2 ring-blue-500/20" />
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod("mobile")}
-                      disabled={isLoading}
-                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        loginMethod === "mobile"
-                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      <Phone className="w-4 h-4" />
-                      Mobile
-                      {loginMethod === "mobile" && (
-                        <div className="absolute inset-0 rounded-lg ring-2 ring-blue-500/20" />
-                      )}
-                    </button>
-                  </div>
-                </div>
               </div>
             </CardHeader>
 
@@ -148,10 +129,10 @@ export default function LoginPage() {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    {error && 'data' in error 
-                      ? (error.data as any)?.message || 'Login failed. Please check your credentials.'
-                      : 'Login failed. Please try again.'
-                    }
+                    {error && "data" in error
+                      ? (error.data as any)?.message ||
+                        "Login failed. Please check your credentials."
+                      : "Login failed. Please try again."}
                   </AlertDescription>
                 </Alert>
               )}
@@ -160,45 +141,60 @@ export default function LoginPage() {
                 {/* Username/Mobile Field with integrated toggle */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="login-field" className="text-sm font-medium text-slate-700">
-                      {loginMethod === "username" ? "Username" : "Mobile Number"}
+                    <Label
+                      htmlFor="login-field"
+                      className="text-sm font-medium text-slate-700"
+                    >
+                      {loginMethod === "username"
+                        ? "Username"
+                        : "Mobile Number"}
                     </Label>
                     <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod("username")}
-                      disabled={isLoading}
-                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        loginMethod === "username"
-                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      <Mail className="w-3 h-3" />
-                      Username
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod("mobile")}
-                      disabled={isLoading}
-                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        loginMethod === "mobile"
-                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      <Phone className="w-3 h-3" />
-                      Mobile
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setLoginMethod("username")}
+                        disabled={isLoading}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          loginMethod === "username"
+                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <Mail className="w-3 h-3" />
+                        Username
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLoginMethod("mobile")}
+                        disabled={isLoading}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          loginMethod === "mobile"
+                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <Phone className="w-3 h-3" />
+                        Mobile
+                      </button>
                     </div>
                   </div>
                   <div className="relative">
                     <Input
                       id="login-field"
                       type={loginMethod === "username" ? "text" : "tel"}
-                      placeholder={loginMethod === "username" ? "Enter your username" : "Enter your mobile number"}
-                      value={loginMethod === "username" ? formData.username : formData.mobile}
-                      onChange={(e) => handleInputChange(loginMethod, e.target.value)}
+                      placeholder={
+                        loginMethod === "username"
+                          ? "Enter your username"
+                          : "Enter your mobile number"
+                      }
+                      value={
+                        loginMethod === "username"
+                          ? formData.username
+                          : formData.mobile
+                      }
+                      onChange={(e) =>
+                        handleInputChange(loginMethod, e.target.value)
+                      }
                       disabled={isLoading}
                       className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       required
@@ -215,7 +211,10 @@ export default function LoginPage() {
 
                 {/* Password Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     Password
                   </Label>
                   <div className="relative">
@@ -224,13 +223,20 @@ export default function LoginPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
                       disabled={isLoading}
                       className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-4 h-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -244,21 +250,28 @@ export default function LoginPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 {/* Forgot Password */}
                 <div className="text-right">
-                  <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
                     Forgot password?
                   </Link>
                 </div>
 
                 {/* Login Button */}
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading}
                   className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -277,7 +290,9 @@ export default function LoginPage() {
               <div className="relative">
                 <Separator className="bg-slate-200" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-white px-3 text-sm text-slate-500">or</span>
+                  <span className="bg-white px-3 text-sm text-slate-500">
+                    or
+                  </span>
                 </div>
               </div>
 
@@ -313,7 +328,10 @@ export default function LoginPage() {
               <div className="text-center pt-4">
                 <p className="text-sm text-slate-600">
                   Don't have an account?{" "}
-                  <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link
+                    href="/register"
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
                     Sign up here
                   </Link>
                 </p>
@@ -323,5 +341,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

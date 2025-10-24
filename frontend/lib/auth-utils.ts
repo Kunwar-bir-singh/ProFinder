@@ -7,7 +7,11 @@ export const getStoredToken = (): string | null => {
 }
 
 export const setStoredToken = (token: string): void => {
+  console.log("typeof window", typeof window);
+  
   if (typeof window === 'undefined') return
+  console.log("Setting ", TOKEN_KEY, token);
+  
   localStorage.setItem(TOKEN_KEY, token)
 }
 
