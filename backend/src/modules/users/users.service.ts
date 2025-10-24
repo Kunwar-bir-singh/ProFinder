@@ -51,7 +51,7 @@ export class UsersService {
             const userExists = await this.userModel.findOne({
                 where: {
                     [Op.or]: [
-                        { username: username },
+                        { username: username || null },
                         { email: email || null },
                         { phone: phone || null }
                     ]

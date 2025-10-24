@@ -3,17 +3,21 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { User, Building2, Phone, Mail, Eye, EyeOff } from "lucide-react"
+import { User, Building2, Phone, Mail, Eye, EyeOff, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
+import { useLoginMutation } from "@/lib/hooks"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [userType, setUserType] = useState<"user" | "provider">("user")
   const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username")
   const [showPassword, setShowPassword] = useState(false)
@@ -23,14 +27,38 @@ export default function LoginPage() {
     password: "",
   })
 
+  // RTK Query hooks
+  const [login, { isLoading, error }] = useLoginMutation()
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Login attempt:", { userType, loginMethod, formData })
-    // Add your login logic here
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()    
+    try {
+      // Prepare login credentials based on login method
+      const credentials = {
+        email: loginMethod === "username" ? formData.username : formData.mobile,
+        password: formData.password,
+      }
+
+      // Call the login mutation
+      const result = await login(credentials).unwrap()
+      console.log(credentials);
+      
+      // console.log("Login successful:", result)
+      
+      // // Redirect based on user type or user data
+      // if (userType === "provider") {
+      //   router.push("/profile/edit") // Provider dashboard
+      // } else {
+      //   router.push("/") // User dashboard/home
+      // }
+    } catch (err) {
+      console.error("Login failed:", err)
+      // Error is automatically handled by RTK Query and displayed via the error state
+    }
   }
 
   const handleGoogleLogin = () => {
@@ -80,7 +108,8 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setLoginMethod("username")}
-                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      disabled={isLoading}
+                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         loginMethod === "username"
                           ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                           : "text-slate-600 hover:text-slate-900"
@@ -95,7 +124,8 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setLoginMethod("mobile")}
-                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      disabled={isLoading}
+                      className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         loginMethod === "mobile"
                           ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                           : "text-slate-600 hover:text-slate-900"
@@ -113,6 +143,19 @@ export default function LoginPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
+              {/* Error Display */}
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {error && 'data' in error 
+                      ? (error.data as any)?.message || 'Login failed. Please check your credentials.'
+                      : 'Login failed. Please try again.'
+                    }
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <form onSubmit={handleLogin} className="space-y-4">
                 {/* Username/Mobile Field with integrated toggle */}
                 <div className="space-y-2">
@@ -121,30 +164,32 @@ export default function LoginPage() {
                       {loginMethod === "username" ? "Username" : "Mobile Number"}
                     </Label>
                     <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
-                      <button
-                        type="button"
-                        onClick={() => setLoginMethod("username")}
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                          loginMethod === "username"
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        <Mail className="w-3 h-3" />
-                        Username
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setLoginMethod("mobile")}
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                          loginMethod === "mobile"
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        <Phone className="w-3 h-3" />
-                        Mobile
-                      </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("username")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        loginMethod === "username"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      <Mail className="w-3 h-3" />
+                      Username
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("mobile")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        loginMethod === "mobile"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      <Phone className="w-3 h-3" />
+                      Mobile
+                    </button>
                     </div>
                   </div>
                   <div className="relative">
@@ -154,7 +199,8 @@ export default function LoginPage() {
                       placeholder={loginMethod === "username" ? "Enter your username" : "Enter your mobile number"}
                       value={loginMethod === "username" ? formData.username : formData.mobile}
                       onChange={(e) => handleInputChange(loginMethod, e.target.value)}
-                      className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                      disabled={isLoading}
+                      className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -179,7 +225,8 @@ export default function LoginPage() {
                       placeholder="Enter your password"
                       value={formData.password}
                       onChange={(e) => handleInputChange("password", e.target.value)}
-                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                      disabled={isLoading}
+                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -210,8 +257,19 @@ export default function LoginPage() {
                 </div>
 
                 {/* Login Button */}
-                <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
-                  Sign In as {userType === "user" ? "User" : "Provider"}
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Signing In...
+                    </div>
+                  ) : (
+                    `Sign In as ${userType === "user" ? "User" : "Provider"}`
+                  )}
                 </Button>
               </form>
 
