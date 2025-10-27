@@ -132,7 +132,7 @@ export class AuthService {
             expiresAt: refreshExpiry
         })
 
-        res.cookie('refresh_token', refreshToken, {
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: this.configService.get('NODE_ENVIRONMENT') === 'production',
             sameSite: 'strict',
@@ -164,25 +164,31 @@ export class AuthService {
 
     /* Function to validate the refresh token 
     Used in : refreshTokens() */
-    async validateRefreshToken(userID: number, refreshToken: string) {
+    async validateRefreshToken(userID : number, refreshToken: string) {
+        
         const record = await this.refreshTokenModel.findOne({
             where: {
                 userID: userID,
                 expiresAt: { [Op.gt]: new Date() }
             },
             include: [{ model: UsersModel, as: 'user' }],
+            raw: true
         });
 
         if (!record) {
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
+        
+        const isExist = await this.hashService.comparePassword(refreshToken, record.token);
+        
+        if(!isExist) throw new UnauthorizedException('Invalid refresh token');
 
-        const isValid = await this.hashService.comparePassword(refreshToken, record.token);
-        if (!isValid) throw new UnauthorizedException('Invalid or expired refresh token');
-
+        if (record.expiresAt < new Date()) {
+            throw new UnauthorizedException('Refresh token has expired');
+        }
+        
         return {
-            userID: record.user.userID,
-            username: record.user.username,
+            userID: record.userID,
         };
     }
 

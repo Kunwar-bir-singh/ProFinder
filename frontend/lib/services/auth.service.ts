@@ -1,5 +1,5 @@
 import { api } from '../api'
-import { setStoredToken, clearAuthData } from '../auth-utils'
+import { setStoredToken, clearAuthData, updateStoredToken } from '../auth-utils'
 import type { 
   User, 
   LoginRequest, 
@@ -21,9 +21,9 @@ export const authService = api.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          // Store the access token from response body
-          if (data.data.access_token) {
-            setStoredToken(data.data.access_token)
+          // Store the access token in Redux store
+          if (data.data.accessToken) {
+            setStoredToken(data.data.accessToken)
           }
         } catch (error) {
           // Handle login error
@@ -43,9 +43,9 @@ export const authService = api.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          // Store the access token from response body
-          if (data.data.access_token) {
-            setStoredToken(data.data.access_token)
+          // Store the access token in Redux store
+          if (data.data.accessToken) {
+            setStoredToken(data.data.accessToken)
           }
         } catch (error) {
           // Handle registration error
@@ -119,18 +119,18 @@ export const authService = api.injectEndpoints({
     }),
 
     // Refresh token
-    refreshToken: builder.mutation<ApiResponse<{ access_token: string }>, { refresh_token: string }>({
-      query: (data) => ({
+    refreshToken: builder.mutation<ApiResponse<{ accessToken: string }>, void>({
+      query: () => ({
         url: '/auth/refresh',
         method: 'POST',
-        body: data,
+        body: {},
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          // Store the new access token
-          if (data.data.access_token) {
-            setStoredToken(data.data.access_token)
+          // Update the access token in Redux store
+          if (data.data.accessToken) {
+            updateStoredToken(data.data.accessToken)
           }
         } catch (error) {
           // Refresh failed, clear auth data

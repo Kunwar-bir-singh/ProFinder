@@ -11,7 +11,7 @@ export interface User {
 }
 
 export interface LoginRequest {
-  email: string
+  [key: string]: string
   password: string
 }
 
@@ -24,8 +24,8 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   user: User
-  access_token: string
-  // refresh_token is handled via cookies, not in response body
+  accessToken: string
+  // refreshToken is handled via cookies, not in response body
 }
 
 // Profession related types

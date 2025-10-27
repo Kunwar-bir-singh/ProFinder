@@ -1,19 +1,22 @@
-// Token management utilities
-export const TOKEN_KEY = 'access_token'
+// Token management utilities - now using Redux store
+import { store } from './store'
+import { setAccessToken, clearAuth, updateAccessToken } from './slices/authSlice'
 
 export const getStoredToken = (): string | null => {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(TOKEN_KEY)
+  const state = store.getState()
+  return state.auth.accessToken
 }
 
 export const setStoredToken = (token: string): void => {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(TOKEN_KEY, token)
+  store.dispatch(setAccessToken(token))
 }
 
 export const removeStoredToken = (): void => {
-  if (typeof window === 'undefined') return
-  localStorage.removeItem(TOKEN_KEY)
+  store.dispatch(clearAuth())
+}
+
+export const updateStoredToken = (token: string): void => {
+  store.dispatch(updateAccessToken(token))
 }
 
 // Check if token is expired (basic check, you might want to decode JWT for more accuracy)
@@ -30,10 +33,11 @@ export const isTokenExpired = (token: string): boolean => {
 // Get token from cookies (for refresh token)
 export const getRefreshTokenFromCookies = (): string | null => {
   if (typeof document === 'undefined') return null
+  console.log('document', document);
   
   const cookies = document.cookie.split(';')
   const refreshTokenCookie = cookies.find(cookie => 
-    cookie.trim().startsWith('refresh_token=')
+    cookie.trim().startsWith('refreshToken=')
   )
   
   if (refreshTokenCookie) {
@@ -48,6 +52,6 @@ export const clearAuthData = (): void => {
   removeStoredToken()
   // Clear refresh token cookie
   if (typeof document !== 'undefined') {
-    document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
   }
 }

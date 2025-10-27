@@ -3,10 +3,10 @@ export interface JwtPayload {
     username: string;
     email: string;
     lastPasswordChange: Date;
-    isProvider?: boolean
+    isProvider?: boolean;
 }
 
 export interface AuthenticatedUser {
-  id: number;
-  username: string;
+  userID: number;
 }
+

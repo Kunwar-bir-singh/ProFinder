@@ -25,7 +25,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @UseGuards(AuthGuard('jwt'))
     async changePassword(@Body() dto: any, @Req() req: Request) {
-        const { id: userID } = req.user!;
+        const { userID } = req.user!;
 
         const data = { userID, ...dto };
         
@@ -34,17 +34,17 @@ export class AuthController {
 
     @Post('refresh')
     @UseGuards(AuthGuard('jwt-refresh'))
-    async refreshTokens(@Req() req: Request, @Body() dto: IDTokenDto, @Res() res: Response) {
-        const refreshToken = req.cookies['refresh_token'];
-
-        const { userID } = dto;
+    async refreshTokens(@Req() req: Request,  @Res({ passthrough: true }) res: Response) {
+        console.log(" req:", req);
+        const {refreshToken} = req.cookies;
+        const { userID } = req.user!;
 
         return this.authService.refreshTokens(userID, refreshToken, res);
     }
 
     @Delete('logout')
     async logoutUser(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Body() dto: IDTokenDto,) {
-        const refreshToken = req.cookies['refresh_token'];
+        const refreshToken = req.cookies['refreshToken'];
 
         const { userID } = dto;
 
