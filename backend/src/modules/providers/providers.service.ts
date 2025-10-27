@@ -14,7 +14,7 @@ export class ProvidersService {
     private readonly providerModel: typeof ProvidersModel,
   ) {}
 
-  async createProvider(dto: any, transaction?: Transaction): Promise<Boolean> {
+  async createProvider(dto: any, transaction?: Transaction): Promise<boolean> {
     try {
       await this.providerModel.create(dto, {
         transaction: transaction || null,
@@ -26,7 +26,7 @@ export class ProvidersService {
     }
   }
 
-  async checkProviderExists(providerID: number): Promise<Boolean> {
+  async checkProviderExists(providerID: number): Promise<boolean> {
     try {
       const providerExists = await this.providerModel.findOne({
         where: { providerID },

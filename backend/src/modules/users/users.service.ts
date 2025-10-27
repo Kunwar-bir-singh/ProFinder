@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from './model/users.model';
 import { handleError } from 'src/utils/handle.error';
@@ -9,133 +13,148 @@ import { ProvidersService } from '../providers/providers.service';
 import { Sequelize } from 'sequelize-typescript';
 import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { ProvidersModel } from '../providers/model/providers.model';
+import { UserExistsDto } from '../auth/dto/auth.dto';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectModel(UsersModel)
+    private readonly userModel: typeof UsersModel,
+    @InjectModel(ProvidersModel)
+    private readonly providersModel: typeof ProvidersModel,
+    @InjectModel(UsersBookmarkModel)
+    private readonly usersBookmarkModel: typeof UsersBookmarkModel,
 
-    constructor(
-        @InjectModel(UsersModel)
-        private readonly userModel: typeof UsersModel,
-        @InjectModel(ProvidersModel)
-        private readonly providersModel: typeof ProvidersModel,
-        @InjectModel(UsersBookmarkModel)
-        private readonly usersBookmarkModel: typeof UsersBookmarkModel,
+    private readonly providersService: ProvidersService,
+    private readonly sequelize: Sequelize,
+  ) {}
 
-        private readonly providersService: ProvidersService,
-        private readonly sequelize: Sequelize,
-    ) { }
+  async createUser(dto: any, transaction?: Transaction) {
+    try {
+      if (await this.checkUserExists(dto))
+        throw new ConflictException('User already exists');
 
-    async createUser(dto: any, transaction?: Transaction) {
-        try {
+      const userCreated = await this.userModel.create(dto, { transaction });
 
-            if (await this.checkUserExists(dto)) throw new ConflictException('User already exists');
+      if (dto.isProvider) {
+        await this.providersService.createProvider(
+          { ...dto, userID: userCreated.userID },
+          transaction,
+        );
+      }
 
-            const userCreated = await this.userModel.create(dto, { transaction });
-
-            if (dto.isProvider) {
-                await this.providersService.createProvider({ ...dto, userID: userCreated.userID }, transaction);
-            }
-
-            return true;
-
-        } catch (error) {
-            handleError(error);
-            return false;
-        }
+      return true;
+    } catch (error) {
+      handleError(error);
+      return false;
     }
+  }
 
-    async checkUserExists(dto: any): Promise<UsersModel | null> {
-        try {
+  async checkUserExists(dto: UserExistsDto): Promise<UsersModel | null> {
+    try {
+      const { username, email, phone } = dto;
+      const userExists = await this.userModel.findOne({
+        where: {
+          [Op.or]: [
+            { username: { [Op.eq]: username } },
+            { email: { [Op.eq]: email } },
+            { phone: { [Op.eq]: phone } },
+          ],
+        },
+        raw: true,
+      });
 
-            const { username, email, phone } = dto;
-            const userExists = await this.userModel.findOne({
-                where: {
-                    [Op.or]: [
-                        { username: username || null },
-                        { email: email || null },
-                        { phone: phone || null }
-                    ]
-                },
-                raw: true
-            });
-            if (userExists) return userExists;
-            return null;
-        } catch (error) {
-            handleError(error);
-            return null;
-        }
+      if (userExists) return userExists;
+      return null;
+    } catch (error) {
+      handleError(error);
+      return null;
     }
+  }
 
-    async getUser(userID: number) {
-        try {
-            return await this.userModel.findOne({
-                where: { userID }, raw: true, include: {
-                    model: this.providersModel,
-                    as: 'provider',
-                    attributes: ['providerID', 'description']
-                }
-            });
-
-        } catch (error) {
-            handleError(error);
-        }
+  async getUser(userID: number) {
+    try {
+      return await this.userModel.findOne({
+        where: { userID },
+        raw: true,
+        include: {
+          model: this.providersModel,
+          as: 'provider',
+          attributes: ['providerID', 'description'],
+        },
+      });
+    } catch (error) {
+      handleError(error);
     }
+  }
 
-    async getBookmarkedPrvoiders(userID: number) {
-        try {
-            const bookmarks = await this.usersBookmarkModel.findOne({ where: { userID }, raw: true });
+  async getBookmarkedPrvoiders(userID: number) {
+    try {
+      const bookmarks = await this.usersBookmarkModel.findOne({
+        where: { userID },
+        raw: true,
+      });
 
-            return bookmarks || [];
-        } catch (error) {
-            handleError(error);
-        }
+      return bookmarks || [];
+    } catch (error) {
+      handleError(error);
     }
+  }
 
-    async updateUser(dto: any): Promise<Boolean> {
-        const transaction = await this.sequelize.transaction();
-        try {
-            const { userID } = dto;
+  async updateUser(dto: any): Promise<Boolean> {
+    const transaction = await this.sequelize.transaction();
+    try {
+      const { userID } = dto;
 
-            await RecordNotFoundException(userID, await this.userModel.findOne({ where: { userID }, raw: true }));
+      await RecordNotFoundException(
+        userID,
+        await this.userModel.findOne({ where: { userID }, raw: true }),
+      );
 
-            await this.userModel.update(dto, { where: { userID }, transaction });
+      await this.userModel.update(dto, { where: { userID }, transaction });
 
-            if (dto.isProvider) {
-                await this.providersService.updateProvider(dto, transaction);
-            }
-            return true;
-
-        } catch (error) {
-            await transaction.rollback();
-            handleError(error);
-            return false;
-        }
+      if (dto.isProvider) {
+        await this.providersService.updateProvider(dto, transaction);
+      }
+      return true;
+    } catch (error) {
+      await transaction.rollback();
+      handleError(error);
+      return false;
     }
+  }
 
-    async createOrUpdateProviderBookmark(dto: UserAndProviderDTo) {
-        try {
-            const { userID, providerID } = dto;
+  async createOrUpdateProviderBookmark(dto: UserAndProviderDTo) {
+    try {
+      const { userID, providerID } = dto;
 
-            await RecordNotFoundException(this.userModel, { userID }, 'User not found');
-            await RecordNotFoundException(this.providersModel, { providerID }, 'Provider not found');
+      await RecordNotFoundException(
+        this.userModel,
+        { userID },
+        'User not found',
+      );
+      await RecordNotFoundException(
+        this.providersModel,
+        { providerID },
+        'Provider not found',
+      );
 
-            const alreadyBookmarked = await this.usersBookmarkModel.findOne({ where: { userID, providerID } });
+      const alreadyBookmarked = await this.usersBookmarkModel.findOne({
+        where: { userID, providerID },
+      });
 
-            if (alreadyBookmarked) {
-                await this.usersBookmarkModel.destroy({ where: { userID, providerID } });
-                return { message: 'Provider unbookmarked successfully!' };
-            }
+      if (alreadyBookmarked) {
+        await this.usersBookmarkModel.destroy({
+          where: { userID, providerID },
+        });
+        return { message: 'Provider unbookmarked successfully!' };
+      }
 
-            await this.usersBookmarkModel.create(dto);
+      await this.usersBookmarkModel.create(dto);
 
-            return { message: 'Provider bookmarked successfully!' };
-
-        } catch (error) {
-            handleError(error);
-        }
+      return { message: 'Provider bookmarked successfully!' };
+    } catch (error) {
+      handleError(error);
     }
-
-
-
-
+  }
 }

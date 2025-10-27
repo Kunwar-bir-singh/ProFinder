@@ -59,6 +59,7 @@ const baseQueryWithReauth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(args, api, extraOptions);
 
   // If we get a 401 error
   if (result.error && result.error.status === 401) {
@@ -82,6 +83,7 @@ const baseQueryWithReauth: BaseQueryFn<
         },
         api,
         extraOptions
+      );
       );
 
       if (refreshResult.data) {
@@ -114,11 +116,14 @@ const baseQueryWithReauth: BaseQueryFn<
 
   return result;
 };
+  return result;
+};
 
 // Create the base API slice
 export const api = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Profession', 'Provider', 'Search'],
+  tagTypes: ["User", "Profession", "Provider", "Search"],
   endpoints: () => ({}),
+});
 });

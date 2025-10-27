@@ -13,17 +13,15 @@ import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports:
-    [ConfigModule.forRoot(
-      {
-        isGlobal: true,
-        envFilePath: '.env',
-      }
-    ),
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: '' + process.env.DB_HOST || 'localhost',
-      port: parseInt((process.env.DB_PORT ?? '16345'), 10),
+      port: parseInt(process.env.DB_PORT ?? '16345', 10),
       username: '' + process.env.DB_USER || 'postgres',
       password: '' + process.env.DB_PASSWORD || 'postgres',
       database: '' + process.env.DB_NAME || 'profinder',
@@ -32,19 +30,26 @@ import { AuthModule } from './modules/auth/auth.module';
       logging: console.log,
       timezone: '+05:30',
       retry: {
-        max: 3,         
-        timeout: 3000,  
+        max: 3,
+        timeout: 3000,
       },
     }),
 
-    SequelizeModule.forFeature(
-      [TestModel]
-    ), GlobalModule, AuthModule, UsersModule, ProvidersModule, ProfessionModule],
+    SequelizeModule.forFeature([TestModel]),
+    GlobalModule,
+    AuthModule,
+    UsersModule,
+    ProvidersModule,
+    ProfessionModule,
+  ],
 
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_FILTER,
-    useClass: HttpExceptionFilter
-  }],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}
