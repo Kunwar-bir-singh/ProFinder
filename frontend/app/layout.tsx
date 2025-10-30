@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ReduxProvider } from "@/components/providers/redux-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
   title: "Professional Services Directory",
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <ReduxProvider>
           <AuthProvider>
+            <Header /> 
             {children}
           </AuthProvider>
         </ReduxProvider>

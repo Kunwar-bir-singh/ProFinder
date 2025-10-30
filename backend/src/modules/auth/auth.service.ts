@@ -106,10 +106,10 @@ export class AuthService {
     }
   }
 
-  async logoutUser(userID: number, refreshToken: string, res: Response) {
+  async logoutUser(userID: number,  res: Response) {
     res.clearCookie('refreshToken', { path: '/' });
 
-    await this.deleteRefreshToken(userID, refreshToken);
+    await this.deleteRefreshToken(userID);
   }
 
   /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
@@ -175,7 +175,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
 
     // Delete old refresh token
-    await this.deleteRefreshToken(userID, refreshToken);
+    await this.deleteRefreshToken(userID);
 
     // Create new refresh token
     return this.generateTokens(user, res);
@@ -213,20 +213,20 @@ export class AuthService {
 
   /* Function to delete the refresh token 
     Used in : refreshTokens() */
-  async deleteRefreshToken(userID: number, refreshToken?: string) {
-    const record = await this.refreshTokenModel.findOne({
-      where: { userID },
-      raw: true,
-    });
+  async deleteRefreshToken(userID: number) {
+    // const record = await this.refreshTokenModel.findOne({
+    //   where: { userID },
+    //   raw: true,
+    // });
 
-    if (record && refreshToken) {
-      const isValid = await this.hashService.comparePassword(
-        refreshToken,
-        record.token,
-      );
+    // if (record && refreshToken) {
+    //   const isValid = await this.hashService.comparePassword(
+    //     refreshToken,
+    //     record.token,
+    //   );
 
-      if (!isValid) throw new UnauthorizedException('Invalid refresh token');
-    }
+    //   if (!isValid) throw new UnauthorizedException('Invalid refresh token');
+    // }
 
     await this.refreshTokenModel.destroy({
       where: {
