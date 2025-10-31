@@ -1,49 +1,55 @@
-import { api } from '../api'
-import type { 
-  Profession, 
-  CreateProfessionRequest,
-  ApiResponse,
-  PaginationParams 
-} from '../types'
+import { ApiResponse } from "@/lib/utils/types";
+import { api } from "../api";
+
 
 export const professionService = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get all professions
-    getProfessions: builder.query<ApiResponse<Profession[]>, PaginationParams | void>({
+    getProfessions: builder.query<
+      ApiResponse<Profession[]>,
+      PaginationParams
+       | void
+    >({
       query: (params = {}) => ({
-        url: '/professions',
-        method: 'GET',
+        url: "/professions",
+        method: "GET",
         params,
       }),
-      providesTags: ['Profession'],
+      providesTags: ["Profession"],
     }),
 
     // Get profession by ID
     getProfessionById: builder.query<ApiResponse<Profession>, string>({
       query: (id) => `/professions/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Profession', id }],
+      providesTags: (result, error, id) => [{ type: "Profession", id }],
     }),
 
     // Create new profession
-    createProfession: builder.mutation<ApiResponse<Profession>, CreateProfessionRequest>({
+    createProfession: builder.mutation<
+      ApiResponse<Profession>,
+      CreateProfessionRequest
+    >({
       query: (professionData) => ({
-        url: '/professions',
-        method: 'POST',
+        url: "/professions",
+        method: "POST",
         body: professionData,
       }),
-      invalidatesTags: ['Profession'],
+      invalidatesTags: ["Profession"],
     }),
 
     // Update profession
-    updateProfession: builder.mutation<ApiResponse<Profession>, { id: string; data: Partial<CreateProfessionRequest> }>({
+    updateProfession: builder.mutation<
+      ApiResponse<Profession>,
+      { id: string; data: Partial<CreateProfessionRequest> }
+    >({
       query: ({ id, data }) => ({
         url: `/professions/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Profession', id },
-        'Profession'
+        { type: "Profession", id },
+        "Profession",
       ],
     }),
 
@@ -51,28 +57,31 @@ export const professionService = api.injectEndpoints({
     deleteProfession: builder.mutation<ApiResponse<null>, string>({
       query: (id) => ({
         url: `/professions/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Profession'],
+      invalidatesTags: ["Profession"],
     }),
 
     // Get professions by category
     getProfessionsByCategory: builder.query<ApiResponse<Profession[]>, string>({
       query: (category) => `/professions/category/${category}`,
-      providesTags: ['Profession'],
+      providesTags: ["Profession"],
     }),
 
     // Search professions
-    searchProfessions: builder.query<ApiResponse<Profession[]>, { query: string; category?: string }>({
+    searchProfessions: builder.query<
+      ApiResponse<Profession[]>,
+      { query: string; category?: string }
+    >({
       query: ({ query, category }) => ({
-        url: '/professions/search',
-        method: 'GET',
+        url: "/professions/search",
+        method: "GET",
         params: { q: query, category },
       }),
-      providesTags: ['Profession'],
+      providesTags: ["Profession"],
     }),
   }),
-})
+});
 
 export const {
   useGetProfessionsQuery,
@@ -82,4 +91,4 @@ export const {
   useDeleteProfessionMutation,
   useGetProfessionsByCategoryQuery,
   useSearchProfessionsQuery,
-} = professionService
+} = professionService;

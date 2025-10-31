@@ -5,13 +5,17 @@ import Link from 'next/link'
 import { useSelector } from 'react-redux'
 import { LogOut, Settings, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
+import { useLogoutMutation } from '@/lib/api/services'
 
 export function Header() {
   const [mounted, setMounted] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
+  const router = useRouter()
 
   const { isAuthenticated, user } = useSelector((state: any) => state.auth)
+  const [logout, { isLoading }] = useLogoutMutation() // ✅ RTK Query logout mutation
 
   // Set mounted after first client render
   useEffect(() => {
@@ -29,13 +33,14 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  if (!mounted) {
-    // ✅ Early return happens *after* all hooks are declared
-    return null
-  }
+  if (!mounted) return null
 
-  const handleLogout = () => {
-    console.log('Logging out...')
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap() 
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (
@@ -112,10 +117,11 @@ export function Header() {
 
                     <button
                       onClick={handleLogout}
+                      disabled={isLoading}
                       className="flex items-center gap-2 px-4 py-2 text-left w-full hover:bg-gray-100"
                     >
                       <LogOut className="h-4 w-4" />
-                      Log out
+                      {isLoading ? 'Logging out…' : 'Log out'}
                     </button>
                   </div>
                 </div>

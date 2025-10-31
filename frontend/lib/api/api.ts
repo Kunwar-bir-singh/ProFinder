@@ -4,14 +4,8 @@ import type {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import {
-  getStoredToken,
-  updateStoredToken,
-  removeStoredToken,
-  isTokenExpired,
-  clearAuthData,
-} from "./auth-utils";
-import type { RootState } from "./store";
+import { clearAuthData, isTokenExpired, updateStoredToken } from "../utils/auth-utils";
+
 
 // Define the base URL for your API
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -37,8 +31,8 @@ const isAuthEndpoint = (url: string | FetchArgs): boolean => {
 const baseQuery = fetchBaseQuery({
   baseUrl,
   prepareHeaders: (headers, { getState }) => {
-    const state = getState() as RootState;
-    const token = state.auth.accessToken;
+  const state = getState() as { auth?: { accessToken?: string } }
+    const token = state?.auth?.accessToken;
 
     if (token && !isTokenExpired(token)) {
       headers.set("authorization", `Bearer ${token}`);

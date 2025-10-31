@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useRefreshTokenMutation } from '../services/auth.service'
-import { clearAuthData } from '../auth-utils'
 import { setAccessToken, clearAuth } from '../slices/authSlice'
+import { useRefreshTokenMutation } from './hooks'
 
 export const useAuthInitialization = () => {
   const dispatch = useDispatch()
@@ -15,7 +14,7 @@ export const useAuthInitialization = () => {
         console.log('🔄 App refresh: Attempting to get new access token...')
         
         // Call refresh API without passing refresh token - backend will read it from httpOnly cookie
-        const result = await refreshToken({}).unwrap()
+        const result = await refreshToken().unwrap()
         
         if (result.data?.accessToken) {
           console.log('✅ App refresh: Successfully got new access token')

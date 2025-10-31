@@ -6,7 +6,7 @@ import {
   useRegisterMutation, 
   useGetCurrentUserQuery, 
   useLogoutMutation 
-} from '@/lib/hooks'
+} from '@/lib/hooks/hooks'
 import { getStoredToken, clearAuthData } from '@/lib/auth-utils'
 
 export function AuthExample() {

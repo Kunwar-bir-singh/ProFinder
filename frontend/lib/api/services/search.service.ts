@@ -1,10 +1,5 @@
-import { api } from '../api'
-import type { 
-  Provider, 
-  SearchFilters,
-  SearchResponse,
-  PaginationParams 
-} from '../types'
+import { ApiResponse } from "@/lib/utils/types";
+import { api } from "../api";
 
 export const searchService = api.injectEndpoints({
   endpoints: (builder) => ({

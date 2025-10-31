@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/header";
-import { useLoginMutation } from "@/lib/hooks";
+import { useLoginMutation } from "@/lib/hooks/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {

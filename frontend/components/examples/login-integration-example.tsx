@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLoginMutation, useGetCurrentUserQuery } from '@/lib/hooks'
+import { useLoginMutation, useGetCurrentUserQuery } from '@/lib/hooks/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

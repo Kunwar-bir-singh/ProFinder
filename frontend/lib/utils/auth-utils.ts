@@ -1,6 +1,5 @@
-// Token management utilities - now using Redux store
-import { store } from './store'
-import { setAccessToken, clearAuth, updateAccessToken } from './slices/authSlice'
+import { clearAuth, setAccessToken, updateAccessToken } from "../slices/authSlice"
+import { store } from "../store"
 
 export const getStoredToken = (): string | null => {
   const state = store.getState()

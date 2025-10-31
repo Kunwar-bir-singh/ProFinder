@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetProfessionsQuery, useSearchProvidersQuery } from '@/lib/hooks'
+import { useGetProfessionsQuery, useSearchProvidersQuery } from '@/lib/hooks/hooks'
 import { useState } from 'react'
 
 export function RTKExample() {

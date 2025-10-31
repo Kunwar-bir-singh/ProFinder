@@ -1,33 +1,28 @@
-import { api } from '../api'
-import { setStoredToken, clearAuthData, updateStoredToken } from '../auth-utils'
-import type { 
-  User, 
-  LoginRequest, 
-  RegisterRequest, 
-  AuthResponse,
-  ApiResponse 
-} from '../types'
+import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@/lib/utils/types";
+import { api } from "../api";
+import { clearAuthData, setStoredToken, updateStoredToken } from "@/lib/utils/auth-utils";
+
 
 export const authService = api.injectEndpoints({
   endpoints: (builder) => ({
     // Login user
     login: builder.mutation<ApiResponse<AuthResponse>, LoginRequest>({
       query: (credentials) => ({
-        url: '/auth/login',
-        method: 'POST',
+        url: "/auth/login",
+        method: "POST",
         body: credentials,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
+          const { data } = await queryFulfilled;
           // Store the access token in Redux store
           if (data.data.accessToken) {
-            setStoredToken(data.data.accessToken)
+            setStoredToken(data.data.accessToken);
           }
         } catch (error) {
           // Handle login error
-          console.error('Login failed:', error)
+          console.error("Login failed:", error);
         }
       },
     }),
@@ -35,47 +30,45 @@ export const authService = api.injectEndpoints({
     // Register user
     register: builder.mutation<ApiResponse<AuthResponse>, RegisterRequest>({
       query: (userData) => ({
-        url: '/auth/register',
-        method: 'POST',
+        url: "/auth/register",
+        method: "POST",
         body: userData,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
+          const { data } = await queryFulfilled;
           // Store the access token in Redux store
           if (data.data.accessToken) {
-            setStoredToken(data.data.accessToken)
+            setStoredToken(data.data.accessToken);
           }
         } catch (error) {
           // Handle registration error
-          console.error('Registration failed:', error)
+          console.error("Registration failed:", error);
         }
       },
     }),
 
     // Get current user
     getCurrentUser: builder.query<ApiResponse<User>, void>({
-      query: () => '/auth/me',
-      providesTags: ['User'],
+      query: () => "/auth/me",
+      providesTags: ["User"],
     }),
 
     // Logout user
     logout: builder.mutation<ApiResponse<null>, void>({
       query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
+        url: "/auth/logout",
+        method: "DELETE",
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          await queryFulfilled;
           // Clear all auth data on successful logout
-          clearAuthData()
+          clearAuthData();
         } catch (error) {
-          // Even if logout fails on server, clear local auth data
-          clearAuthData()
-          console.error('Logout failed:', error)
+          console.error("Logout failed:", error);
         }
       },
     }),
@@ -83,37 +76,43 @@ export const authService = api.injectEndpoints({
     // Update user profile
     updateProfile: builder.mutation<ApiResponse<User>, Partial<User>>({
       query: (userData) => ({
-        url: '/auth/profile',
-        method: 'PUT',
+        url: "/auth/profile",
+        method: "PUT",
         body: userData,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
 
     // Verify email
     verifyEmail: builder.mutation<ApiResponse<null>, { token: string }>({
       query: ({ token }) => ({
-        url: '/auth/verify-email',
-        method: 'POST',
+        url: "/auth/verify-email",
+        method: "POST",
         body: { token },
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
 
     // Request password reset
-    requestPasswordReset: builder.mutation<ApiResponse<null>, { email: string }>({
+    requestPasswordReset: builder.mutation<
+      ApiResponse<null>,
+      { email: string }
+    >({
       query: (data) => ({
-        url: '/auth/forgot-password',
-        method: 'POST',
+        url: "/auth/forgot-password",
+        method: "POST",
         body: data,
       }),
     }),
 
     // Reset password
-    resetPassword: builder.mutation<ApiResponse<null>, { token: string; password: string }>({
+    resetPassword: builder.mutation<
+      ApiResponse<null>,
+      { token: string; password: string }
+    >({
       query: (data) => ({
-        url: '/auth/reset-password',
-        method: 'POST',
+        url: "/auth/reset-password",
+        method: "POST",
         body: data,
       }),
     }),
@@ -121,26 +120,26 @@ export const authService = api.injectEndpoints({
     // Refresh token
     refreshToken: builder.mutation<ApiResponse<{ accessToken: string }>, void>({
       query: () => ({
-        url: '/auth/refresh',
-        method: 'POST',
+        url: "/auth/refresh",
+        method: "POST",
         body: {},
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
+          const { data } = await queryFulfilled;
           // Update the access token in Redux store
           if (data.data.accessToken) {
-            updateStoredToken(data.data.accessToken)
+            updateStoredToken(data.data.accessToken);
           }
         } catch (error) {
           // Refresh failed, clear auth data
-          clearAuthData()
-          console.error('Token refresh failed:', error)
+          clearAuthData();
+          console.error("Token refresh failed:", error);
         }
       },
     }),
   }),
-})
+});
 
 export const {
   useLoginMutation,
@@ -152,4 +151,4 @@ export const {
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
   useRefreshTokenMutation,
-} = authService
+} = authService;
