@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { 
   useLoginMutation, 
   useRegisterMutation, 
-  useGetCurrentUserQuery, 
+  usegetUserDetailsQuery, 
   useLogoutMutation 
 } from '@/lib/hooks/hooks'
 import { getStoredToken, clearAuthData } from '@/lib/auth-utils'
@@ -22,7 +22,7 @@ export function AuthExample() {
   const [login, { isLoading: loginLoading, error: loginError }] = useLoginMutation()
   const [register, { isLoading: registerLoading, error: registerError }] = useRegisterMutation()
   const [logout, { isLoading: logoutLoading }] = useLogoutMutation()
-  const { data: user, isLoading: userLoading, error: userError } = useGetCurrentUserQuery()
+  const { data: user, isLoading: userLoading, error: userError } = usegetUserDetailsQuery()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

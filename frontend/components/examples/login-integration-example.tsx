@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLoginMutation, useGetCurrentUserQuery } from '@/lib/hooks/hooks'
+import { useLoginMutation, usegetUserDetailsQuery } from '@/lib/hooks/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,7 +17,7 @@ export function LoginIntegrationExample() {
 
   // RTK Query hooks
   const [login, { isLoading, error }] = useLoginMutation()
-  const { data: user, isLoading: userLoading } = useGetCurrentUserQuery()
+  const { data: user, isLoading: userLoading } = usegetUserDetailsQuery()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

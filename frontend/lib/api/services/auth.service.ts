@@ -1,7 +1,16 @@
-import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from "@/lib/utils/types";
-import { api } from "../api";
-import { clearAuthData, setStoredToken, updateStoredToken } from "@/lib/utils/auth-utils";
-
+import {
+  ApiResponse,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
+} from "@/lib/utils/types/types";
+import { api } from "@/lib/api/api";
+import {
+  clearAuthData,
+  setStoredToken,
+  updateStoredToken,
+} from "@/lib/utils/auth-utils";
 
 export const authService = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -49,11 +58,7 @@ export const authService = api.injectEndpoints({
       },
     }),
 
-    // Get current user
-    getCurrentUser: builder.query<ApiResponse<User>, void>({
-      query: () => "/auth/me",
-      providesTags: ["User"],
-    }),
+ 
 
     // Logout user
     logout: builder.mutation<ApiResponse<null>, void>({
@@ -73,25 +78,6 @@ export const authService = api.injectEndpoints({
       },
     }),
 
-    // Update user profile
-    updateProfile: builder.mutation<ApiResponse<User>, Partial<User>>({
-      query: (userData) => ({
-        url: "/auth/profile",
-        method: "PUT",
-        body: userData,
-      }),
-      invalidatesTags: ["User"],
-    }),
-
-    // Verify email
-    verifyEmail: builder.mutation<ApiResponse<null>, { token: string }>({
-      query: ({ token }) => ({
-        url: "/auth/verify-email",
-        method: "POST",
-        body: { token },
-      }),
-      invalidatesTags: ["User"],
-    }),
 
     // Request password reset
     requestPasswordReset: builder.mutation<
@@ -144,10 +130,7 @@ export const authService = api.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useGetCurrentUserQuery,
   useLogoutMutation,
-  useUpdateProfileMutation,
-  useVerifyEmailMutation,
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
   useRefreshTokenMutation,

@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/lib/utils/types";
+import { ApiResponse } from "@/lib/utils/types/types";
 import { api } from "../api";
 
 

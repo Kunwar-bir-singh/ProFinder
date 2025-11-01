@@ -100,11 +100,11 @@ export function Header() {
 
                   <div className="flex flex-col text-sm">
                     <Link
-                      href="/profile/edit"
+                      href="/profile"
                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
                     >
                       <User className="h-4 w-4" />
-                      Edit Profile
+                      My Profile
                     </Link>
 
                     <Link

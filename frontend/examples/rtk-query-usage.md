@@ -7,11 +7,11 @@ This document shows how to use the RTK Query setup in your ProFinder application
 ### 1. Authentication
 
 ```tsx
-import { useLoginMutation, useGetCurrentUserQuery } from '@/lib/hooks'
+import { useLoginMutation, usegetUserDetailsQuery } from '@/lib/hooks'
 
 function LoginComponent() {
   const [login, { isLoading, error }] = useLoginMutation()
-  const { data: user, isLoading: userLoading } = useGetCurrentUserQuery()
+  const { data: user, isLoading: userLoading } = usegetUserDetailsQuery()
 
   const handleLogin = async (credentials) => {
     try {

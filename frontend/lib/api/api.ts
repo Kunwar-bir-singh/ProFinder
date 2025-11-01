@@ -92,12 +92,12 @@ const baseQueryWithReauth: BaseQueryFn<
         console.log("❌ Token refresh failed, redirecting to login");
         clearAuthData();
 
-        if (
-          typeof window !== "undefined" &&
-          window.location.pathname !== "/login"
-        ) {
-          window.location.href = "/login";
-        }
+        // if (
+        //   typeof window !== "undefined" &&
+        //   window.location.pathname !== "/login"
+        // ) {
+        //   window.location.href = "/login";
+        // }
       }
     } catch (error) {
       console.error("❌ Token refresh error:", error);

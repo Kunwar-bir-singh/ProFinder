@@ -14,6 +14,8 @@ import { Sequelize } from 'sequelize-typescript';
 import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { ProvidersModel } from '../providers/model/providers.model';
 import { UserExistsDto } from '../auth/dto/auth.dto';
+import { LocationService } from '../location/location.service';
+import { CitiesModel } from '../location/model/cities.model';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +28,7 @@ export class UsersService {
     private readonly usersBookmarkModel: typeof UsersBookmarkModel,
 
     private readonly providersService: ProvidersService,
+    private readonly locationService: LocationService,
     private readonly sequelize: Sequelize,
   ) {}
 
@@ -72,16 +75,23 @@ export class UsersService {
     }
   }
 
-  async getUser(userID: number) {
+  async getUserDetails(userID: number) {
     try {
       return await this.userModel.findOne({
         where: { userID },
         raw: true,
-        include: {
+        attributes: { exclude: ['password'] },
+        include: [{
           model: this.providersModel,
           as: 'provider',
           attributes: ['providerID', 'description'],
         },
+        {
+          model: CitiesModel,
+          as: 'city',
+          attributes: ['cityID', 'cityName'],
+        }
+      ]
       });
     } catch (error) {
       handleError(error);
@@ -101,7 +111,7 @@ export class UsersService {
     }
   }
 
-  async updateUser(dto: any): Promise<Boolean> {
+  async updateUserDetails(dto: any): Promise<Boolean> {
     const transaction = await this.sequelize.transaction();
     try {
       const { userID } = dto;
@@ -111,7 +121,12 @@ export class UsersService {
         await this.userModel.findOne({ where: { userID }, raw: true }),
       );
 
-      await this.userModel.update(dto, { where: { userID }, transaction });
+      const city = await this.locationService.findOrCreateCity({
+        city: dto.city,
+        userID: dto.userID,
+      });
+
+      await this.userModel.update({...dto, cityID: city?.cityID }, { where: { userID }, transaction });
 
       if (dto.isProvider) {
         await this.providersService.updateProvider(dto, transaction);

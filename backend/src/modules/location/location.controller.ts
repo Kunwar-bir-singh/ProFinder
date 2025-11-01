@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateCityDto } from './dto/location.dto';
+import { findOrCreateCityDto } from './dto/location.dto';
 
 @Controller('location')
 export class LocationController {
@@ -18,10 +18,10 @@ export class LocationController {
 
     @Post()
     @UseGuards(AuthGuard('jwt'))
-    async createCity(@Body() dto: CreateCityDto, @Req() req) {
+    async findOrCreateCity(@Body() dto: findOrCreateCityDto, @Req() req) {
         const { userID } = req.user!;
         dto.userID = userID;
-        return await this.locationService.createCity(dto);
+        return await this.locationService.findOrCreateCity(dto);
     }
 
     @Delete()

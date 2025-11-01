@@ -1,7 +1,7 @@
 import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { Column } from "sequelize-typescript"
 
-export class CreateCityDto {
+export class findOrCreateCityDto {
     @Column
     @IsString()
     @IsNotEmpty()

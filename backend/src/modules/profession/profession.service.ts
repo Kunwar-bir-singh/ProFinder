@@ -20,7 +20,7 @@ export class ProfessionService {
   async createProfession(dto: any) {
     const transaction = await this.sequelize.transaction();
     try {
-      const professionCityID = await this.locationService.createCity(dto);
+      const professionCityID = await this.locationService.findOrCreateCity(dto);
 
       await this.professionModel.create(
         { ...dto, cityID: professionCityID },

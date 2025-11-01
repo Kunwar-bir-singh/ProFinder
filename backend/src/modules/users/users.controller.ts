@@ -3,18 +3,18 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserAndProviderDTo } from '../global/dto/common.dto';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
     constructor(
         private readonly usersService: UsersService
     ) { }
 
-    @Get('details')
+    @Get('profile')
     @UseGuards(AuthGuard('jwt'))
     async getUser(@Request() req) {
         const { userID } = req.user!;
         
-        return await this.usersService.getUser(userID);
+        return await this.usersService.getUserDetails(userID);
     }
 
     @Get('bookmarks')

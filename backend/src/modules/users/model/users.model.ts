@@ -58,7 +58,7 @@ export class UsersModel extends Model<
     type: DataType.INTEGER,
     allowNull: true,
   })
-  providerID?: number;
+  cityID?: number;
 
   @Column({
     type: DataType.STRING,

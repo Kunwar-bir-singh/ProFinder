@@ -5,7 +5,7 @@ import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
 import { convertNameToRaw } from 'src/utils/convertCityName.util';
 import { RecordDuplicateException, RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
-import { CreateCityDto } from './dto/location.dto';
+import { findOrCreateCityDto } from './dto/location.dto';
 import { Op } from 'sequelize';
 
 @Injectable()
@@ -25,19 +25,17 @@ export class LocationService {
         }
     }
 
-    async createCity(dto: CreateCityDto): Promise<CitiesModel | Boolean> {
+    async findOrCreateCity(dto: findOrCreateCityDto): Promise<CitiesModel | undefined> {
         const transaction = await this.sequelize.transaction();
         try {
             const { city } = dto;
 
             const rawName = convertNameToRaw(city);
 
-            await RecordDuplicateException(this.citiesModel, { rawName }, 'City already exists');
-
             const cityExists = await this.checkCityExists<string>(rawName);
 
             if (cityExists) {
-                return cityExists;
+                return cityExists as CitiesModel;
             }
 
             const newCity = await this.citiesModel.create({ cityName: city, rawName }, { transaction });
@@ -47,11 +45,10 @@ export class LocationService {
         } catch (error) {
             await transaction.rollback();
             handleError(error);
-            return false;
         }
     }
 
-    async checkCityExists<T>(value: T): Promise<Boolean> {
+    async checkCityExists<T>(value: T): Promise<Boolean | CitiesModel> {
         try {
             const cityExists = await this.citiesModel.findOne({
                 where: {
@@ -64,7 +61,7 @@ export class LocationService {
 
 
             if (cityExists) {
-                return true;
+                return cityExists;
             }
 
             return false;
