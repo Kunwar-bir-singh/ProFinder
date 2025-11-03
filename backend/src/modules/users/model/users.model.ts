@@ -7,9 +7,12 @@ import {
   AutoIncrement,
   HasMany,
   HasOne,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { UsersBookmarkModel } from './users-bookmark.model';
 import { ProvidersModel } from 'src/modules/providers/model/providers.model';
+import { CitiesModel } from 'src/modules/location/model/cities.model';
 
 export interface UsersAttributes {
   userID?: number;
@@ -54,6 +57,7 @@ export class UsersModel extends Model<
   })
   userID!: number;
 
+  @ForeignKey(() => CitiesModel)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
@@ -105,6 +109,9 @@ export class UsersModel extends Model<
 
   @HasOne(() => ProvidersModel)
   provider: ProvidersModel;
+
+  @BelongsTo(() => CitiesModel, { as: 'city' })
+  city: CitiesModel;
 
   @HasMany(() => UsersBookmarkModel)
   bookmarkedProviders: UsersBookmarkModel[];

@@ -41,7 +41,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return {
       userID: user.userID,
       username: user.username,
-    };
+      providerID : user?.["provider.providerID"]
+    }
   }
 }
 

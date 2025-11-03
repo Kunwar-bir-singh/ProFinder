@@ -11,6 +11,7 @@ import { ProvidersModule } from './modules/providers/providers.module';
 import { UsersModule } from './modules/users/users.module';
 import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ProviderProfessionModule } from './modules/provider-profession/provider-profession.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AuthModule } from './modules/auth/auth.module';
     UsersModule,
     ProvidersModule,
     ProfessionModule,
+    ProviderProfessionModule
   ],
 
   controllers: [AppController],

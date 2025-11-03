@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from './model/users.model';
 import { handleError } from 'src/utils/handle.error';
@@ -15,7 +11,6 @@ import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util'
 import { ProvidersModel } from '../providers/model/providers.model';
 import { UserExistsDto } from '../auth/dto/auth.dto';
 import { LocationService } from '../location/location.service';
-import { CitiesModel } from '../location/model/cities.model';
 
 @Injectable()
 export class UsersService {
@@ -37,19 +32,27 @@ export class UsersService {
       if (await this.checkUserExists(dto))
         throw new ConflictException('User already exists');
 
-      const userCreated = await this.userModel.create(dto, { transaction });
+      const city = await this.locationService.findOrCreateCity(dto);
+
+      const userCreated = await this.userModel.create(
+        { ...dto, cityID: city?.cityID },
+        { transaction },
+      );
+
+      const plainUser = userCreated.get({ plain: true });
 
       if (dto.isProvider) {
-        await this.providersService.createProvider(
-          { ...dto, userID: userCreated.userID },
+        const result = await this.providersService.createProvider(
+          { ...dto, userID: plainUser.userID },
           transaction,
         );
+
+        return {...result, cityID: city?.cityID}
       }
 
-      return true;
+      return userCreated;
     } catch (error) {
       handleError(error);
-      return false;
     }
   }
 
@@ -81,17 +84,13 @@ export class UsersService {
         where: { userID },
         raw: true,
         attributes: { exclude: ['password'] },
-        include: [{
-          model: this.providersModel,
-          as: 'provider',
-          attributes: ['providerID', 'description'],
-        },
-        {
-          model: CitiesModel,
-          as: 'city',
-          attributes: ['cityID', 'cityName'],
-        }
-      ]
+        include: [
+          {
+            model: this.providersModel,
+            as: 'provider',
+            attributes: ['providerID', 'description'],
+          },
+        ],
       });
     } catch (error) {
       handleError(error);
@@ -121,12 +120,12 @@ export class UsersService {
         await this.userModel.findOne({ where: { userID }, raw: true }),
       );
 
-      const city = await this.locationService.findOrCreateCity({
-        city: dto.city,
-        userID: dto.userID,
-      });
+      const city = await this.locationService.findOrCreateCity(dto);
 
-      await this.userModel.update({...dto, cityID: city?.cityID }, { where: { userID }, transaction });
+      await this.userModel.update(
+        { ...dto, cityID: city?.cityID },
+        { where: { userID }, transaction },
+      );
 
       if (dto.isProvider) {
         await this.providersService.updateProvider(dto, transaction);

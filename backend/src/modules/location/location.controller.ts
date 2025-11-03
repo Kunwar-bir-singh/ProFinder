@@ -10,10 +10,10 @@ export class LocationController {
         private readonly locationService: LocationService
     ) {}
 
-    @Get()
+    @Get('drop-down')
     @UseGuards(AuthGuard('jwt'))
     async getAllCities() {
-        return await this.locationService.getAllCities();
+        return await this.locationService.getAllCitiesDropDown();
     }
 
     @Post()
