@@ -21,12 +21,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased`}>
         <RouteGuard>
-        <ReduxProvider>
-          <AuthProvider>
-            <Header /> 
-            {children}
-          </AuthProvider>
-        </ReduxProvider>
+          <ReduxProvider>
+            <AuthProvider>
+              <Header />
+              {children}
+            </AuthProvider>
+          </ReduxProvider>
         </RouteGuard>
       </body>
     </html>

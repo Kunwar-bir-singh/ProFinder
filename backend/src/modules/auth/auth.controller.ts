@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -54,14 +55,27 @@ export class AuthController {
 
   @Delete('logout')
   @UseGuards(AuthGuard('jwt'))
-
   async logoutUser(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-
     const { userID } = req.user!;
 
     await this.authService.logoutUser(userID, res);
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req: Request) {
+    // This route initiates Google OAuth
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.googleLogin(req, res);
   }
 }

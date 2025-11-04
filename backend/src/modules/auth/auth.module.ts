@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
 import { JwtRefreshStrategy, JwtStrategy } from './stratergies/jwt.stratergy';
+import { GoogleStrategy } from './stratergies/google.strategy';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { RefreshTokenModel } from './models/refreshToken.model';
 import { UsersModel } from '../users/model/users.model';
@@ -34,6 +35,7 @@ import { HashModule } from '../hash/hash.module';
     AuthService,
     JwtStrategy,
     JwtRefreshStrategy,
+    GoogleStrategy,
   ],
   exports: [AuthService],
 

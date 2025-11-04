@@ -5,6 +5,7 @@ import { ProviderProfessionModel } from './model/provider-profession.model';
 import { LocationService } from '../location/location.service';
 import { ProviderProfessionDto } from './dto/provider.profession.dto';
 import { handleError } from 'src/utils/handle.error';
+import { Exception } from 'src/common/interface/exception.interface';
 
 @Injectable()
 export class ProviderProfessionService {
@@ -67,12 +68,27 @@ export class ProviderProfessionService {
       const cityExists = await this.locationService.checkCityExists(cityID);
       if (!cityExists) throw new BadRequestException('City not found');
 
-      const provider = await this.providerProfessionModel.findAndCountAll({
-        where: { cityID, professionID },
-        raw: true,
-      });
+      const { rows, count } =
+        await this.providerProfessionModel.findAndCountAll({
+          where: { cityID, professionID },
+          raw: true,
+        });
 
-      return provider || [];
+      if (count == 0) {
+        const exception: Exception = {
+          errors: [
+            {
+              message:
+                'No providers found for the given profession in the specified city',
+            },
+          ],
+          message:
+            'No providers found for the given profession in the specified city',
+        };
+        throw new BadRequestException(exception);
+      }
+
+      return rows;
     } catch (error) {
       handleError(error);
     }

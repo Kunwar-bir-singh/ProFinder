@@ -36,6 +36,15 @@ export const authService = api.injectEndpoints({
       },
     }),
 
+    // Google OAuth login
+    googleLogin: builder.query<ApiResponse<AuthResponse>, void>({
+      query: () => ({
+        url: "/auth/google",
+        method: "GET",
+      }),
+      // This endpoint is for initiating OAuth flow, not for completing it
+    }),
+
     // Register user
     register: builder.mutation<ApiResponse<AuthResponse>, RegisterRequest>({
       query: (userData) => ({
@@ -134,4 +143,5 @@ export const {
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
   useRefreshTokenMutation,
+  useGoogleLoginQuery,
 } = authService;

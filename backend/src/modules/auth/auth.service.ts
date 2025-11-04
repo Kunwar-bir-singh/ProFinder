@@ -237,4 +237,36 @@ export class AuthService {
       },
     });
   }
+
+  async googleLogin(req: any, res: Response) {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedException('No user from Google');
+    }
+    console.log("USER Frmomgoogel", user);
+    
+    // // Check if user exists
+    // let existingUser = await this.usersService.checkUserExists({ email: user.email });
+
+    // if (!existingUser) {
+    //   // Create new user
+    //   const transaction = await this.sequelize.transaction();
+    //   try {
+    //     const newUser = await this.usersService.createUser({
+    //       email: user.email,
+    //       username: user.firstName + ' ' + user.lastName,
+    //       password: '', // No password for OAuth users
+    //       isOAuth: true,
+    //     }, transaction);
+    //     await transaction.commit();
+    //     existingUser = newUser as UsersModel;
+    //   } catch (error) {
+    //     await transaction.rollback();
+    //     handleError(error);
+    //   }
+    // }
+
+    // return this.generateTokens(existingUser, res);
+    return "HEHEH"
+  }
 }

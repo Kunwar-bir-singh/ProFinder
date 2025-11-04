@@ -19,7 +19,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { Header } from "@/components/header";
 import { useLoginMutation } from "@/lib/hooks/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -45,8 +44,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const credentials = {
-        [loginMethod === "username" ? "username" : "mobile"]:
-          formData[loginMethod === "username" ? "username" : "mobile"],
+        email: loginMethod === "username" ? formData.username : formData.mobile,
         password: formData.password,
       };
       await login(credentials).unwrap();
@@ -57,7 +55,8 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    console.log("Google login for:", userType);
+    // Redirect to backend Google OAuth endpoint
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/google`;
   };
 
   return (
