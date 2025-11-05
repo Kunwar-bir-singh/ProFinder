@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { useLoginMutation } from "@/lib/hooks/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,9 +49,11 @@ export default function LoginPage() {
         password: formData.password,
       };
       await login(credentials).unwrap();
+      toast.success("Successfully logged in!");
       router.push("/");
     } catch (err) {
       console.error("Login failed:", err);
+      toast.error("Login failed. Please check your credentials.");
     }
   };
 

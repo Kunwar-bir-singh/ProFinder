@@ -24,12 +24,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
+    if (!profile) {
+      return done(new Error('No profile'), false);
+    }
+
     const { name, emails, photos } = profile;
 
     const user = {
       email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
+      firstName: name?.givenName,
+      lastName: name?.familyName,
       picture: photos[0].value,
       accessToken,
     };

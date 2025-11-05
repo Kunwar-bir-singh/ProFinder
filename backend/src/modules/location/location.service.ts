@@ -37,6 +37,8 @@ export class LocationService {
     try {
       const { city, cityID } = dto;
 
+      if(!city && !cityID) return undefined;
+
       const rawName = formatName(city, 'raw');
       const formattedName = formatName(city, 'formatted');
 

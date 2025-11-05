@@ -19,7 +19,8 @@ export default function RouteGuard({
       const lastPath = localStorage.getItem("lastPath");
 
       // If user manually loaded a different URL, redirect back
-      if (lastPath && pathname !== lastPath) {
+      // But allow redirects to "/" (e.g., from auth callbacks)
+      if (lastPath && pathname !== lastPath && pathname !== "/") {
         router.replace(lastPath);
         return;
       }

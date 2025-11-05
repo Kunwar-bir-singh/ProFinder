@@ -67,8 +67,6 @@ export const authService = api.injectEndpoints({
       },
     }),
 
- 
-
     // Logout user
     logout: builder.mutation<ApiResponse<null>, void>({
       query: () => ({
@@ -79,14 +77,13 @@ export const authService = api.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          // Clear all auth data on successful logout
+
           clearAuthData();
         } catch (error) {
           console.error("Logout failed:", error);
         }
       },
     }),
-
 
     // Request password reset
     requestPasswordReset: builder.mutation<

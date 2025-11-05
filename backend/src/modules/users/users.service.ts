@@ -27,9 +27,13 @@ export class UsersService {
     private readonly sequelize: Sequelize,
   ) {}
 
-  async createUser(dto: any, transaction?: Transaction) {
+  async createUser(
+    dto: any,
+    oAuth: string = 'local',
+    transaction?: Transaction,
+  ) {
     try {
-      if (await this.checkUserExists(dto))
+      if (oAuth === 'local' && (await this.checkUserExists(dto)))
         throw new ConflictException('User already exists');
 
       const city = await this.locationService.findOrCreateCity(dto);
@@ -47,7 +51,7 @@ export class UsersService {
           transaction,
         );
 
-        return {...result, cityID: city?.cityID}
+        return { ...result, cityID: city?.cityID };
       }
 
       return userCreated;

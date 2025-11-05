@@ -5,6 +5,7 @@ import { ReduxProvider } from "@/components/providers/redux-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { Header } from "@/components/header";
 import RouteGuard from "./routeGuard";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Professional Services Directory",
@@ -28,6 +29,7 @@ export default function RootLayout({
             </AuthProvider>
           </ReduxProvider>
         </RouteGuard>
+        <Toaster />
       </body>
     </html>
   );

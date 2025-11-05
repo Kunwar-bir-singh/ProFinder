@@ -14,8 +14,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { User, Building2, Phone, Mail, Eye, EyeOff, MapPin } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
+import { useRegisterMutation } from "@/lib/hooks/hooks"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const [register, { isLoading }] = useRegisterMutation()
   const [userType, setUserType] = useState<"user" | "provider">("user")
   const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username")
   const [showPassword, setShowPassword] = useState(false)
@@ -36,14 +41,32 @@ export default function RegisterPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!")
+      toast.error("Passwords do not match!")
       return
     }
-    console.log("Register attempt:", { userType, loginMethod, formData })
-    // Add your registration logic here
+
+    try {
+      const registerData = {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.mobile || undefined,
+        profession: userType === "provider" ? formData.profession : undefined,
+        city: userType === "provider" ? formData.address : undefined,
+        bio: userType === "provider" ? formData.bio : undefined,
+        type: userType,
+      }
+
+      await register(registerData).unwrap()
+      toast.success("Account created successfully!")
+      router.push("/")
+    } catch (error: any) {
+      console.error("Registration failed:", error)
+      toast.error(error?.data?.message || "Registration failed. Please try again.")
+    }
   }
 
   const handleGoogleRegister = () => {
@@ -72,11 +95,11 @@ export default function RegisterPage() {
                   className="w-full"
                 >
                   <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                    <TabsTrigger value="user" className="flex items-center gap-2">
+                    <TabsTrigger value="user" disabled={isLoading} className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       User
                     </TabsTrigger>
-                    <TabsTrigger value="provider" className="flex items-center gap-2">
+                    <TabsTrigger value="provider" disabled={isLoading} className="flex items-center gap-2">
                       <Building2 className="w-4 h-4" />
                       Provider
                     </TabsTrigger>
@@ -93,6 +116,7 @@ export default function RegisterPage() {
                 <Switch
                   checked={loginMethod === "mobile"}
                   onCheckedChange={(checked) => setLoginMethod(checked ? "mobile" : "username")}
+                  disabled={isLoading}
                 />
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-slate-600" />
@@ -114,6 +138,7 @@ export default function RegisterPage() {
                     placeholder="Enter your full name"
                     value={formData.fullName}
                     onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    disabled={isLoading}
                     className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
@@ -131,6 +156,7 @@ export default function RegisterPage() {
                       placeholder={loginMethod === "username" ? "Choose a username" : "Enter your mobile number"}
                       value={loginMethod === "username" ? formData.username : formData.mobile}
                       onChange={(e) => handleInputChange(loginMethod, e.target.value)}
+                      disabled={isLoading}
                       className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
@@ -155,6 +181,7 @@ export default function RegisterPage() {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
+                    disabled={isLoading}
                     className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
@@ -173,6 +200,7 @@ export default function RegisterPage() {
                         placeholder="e.g., Plumber, Electrician, etc."
                         value={formData.profession}
                         onChange={(e) => handleInputChange("profession", e.target.value)}
+                        disabled={isLoading}
                         className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
@@ -189,6 +217,7 @@ export default function RegisterPage() {
                           placeholder="Enter your service area/city"
                           value={formData.address}
                           onChange={(e) => handleInputChange("address", e.target.value)}
+                          disabled={isLoading}
                           className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
@@ -205,6 +234,7 @@ export default function RegisterPage() {
                         placeholder="Tell us about your experience and services..."
                         value={formData.bio}
                         onChange={(e) => handleInputChange("bio", e.target.value)}
+                        disabled={isLoading}
                         className="border-slate-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                         rows={3}
                       />
@@ -224,6 +254,7 @@ export default function RegisterPage() {
                       placeholder="Create a password"
                       value={formData.password}
                       onChange={(e) => handleInputChange("password", e.target.value)}
+                      disabled={isLoading}
                       className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
@@ -258,6 +289,7 @@ export default function RegisterPage() {
                       placeholder="Confirm your password"
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                      disabled={isLoading}
                       className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
@@ -282,8 +314,19 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Register Button */}
-                <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
-                  Create {userType === "user" ? "User" : "Provider"} Account
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Creating Account...
+                    </div>
+                  ) : (
+                    `Create ${userType === "user" ? "User" : "Provider"} Account`
+                  )}
                 </Button>
               </form>
 

@@ -51,7 +51,6 @@ export class UsersModel extends Model<
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
     primaryKey: true,
     autoIncrement: true,
   })
@@ -72,13 +71,13 @@ export class UsersModel extends Model<
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   password!: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   fullname!: string;
 
@@ -94,6 +93,12 @@ export class UsersModel extends Model<
     allowNull: true,
   })
   email?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  auth_provider?: string;
 
   @Column({
     type: DataType.DATE,

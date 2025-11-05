@@ -7,6 +7,7 @@ import { LogOut, Settings, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { useLogoutMutation } from '@/lib/api/services'
+import { toast } from 'sonner'
 
 export function Header() {
   const [mounted, setMounted] = useState(false)
@@ -15,7 +16,7 @@ export function Header() {
   const router = useRouter()
 
   const { isAuthenticated, user } = useSelector((state: any) => state.auth)
-  const [logout, { isLoading }] = useLogoutMutation() // ✅ RTK Query logout mutation
+  const [logout, { isLoading }] = useLogoutMutation() 
 
   // Set mounted after first client render
   useEffect(() => {
@@ -37,9 +38,13 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
-      await logout().unwrap() 
+      await logout().unwrap()
+      toast.success("Successfully logged out!");
+      router.push("/");
+
     } catch (error) {
       console.error('Logout failed:', error)
+      toast.error("Logout failed. Please try again.");
     }
   }
 

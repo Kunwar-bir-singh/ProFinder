@@ -41,7 +41,11 @@ export class AuthService {
 
       dto.password = hashedPassword;
 
-      const result = await this.usersService.createUser(dto, transaction);
+      const result = await this.usersService.createUser(
+        dto,
+        'local',
+        transaction,
+      );
 
       await transaction.commit();
 
@@ -243,30 +247,36 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('No user from Google');
     }
-    console.log("USER Frmomgoogel", user);
-    
-    // // Check if user exists
-    // let existingUser = await this.usersService.checkUserExists({ email: user.email });
+    console.log('USER Frmomgoogel', user);
 
-    // if (!existingUser) {
-    //   // Create new user
-    //   const transaction = await this.sequelize.transaction();
-    //   try {
-    //     const newUser = await this.usersService.createUser({
-    //       email: user.email,
-    //       username: user.firstName + ' ' + user.lastName,
-    //       password: '', // No password for OAuth users
-    //       isOAuth: true,
-    //     }, transaction);
-    //     await transaction.commit();
-    //     existingUser = newUser as UsersModel;
-    //   } catch (error) {
-    //     await transaction.rollback();
-    //     handleError(error);
-    //   }
-    // }
+    // Check if user exists
+    let existingUser = await this.usersService.checkUserExists({
+      email: user.email,
+    });
 
-    // return this.generateTokens(existingUser, res);
-    return "HEHEH"
+    if (!existingUser) {
+      const transaction = await this.sequelize.transaction();
+      try {
+        const newUser = await this.usersService.createUser(
+          {
+            email: user.email,
+            username: user.firstName + ' ' + user.lastName,
+            password: '',
+            auth_provider: 'google',
+          },
+          'google',
+          transaction,
+        );
+        await transaction.commit();
+
+        existingUser = newUser as UsersModel;
+        
+      } catch (error) {
+        await transaction.rollback();
+        handleError(error);
+      }
+    }
+
+    return this.generateTokens(existingUser, res);
   }
 }

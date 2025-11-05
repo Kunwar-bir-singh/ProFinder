@@ -25,6 +25,11 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
+  phone?: string;
+  profession?: string;
+  city?: string;
+  bio?: string;
+  type: "user" | "provider";
 }
 
 export interface AuthResponse {

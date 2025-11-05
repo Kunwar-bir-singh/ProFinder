@@ -76,6 +76,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.authService.googleLogin(req, res);
+    await this.authService.googleLogin(req, res);
+    return res.redirect('http://localhost:3000/');
   }
 }
