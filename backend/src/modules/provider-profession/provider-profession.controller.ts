@@ -7,9 +7,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ProviderProfessionDto } from './dto/provider.profession.dto';
 import { ProviderProfessionService } from './provider-profession.service';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  GetProviderProfessionDto,
+  IDProviderProfessionDto,
+} from './dto/provider.profession.dto';
 
 @Controller('profession-providers')
 export class ProvidersProfessionController {
@@ -19,21 +22,28 @@ export class ProvidersProfessionController {
 
   @Post('link')
   @UseGuards(AuthGuard('jwt'))
-  async linkProviderProfession(@Body() dto: ProviderProfessionDto, @Req() req) {
+  async linkProviderProfession(
+    @Body() dto: IDProviderProfessionDto,
+    @Req() req,
+  ) {
     const { providerID } = req.user!;
+    console.log('Req', req.user);
+
     dto.providerID = providerID;
     return this.providerProfessionService.linkProviderProfession(dto);
   }
 
   @Post('unlink')
   @UseGuards(AuthGuard('jwt'))
-  async unLinkProviderProfession(@Body() dto: ProviderProfessionDto) {
+  async unLinkProviderProfession(@Body() dto: IDProviderProfessionDto) {
     return this.providerProfessionService.unLinkProviderProfession(dto);
   }
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
-  async getProviderPerProfessionPerCity(@Query() dto: ProviderProfessionDto) {
+  async getProviderPerProfessionPerCity(
+    @Query() dto: GetProviderProfessionDto,
+  ) {
     return this.providerProfessionService.getProviderPerProfessionPerCity(dto);
   }
 }

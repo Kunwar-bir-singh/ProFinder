@@ -24,10 +24,12 @@ export const authService = api.injectEndpoints({
       invalidatesTags: ["User"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
-          // Store the access token in Redux store
-          if (data.data.accessToken) {
-            setStoredToken(data.data.accessToken);
+          const response = await queryFulfilled;
+          const { data } = response.data;
+          // Store both the access token and user data in Redux store
+          if (data.accessToken && data.user) {
+            
+            setStoredToken(data.accessToken, data.user);
           }
         } catch (error) {
           // Handle login error
@@ -55,10 +57,11 @@ export const authService = api.injectEndpoints({
       invalidatesTags: ["User"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
-          // Store the access token in Redux store
-          if (data.data.accessToken) {
-            setStoredToken(data.data.accessToken);
+          const response = await queryFulfilled;
+          const { data } = response.data;
+          // Store both the access token and user data in Redux store
+          if (data.accessToken && data.user) {
+            setStoredToken(data.accessToken, data.user);
           }
         } catch (error) {
           // Handle registration error

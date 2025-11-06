@@ -6,20 +6,19 @@ import { handleError } from 'src/utils/handle.error';
 import { Transaction } from 'sequelize';
 import { LocationService } from '../location/location.service';
 import { ProfessionService } from '../profession/profession.service';
-import { ProviderProfessionDto } from '../provider-profession/dto/provider.profession.dto';
+import { IDProviderProfessionDto } from '../provider-profession/dto/provider.profession.dto';
 @Injectable()
 export class ProvidersService {
   constructor(
     @InjectModel(ProvidersModel)
     private readonly providerModel: typeof ProvidersModel,
-    private readonly locationService: LocationService,
     private readonly professionService: ProfessionService,
   ) {}
 
   async createProvider(
     dto: any,
     transaction?: Transaction,
-  ): Promise<Omit<ProviderProfessionDto, 'cityID'> | undefined> {
+  ): Promise<Omit<IDProviderProfessionDto, 'cityID'> | undefined> {
     try {
       console.log('Dto bro', dto);
 
@@ -38,6 +37,15 @@ export class ProvidersService {
       };
     } catch (error) {
       handleError(error);
+    }
+  }
+
+  async getAllProviders(): Promise<ProvidersModel[]> {
+    try {
+      return await this.providerModel.findAll();
+    } catch (error) {
+      handleError(error);
+      return [];
     }
   }
 

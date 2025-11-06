@@ -80,6 +80,17 @@ export const professionService = api.injectEndpoints({
       }),
       providesTags: ["Profession"],
     }),
+    // Search providers by profession and city
+    searchProvidersByProfessionAndCity: builder.mutation<
+      ApiResponse<any[]>,
+      { city: string; profession: string }
+    >({
+      query: ({ city, profession }) => ({
+        url: "/profession-providers",
+        method: "GET",
+        params: { city, profession },
+      }),
+    }),
   }),
 });
 
@@ -91,4 +102,5 @@ export const {
   useDeleteProfessionMutation,
   useGetProfessionsByCategoryQuery,
   useSearchProfessionsQuery,
+  useSearchProvidersByProfessionAndCityMutation,
 } = professionService;

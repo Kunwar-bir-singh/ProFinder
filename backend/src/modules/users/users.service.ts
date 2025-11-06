@@ -46,15 +46,13 @@ export class UsersService {
       const plainUser = userCreated.get({ plain: true });
 
       if (dto.isProvider) {
-        const result = await this.providersService.createProvider(
+        await this.providersService.createProvider(
           { ...dto, userID: plainUser.userID },
           transaction,
         );
-
-        return { ...result, cityID: city?.cityID };
       }
 
-      return userCreated;
+      return plainUser;
     } catch (error) {
       handleError(error);
     }
@@ -82,6 +80,18 @@ export class UsersService {
     }
   }
 
+  async getAllUsers() {
+    try {
+      const users = await this.userModel.findAll({
+        raw: true,
+        attributes: { exclude: ['password'] },
+      });
+      return users;
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
   async getUserDetails(userID: number) {
     try {
       return await this.userModel.findOne({
@@ -103,12 +113,12 @@ export class UsersService {
 
   async getBookmarkedPrvoiders(userID: number) {
     try {
-      const bookmarks = await this.usersBookmarkModel.findOne({
+      const { rows, count} = await this.usersBookmarkModel.findAndCountAll({
         where: { userID },
         raw: true,
       });
 
-      return bookmarks || [];
+      return { rows, count };
     } catch (error) {
       handleError(error);
     }

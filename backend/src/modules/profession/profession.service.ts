@@ -9,8 +9,8 @@ import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
 import { LocationService } from '../location/location.service';
 import { formatName } from 'src/utils/formatName.util';
-import { ProviderProfessionDto } from '../provider-profession/dto/provider.profession.dto';
 import { ProfessionDto } from './dto/profession.dto';
+import { IDProviderProfessionDto } from '../provider-profession/dto/provider.profession.dto';
 
 @Injectable()
 export class ProfessionService {
@@ -53,7 +53,7 @@ export class ProfessionService {
 
   async checkProfessionExists<T>(
     value: T,
-  ): Promise<boolean | ProfessionsModel> {
+  ): Promise<undefined | ProfessionsModel> {
     try {
       const professionExists = await this.professionModel.findOne({
         where: {
@@ -70,14 +70,14 @@ export class ProfessionService {
         return professionExists;
       }
 
-      return false;
+      return ;
     } catch (error) {
       handleError(error);
-      return false;
+      
     }
   }
 
-  async createProfession(dto: any): Promise<ProviderProfessionDto | null> {
+  async createProfession(dto: any): Promise<IDProviderProfessionDto | null> {
     const transaction = await this.sequelize.transaction();
     try {
       const { providerID, professionName } = dto;

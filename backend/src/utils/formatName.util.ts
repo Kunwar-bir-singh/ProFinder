@@ -2,7 +2,7 @@ export function formatName(
   cityName: string,
   type: 'raw' | 'formatted' = 'raw',
 ): string {
-  if (type === 'raw') return cityName.trim().toLowerCase();
+  if (type === 'raw') return cityName.trim().toLowerCase().replace(/\s+/g, '');
   return cityName
     .trim()
     .toLowerCase()

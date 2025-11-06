@@ -2,6 +2,7 @@ import {
   clearAuth,
   setAccessToken,
   updateAccessToken,
+  setUser,
 } from "../slices/authSlice";
 
 let storeRef: any;
@@ -11,12 +12,17 @@ export const setStoreReference = (s: any) => (storeRef = s);
 export const getStoredToken = (): string | null => {
   return storeRef ? storeRef.getState().auth.accessToken : null;
 };
-export const setStoredToken = (token: string): void => {
+
+export const setStoredToken = (token: string, user: any): void => {
+  
   storeRef?.dispatch(setAccessToken(token));
+  storeRef?.dispatch(setUser(user));
 };
+
 export const removeStoredToken = (): void => {
   storeRef?.dispatch(clearAuth());
 };
+
 export const updateStoredToken = (token: string): void => {
   storeRef?.dispatch(updateAccessToken(token));
 };

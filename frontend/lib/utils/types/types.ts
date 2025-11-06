@@ -17,12 +17,13 @@ export type User = {
 // lib/types.ts
 
 export interface LoginRequest {
-  email: string;
+  [key: string]: string;
   password: string;
 }
 
-export interface RegisterRequest {
-  name: string;
+export interface RegisterRequest  {
+  fullname: string;
+  username: string;
   email: string;
   password: string;
   phone?: string;
@@ -32,9 +33,17 @@ export interface RegisterRequest {
   type: "user" | "provider";
 }
 
+export interface UserResponse {
+  userID: number;
+  providerID: number | null;
+  username: string;
+  email?: string;
+  isProvider?: boolean;
+}
+
 export interface AuthResponse {
+  user: UserResponse;
   accessToken: string;
-  user: User;
 }
 
 export interface ApiResponse<T> {

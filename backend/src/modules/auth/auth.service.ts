@@ -33,7 +33,7 @@ export class AuthService {
     private readonly hashService: HashService,
     private readonly sequelize: Sequelize,
   ) {}
-  async registerUser(dto: any): Promise<any> {
+  async registerUser(dto: any, res: Response): Promise<any> {
     const transaction = await this.sequelize.transaction();
     try {
       const { password } = dto;
@@ -49,7 +49,14 @@ export class AuthService {
 
       await transaction.commit();
 
-      return result;
+      if (!result || !result?.userID) {
+        // defensive: if user creation failed for some reason, throw
+        throw new BadRequestException('Failed to create user');
+      }
+
+      const fullUser = await this.usersService.getUserDetails(result?.userID);
+
+      return this.generateTokens(fullUser, res);
     } catch (error) {
       await transaction.rollback();
       handleError(error);
@@ -123,7 +130,6 @@ export class AuthService {
       username: user.username,
       email: user.email,
       lastPasswordChange: user.lastPasswordChange,
-      isProvider: user.providerID ? true : false,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -141,7 +147,7 @@ export class AuthService {
     const refreshExpiry = new Date();
     refreshExpiry.setDate(refreshExpiry.getDate() + 7);
 
-    console.log('The Refresh Token is: ', refreshToken);
+    console.log('The isProvider is: ', user.isProvider);
 
     const hashedRefreshToken =
       await this.hashService.hashPassword(refreshToken);
@@ -164,7 +170,7 @@ export class AuthService {
     return {
       user: {
         userID: user.userID,
-        providerID: user?.['provider.providerID'],
+        isProvider: user?.['provider.providerID'] ? true : false,
         username: user.username,
       },
       accessToken,
@@ -247,10 +253,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('No user from Google');
     }
-    console.log('USER Frmomgoogel', user);
 
     // Check if user exists
-    let existingUser = await this.usersService.checkUserExists({
+    let existingUser: any = await this.usersService.checkUserExists({
       email: user.email,
     });
 
@@ -269,8 +274,7 @@ export class AuthService {
         );
         await transaction.commit();
 
-        existingUser = newUser as UsersModel;
-        
+        existingUser = newUser;
       } catch (error) {
         await transaction.rollback();
         handleError(error);

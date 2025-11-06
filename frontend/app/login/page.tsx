@@ -26,7 +26,9 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const router = useRouter();
   const [userType, setUserType] = useState<"user" | "provider">("user");
-  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username");
+  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">(
+    "username"
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -45,7 +47,8 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const credentials = {
-        email: loginMethod === "username" ? formData.username : formData.mobile,
+        [loginMethod]:
+          loginMethod === "username" ? formData.username : formData.mobile,
         password: formData.password,
       };
       await login(credentials).unwrap();
@@ -59,34 +62,49 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Redirect to backend Google OAuth endpoint
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/google`;
+    window.location.href = `${
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    }/auth/google`;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h1>
-            <p className="text-slate-600">Sign in to your account to continue</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Welcome Back
+            </h1>
+            <p className="text-slate-600">
+              Sign in to your account to continue
+            </p>
           </div>
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-4">
               {/* User Type Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">I am a:</Label>
+                <Label className="text-sm font-medium text-slate-700">
+                  I am a:
+                </Label>
                 <Tabs
                   value={userType}
-                  onValueChange={(value) => setUserType(value as "user" | "provider")}
+                  onValueChange={(value) =>
+                    setUserType(value as "user" | "provider")
+                  }
                   className="w-full"
                 >
                   <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                    <TabsTrigger value="user" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="user"
+                      className="flex items-center gap-2"
+                    >
                       <User className="w-4 h-4" /> User
                     </TabsTrigger>
-                    <TabsTrigger value="provider" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="provider"
+                      className="flex items-center gap-2"
+                    >
                       <Building2 className="w-4 h-4" /> Provider
                     </TabsTrigger>
                   </TabsList>
@@ -116,7 +134,9 @@ export default function LoginPage() {
                       htmlFor="login-field"
                       className="text-sm font-medium text-slate-700"
                     >
-                      {loginMethod === "username" ? "Username" : "Mobile Number"}
+                      {loginMethod === "username"
+                        ? "Username"
+                        : "Mobile Number"}
                     </Label>
                     <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
                       <button
@@ -243,7 +263,9 @@ export default function LoginPage() {
               <div className="relative">
                 <Separator className="bg-slate-200" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-white px-3 text-sm text-slate-500">or</span>
+                  <span className="bg-white px-3 text-sm text-slate-500">
+                    or
+                  </span>
                 </div>
               </div>
 

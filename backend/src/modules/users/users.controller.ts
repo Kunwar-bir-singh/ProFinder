@@ -9,6 +9,11 @@ export class UsersController {
         private readonly usersService: UsersService
     ) { }
 
+    @Get('all')
+    async getAllUsers() {
+        return await this.usersService.getAllUsers();
+    }
+
     @Get('profile')
     @UseGuards(AuthGuard('jwt'))
     async getUser(@Request() req) {

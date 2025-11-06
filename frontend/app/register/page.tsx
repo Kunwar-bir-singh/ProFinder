@@ -1,8 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,15 +15,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { User, Building2, Phone, Mail, Eye, EyeOff, MapPin } from "lucide-react"
-import Link from "next/link"
-import { Header } from "@/components/header"
 import { useRegisterMutation } from "@/lib/hooks/hooks"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [register, { isLoading }] = useRegisterMutation()
+
   const [userType, setUserType] = useState<"user" | "provider">("user")
   const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username")
   const [showPassword, setShowPassword] = useState(false)
@@ -50,7 +51,8 @@ export default function RegisterPage() {
 
     try {
       const registerData = {
-        name: formData.fullName,
+        fullname: formData.fullName,
+        username: formData.username,
         email: formData.email,
         password: formData.password,
         phone: formData.mobile || undefined,

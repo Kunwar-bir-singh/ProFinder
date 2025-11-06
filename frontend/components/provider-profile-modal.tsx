@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, Phone, Mail, Star, Clock, CheckCircle, Briefcase, Calendar, MessageCircle, Heart } from "lucide-react"
 
 interface Provider {
-  id: string
+  id: number
   name: string
   profession: string
   rating: number
@@ -42,12 +42,12 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
 
   const handleContact = () => {
     // Handle contact logic
-    console.log("Contacting provider:", provider.name)
+    console.log("Contacting provider:", provider?.name)
   }
 
   const handleBookService = () => {
     // Handle booking logic
-    console.log("Booking service with:", provider.name)
+    console.log("Booking service with:", provider?.name)
   }
 
   return (
@@ -65,15 +65,14 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative">
               <Avatar className="h-24 w-24 mx-auto sm:mx-0">
-                <AvatarImage src={provider.profileImage || "/placeholder.svg"} alt={provider.name} />
+                <AvatarImage src={provider?.profileImage || "/placeholder.svg"} alt={provider?.name} />
                 <AvatarFallback className="text-xl">
-                  {provider.name
-                    .split(" ")
+                  {provider?.name?.split(" ")
                     .map((n) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              {provider.isVerified && (
+              {provider?.isVerified && (
                 <div className="absolute -top-1 -right-1">
                   <CheckCircle className="h-6 w-6 text-green-600 bg-white rounded-full" />
                 </div>
@@ -82,8 +81,8 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
 
             <div className="flex-1 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                <h2 className="text-2xl font-bold text-slate-900">{provider.name}</h2>
-                {provider.isVerified && (
+                <h2 className="text-2xl font-bold text-slate-900">{provider?.name}</h2>
+                {provider?.isVerified && (
                   <Badge
                     variant="default"
                     className="bg-green-100 text-green-800 border-green-200 w-fit mx-auto sm:mx-0"
@@ -94,21 +93,21 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
                 )}
               </div>
 
-              <p className="text-lg text-primary font-medium capitalize mb-2">{provider.profession}</p>
+              <p className="text-lg text-primary font-medium capitalize mb-2">{provider?.profession}</p>
 
               <div className="flex flex-col sm:flex-row gap-4 text-sm text-slate-600">
                 <div className="flex items-center justify-center sm:justify-start gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{provider.rating}</span>
-                  <span>({provider.reviewCount} reviews)</span>
+                  <span className="font-medium">{provider?.rating}</span>
+                  <span>({provider?.reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-1">
                   <MapPin className="h-4 w-4" />
-                  <span>{provider.location}</span>
+                  <span>{provider?.location}</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-1">
                   <Briefcase className="h-4 w-4" />
-                  <span>{provider.experience} years experience</span>
+                  <span>{provider?.experience} years experience</span>
                 </div>
               </div>
             </div>
@@ -118,19 +117,19 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">{provider.completedJobs}</div>
+                <div className="text-2xl font-bold text-primary">{provider?.completedJobs}</div>
                 <div className="text-sm text-slate-600">Jobs Completed</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">{provider.responseTime}</div>
+                <div className="text-2xl font-bold text-primary">{provider?.responseTime}</div>
                 <div className="text-sm text-slate-600">Response Time</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">{provider.rating}</div>
+                <div className="text-2xl font-bold text-primary">{provider?.rating}</div>
                 <div className="text-sm text-slate-600">Rating</div>
               </CardContent>
             </Card>
@@ -139,14 +138,14 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
           {/* About Section */}
           <div>
             <h3 className="text-lg font-semibold mb-3">About</h3>
-            <p className="text-slate-700 leading-relaxed">{provider.bio}</p>
+            <p className="text-slate-700 leading-relaxed">{provider?.bio}</p>
           </div>
 
           {/* Services */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Services Offered</h3>
             <div className="flex flex-wrap gap-2">
-              {provider.services.map((service, index) => (
+              {provider?.services.map((service, index) => (
                 <Badge key={index} variant="outline" className="text-sm">
                   {service}
                 </Badge>
@@ -160,19 +159,19 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700">{provider.phone}</span>
+                <span className="text-slate-700">{provider?.phone}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700">{provider.email}</span>
+                <span className="text-slate-700">{provider?.email}</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700">{provider.serviceArea}</span>
+                <span className="text-slate-700">{provider?.serviceArea}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Clock className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700">{provider.availability}</span>
+                <span className="text-slate-700">{provider?.availability}</span>
               </div>
             </div>
           </div>
@@ -181,19 +180,19 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
           <div>
             <h3 className="text-lg font-semibold mb-3">Pricing</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {provider.pricing.hourly && (
+              {provider?.pricing?.hourly && (
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-sm text-slate-600 mb-1">Hourly Rate</div>
-                    <div className="text-xl font-bold text-primary">{provider.pricing.hourly}</div>
+                    <div className="text-xl font-bold text-primary">{provider?.pricing?.hourly}</div>
                   </CardContent>
                 </Card>
               )}
-              {provider.pricing.fixed && (
+              {provider?.pricing?.fixed && (
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-sm text-slate-600 mb-1">Fixed Rate</div>
-                    <div className="text-xl font-bold text-primary">{provider.pricing.fixed}</div>
+                    <div className="text-xl font-bold text-primary">{provider?.pricing?.fixed}</div>
                   </CardContent>
                 </Card>
               )}

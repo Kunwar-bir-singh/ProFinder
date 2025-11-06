@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { useSearchProvidersByProfessionAndCityQuery } from "@/lib/api/services/profession.service"
 import { ProviderCard } from "@/components/provider-card"
 import { SearchFilters } from "@/components/search-filters"
 import { SearchEmptyState } from "@/components/search-empty-state"
@@ -121,12 +121,19 @@ const mockProviders = [
 
 export default function SearchResultsPage() {
   const searchParams = useSearchParams()
-  const profession = searchParams.get("profession") || "plumber"
-  const city = searchParams.get("city") || "Your City"
+  const profession = searchParams.get("profession") || ""
+  const city = searchParams.get("city") || ""
 
-  const [providers, setProviders] = useState(mockProviders)
+  const { data: providersData, isLoading, error } = useSearchProvidersByProfessionAndCityQuery(
+    { profession, city },
+    { skip: !profession || !city }
+  )
+
   const [sortBy, setSortBy] = useState("rating")
   const [filterVerified, setFilterVerified] = useState(false)
+
+  const isSuccess = providersData?.success === true
+  const providers = isSuccess ? (providersData.data || []) : []
 
   // Filter and sort providers
   const filteredProviders = providers
@@ -169,8 +176,25 @@ export default function SearchResultsPage() {
           </div>
         </div>
 
-        {filteredProviders.length === 0 ? (
-          <SearchEmptyState profession={profession} city={city} />
+        {!profession || !city ? (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-2">Start Your Search</h2>
+            <p className="text-muted-foreground">Enter a profession and city to find providers</p>
+          </div>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-8">
+            An error occurred while fetching providers. Please try again.
+          </div>
+        ) : !isSuccess ? (
+          <div className="text-center text-red-500 py-8">
+            Failed to fetch providers. Please try again.
+          </div>
+        ) : filteredProviders.length === 0 ? (
+          <SearchEmptyState searchTerm={profession} city={city} />
         ) : (
           <>
             {/* Results header */}

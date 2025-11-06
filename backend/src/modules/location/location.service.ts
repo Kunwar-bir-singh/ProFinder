@@ -11,7 +11,6 @@ import { findOrCreateCityDto } from './dto/location.dto';
 import { Op } from 'sequelize';
 import { formatName } from 'src/utils/formatName.util';
 
-
 @Injectable()
 export class LocationService {
   constructor(
@@ -37,7 +36,7 @@ export class LocationService {
     try {
       const { city, cityID } = dto;
 
-      if(!city && !cityID) return undefined;
+      if (!city && !cityID) return undefined;
 
       const rawName = formatName(city, 'raw');
       const formattedName = formatName(city, 'formatted');
@@ -56,14 +55,13 @@ export class LocationService {
       await transaction.commit();
 
       return newCity.get({ plain: true });
-
     } catch (error) {
       await transaction.rollback();
       handleError(error);
     }
   }
 
-  async checkCityExists<T>(value: T): Promise<Boolean | CitiesModel> {
+  async checkCityExists<T>(value: T): Promise<undefined | CitiesModel> {
     try {
       const cityExists = await this.citiesModel.findOne({
         where: {
@@ -80,10 +78,9 @@ export class LocationService {
         return cityExists;
       }
 
-      return false;
+      return;
     } catch (error) {
       handleError(error);
-      return false;
     }
   }
 

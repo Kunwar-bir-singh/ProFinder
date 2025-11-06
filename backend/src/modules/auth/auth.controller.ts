@@ -19,14 +19,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async registerUser(@Body() dto: any) {
-    return await this.authService.registerUser(dto);
+  async registerUser(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
+    return await this.authService.registerUser(dto, res);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async loginUser(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
-    return this.authService.loginUser(dto, res);
+    return await this.authService.loginUser(dto, res);
   }
 
   @Post('change-password')
@@ -50,7 +50,7 @@ export class AuthController {
     const { refreshToken } = req.cookies;
     const { userID } = req.user!;
 
-    return this.authService.refreshTokens(userID, refreshToken, res);
+    return await this.authService.refreshTokens(userID, refreshToken, res);
   }
 
   @Delete('logout')
