@@ -12,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProviderProfessionModule } from './modules/provider-profession/provider-profession.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { ProviderProfessionModule } from './modules/provider-profession/provider
     UsersModule,
     ProvidersModule,
     ProfessionModule,
-    ProviderProfessionModule
+    ProviderProfessionModule,
+    MailModule
   ],
 
   controllers: [AppController],

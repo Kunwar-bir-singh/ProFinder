@@ -175,7 +175,7 @@ export class UsersService {
         await this.usersBookmarkModel.destroy({
           where: { userID, providerID },
         });
-        return { message: 'Provider unbookmarked successfully!' };
+        return { message: 'Provider un-bookmarked successfully!' };
       }
 
       await this.usersBookmarkModel.create(dto);
