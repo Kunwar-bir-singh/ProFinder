@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { LocationController } from './location.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { CitiesModel } from './model/cities.model';
+import { CitiesModel } from './models/cities.model';
 
 @Module({
   imports: [

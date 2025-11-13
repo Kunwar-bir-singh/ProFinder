@@ -9,7 +9,7 @@ import { JwtRefreshStrategy, JwtStrategy } from './stratergies/jwt.stratergy';
 import { GoogleStrategy } from './stratergies/google.strategy';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { RefreshTokenModel } from './models/refreshToken.model';
-import { UsersModel } from '../users/model/users.model';
+import { UsersModel } from '../users/models/users.model';
 import { ProfessionModule } from '../profession/profession.module';
 import { ProvidersModule } from '../providers/providers.module';
 import { HashModule } from '../hash/hash.module';

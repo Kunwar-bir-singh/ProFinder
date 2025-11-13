@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ProvidersModel } from './model/providers.model';
+import { ProvidersModel } from './models/providers.model';
 import { handleError } from 'src/utils/handle.error';
 
 import { Transaction } from 'sequelize';
@@ -18,12 +18,11 @@ export class ProvidersService {
   async createProvider(
     dto: any,
     transaction?: Transaction,
-  ): Promise<Omit<IDProviderProfessionDto, 'cityID'> | undefined> {
+  ): Promise<Omit<IDProviderProfessionDto, 'city_id'> | undefined> {
     try {
       console.log('Dto bro', dto);
 
-      const profession =
-        await this.professionService.findOrCreateProfession(dto);
+      const profession =  await this.professionService.findOrCreateProfession(dto);
 
       const provider = await this.providerModel.create(dto, {
         transaction: transaction || null,
@@ -32,8 +31,8 @@ export class ProvidersService {
       const plainProvider = provider.get({ plain: true });
 
       return {
-        providerID: plainProvider?.providerID as number,
-        professionID: profession?.professionID as number,
+        provider_id: plainProvider?.provider_id as number,
+        profession_id: profession?.profession_id as number,
       };
     } catch (error) {
       handleError(error);
@@ -49,10 +48,10 @@ export class ProvidersService {
     }
   }
 
-  async checkProviderExists(providerID: number): Promise<boolean> {
+  async checkProviderExists(provider_id: number): Promise<boolean> {
     try {
       const providerExists = await this.providerModel.findOne({
-        where: { providerID },
+        where: { provider_id },
       });
       return providerExists ? true : false;
     } catch (error) {
@@ -63,10 +62,10 @@ export class ProvidersService {
 
   async updateProvider(dto: any, transaction?: Transaction): Promise<boolean> {
     try {
-      const { providerID } = dto;
+      const { provider_id } = dto;
 
       await this.providerModel.update(dto, {
-        where: { providerID },
+        where: { provider_id },
         transaction: transaction || null,
       });
 

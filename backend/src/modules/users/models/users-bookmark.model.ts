@@ -2,16 +2,16 @@ import { Table, Column, Model, DataType, PrimaryKey, BelongsTo, ForeignKey } fro
 import { UsersModel } from './users.model';
 
 interface UserBookmarkAttributes {
-    userID: number;
-    providerID: number;
+    user_id: number;
+    provider_id: number;
 }
 
 @Table({
     tableName: 'users_bookmark',
     schema: 'main',
     timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
 })
 export class UsersBookmarkModel extends Model<UserBookmarkAttributes> {
     @ForeignKey(() => UsersModel)
@@ -21,7 +21,7 @@ export class UsersBookmarkModel extends Model<UserBookmarkAttributes> {
         allowNull: true,
         primaryKey: true,
     })
-    userID?: number;
+    user_id?: number;
 
     @PrimaryKey
     @Column({
@@ -29,7 +29,7 @@ export class UsersBookmarkModel extends Model<UserBookmarkAttributes> {
         allowNull: true,
         primaryKey: true,
     })
-    providerID?: number;
+    provider_id?: number;
 
     @BelongsTo(() => UsersModel)
     user: UsersModel;

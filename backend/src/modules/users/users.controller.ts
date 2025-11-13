@@ -17,25 +17,25 @@ export class UsersController {
     @Get('profile')
     @UseGuards(AuthGuard('jwt'))
     async getUser(@Request() req) {
-        const { userID } = req.user!;
+        const { user_id } = req.user!;
         
-        return await this.usersService.getUserDetails(userID);
+        return await this.usersService.getUserDetails(user_id);
     }
 
     @Get('bookmarks')
     @UseGuards(AuthGuard('jwt'))
     async getBookmarks(@Request() req) {
-        const { userID } = req.user!;
+        const { user_id } = req.user!;
 
-        return await this.usersService.getBookmarkedPrvoiders(userID);
+        return await this.usersService.getBookmarkedPrvoiders(user_id);
     }
 
     @Post('bookmark')
     @UseGuards(AuthGuard('jwt'))
     async updateBookmark(@Req() req, @Body() dto: UserAndProviderDTo) {
-        const { userID } = req.user!;
+        const { user_id } = req.user!;
 
-        dto = { ...dto, userID };
+        dto = { ...dto, user_id };
         
         return await this.usersService.createOrUpdateProviderBookmark(dto);
     }

@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { UsersModel } from '../users/model/users.model';
+import { UsersModel } from '../users/models/users.model';
 import { handleError } from 'src/utils/handle.error';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -49,12 +49,12 @@ export class AuthService {
 
       await transaction.commit();
 
-      if (!result || !result?.userID) {
+      if (!result || !result?.user_id) {
         // defensive: if user creation failed for some reason, throw
         throw new BadRequestException('Failed to create user');
       }
 
-      const fullUser = await this.usersService.getUserDetails(result?.userID);
+      const fullUser = await this.usersService.getUserDetails(result?.user_id);
 
       return this.generateTokens(fullUser, res);
     } catch (error) {
@@ -84,10 +84,10 @@ export class AuthService {
     try {
       console.log('The DTO is: ', dto);
 
-      const { userID, password } = dto;
+      const { email, password } = dto;
 
       const userExists = await this.userModel.findOne({
-        where: { userID },
+        where: { email },
         raw: true,
       });
       if (!userExists) throw new NotFoundException('User does not exist');
@@ -105,9 +105,9 @@ export class AuthService {
       await this.userModel.update(
         {
           password: hashedPassword,
-          lastPasswordChange: new Date(),
+          last_password_change: new Date(),
         },
-        { where: { userID } },
+        { where: { email } },
       );
 
       return;
@@ -116,20 +116,20 @@ export class AuthService {
     }
   }
 
-  async logoutUser(userID: number, res: Response) {
+  async logoutUser(user_id: number, res: Response) {
     res.clearCookie('refreshToken', { path: '/' });
 
-    await this.deleteRefreshToken(userID);
+    await this.deleteRefreshToken(user_id);
   }
 
   /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
   async generateTokens(user: any, res: Response) {
     const payload: JwtPayload = {
-      userID: user.userID,
-      providerID: user?.['provider.providerID'],
+      user_id: user.user_id,
+      provider_id: user?.['provider.provider_id'],
       username: user.username,
       email: user.email,
-      lastPasswordChange: user.lastPasswordChange,
+      last_password_change: user.last_password_change,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -152,10 +152,10 @@ export class AuthService {
     const hashedRefreshToken =
       await this.hashService.hashPassword(refreshToken);
 
-    await this.deleteRefreshToken(user.userID);
+    await this.deleteRefreshToken(user.user_id);
 
     await this.refreshTokenModel.create({
-      userID: user.userID,
+      user_id: user.user_id,
       token: hashedRefreshToken,
       expiresAt: refreshExpiry,
     });
@@ -169,24 +169,24 @@ export class AuthService {
 
     return {
       user: {
-        userID: user.userID,
-        isProvider: user?.['provider.providerID'] ? true : false,
+        user_id: user.user_id,
+        isProvider: user?.['provider.provider_id'] ? true : false,
         username: user.username,
       },
       accessToken,
     };
   }
 
-  async refreshTokens(userID: number, refreshToken: string, res: Response) {
-    const userExists = await this.userModel.findByPk(userID);
+  async refreshTokens(user_id: number, refreshToken: string, res: Response) {
+    const userExists = await this.userModel.findByPk(user_id);
     if (!userExists) throw new UnauthorizedException('The User does not exist');
 
-    const user = await this.validateRefreshToken(userID, refreshToken);
+    const user = await this.validateRefreshToken(user_id, refreshToken);
     if (!user)
       throw new UnauthorizedException('Invalid or expired refresh token');
 
     // Delete old refresh token
-    await this.deleteRefreshToken(userID);
+    await this.deleteRefreshToken(user_id);
 
     // Create new refresh token
     return this.generateTokens(user, res);
@@ -194,10 +194,10 @@ export class AuthService {
 
   /* Function to validate the refresh token 
     Used in : refreshTokens() */
-  async validateRefreshToken(userID: number, refreshToken: string) {
+  async validateRefreshToken(user_id: number, refreshToken: string) {
     const record = await this.refreshTokenModel.findOne({
       where: {
-        userID: userID,
+        user_id: user_id,
         expiresAt: { [Op.gt]: new Date() },
       },
       include: [{ model: UsersModel, as: 'user' }],
@@ -220,15 +220,15 @@ export class AuthService {
     }
 
     return {
-      userID: record.userID,
+      user_id: record.user_id,
     };
   }
 
   /* Function to delete the refresh token 
     Used in : refreshTokens() */
-  async deleteRefreshToken(userID: number) {
+  async deleteRefreshToken(user_id: number) {
     // const record = await this.refreshTokenModel.findOne({
-    //   where: { userID },
+    //   where: { user_id },
     //   raw: true,
     // });
 
@@ -243,7 +243,7 @@ export class AuthService {
 
     await this.refreshTokenModel.destroy({
       where: {
-        userID: userID,
+        user_id: user_id,
       },
     });
   }

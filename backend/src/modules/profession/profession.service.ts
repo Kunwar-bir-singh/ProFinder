@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import {
   ProfessionAttributes,
   ProfessionsModel,
-} from './model/profession.model';
+} from './models/profession.model';
 import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
 import { LocationService } from '../location/location.service';
@@ -27,19 +27,19 @@ export class ProfessionService {
   ): Promise<ProfessionAttributes | undefined> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { professionID, professionName } = dto;
+      const { profession_id, profession_name } = dto;
 
-      const rawName = formatName(professionName, 'raw');
-      const formattedName = formatName(professionName, 'formatted');
+      const raw_name = formatName(profession_name, 'raw');
+      const formattedName = formatName(profession_name, 'formatted');
 
-      const professionExists = await this.checkProfessionExists<number | string>(professionID || rawName);
+      const professionExists = await this.checkProfessionExists<number | string>(profession_id || raw_name);
 
       if (professionExists) {
         return professionExists as ProfessionAttributes;
       }
 
       const newProfession = await this.professionModel.create(
-        { professionName: formattedName, rawName },
+        { profession_name: formattedName, raw_name },
         { transaction },
       );
 
@@ -58,9 +58,9 @@ export class ProfessionService {
       const professionExists = await this.professionModel.findOne({
         where: {
           [Op.or]: [
-            { professionName: { [Op.eq]: String(value || '') } },
-            { rawName: { [Op.eq]: String(value || '') } },
-            { professionID: { [Op.eq]: Number(value) || -1 } },
+            { profession_name: { [Op.eq]: String(value || '') } },
+            { raw_name: { [Op.eq]: String(value || '') } },
+            { profession_id: { [Op.eq]: Number(value) || -1 } },
           ],
         },
         raw: true,
@@ -80,23 +80,23 @@ export class ProfessionService {
   async createProfession(dto: any): Promise<IDProviderProfessionDto | null> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { providerID, professionName } = dto;
+      const { provider_id, profession_name } = dto;
 
-      const rawName = formatName(professionName, 'raw');
-      const formattedName = formatName(professionName, 'formatted');
+      const raw_name = formatName(profession_name, 'raw');
+      const formattedName = formatName(profession_name, 'formatted');
 
       const professionCity = await this.locationService.findOrCreateCity(dto);
 
       const newProfession = await this.professionModel.create(
-        { professionName: formattedName, rawName },
+        { profession_name: formattedName, raw_name },
         { transaction },
       );
 
       await transaction.commit();
       return {
-        providerID,
-        cityID: professionCity?.cityID as number,
-        professionID: newProfession?.professionID as number,
+        provider_id,
+        city_id: professionCity?.city_id as number,
+        profession_id: newProfession?.profession_id as number,
       };
     } catch (error) {
       await transaction.rollback();
@@ -107,12 +107,12 @@ export class ProfessionService {
 
   // async getProfessionsPerCity(dto: any) {
   //   try {
-  //     const { cityID } = dto;
+  //     const { city_id } = dto;
   //     const professions = await this.professionModel.findAll({
   //       include: [
   //         {
   //           model: this.cityModel,
-  //           where: { cityID },
+  //           where: { city_id },
   //           required: true,
   //         },
   //       ],

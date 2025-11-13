@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MAIL_CONSTANTS } from './constants/mail.constants';
@@ -23,7 +23,7 @@ export class MailService implements OnModuleInit {
       const mailConfig: MailConfig = {
         host: this.configService.get<string>('GMAIL_SMTP_HOST') || MAIL_CONSTANTS.SMTP.HOST,
         port: this.configService.get<number>('GMAIL_SMTP_PORT') || MAIL_CONSTANTS.SMTP.PORT,
-        secure: this.configService.get<boolean>('GMAIL_SMTP_SECURE') || MAIL_CONSTANTS.SMTP.SECURE,
+        secure: this.parseBoolean(this.configService.get<string>('GMAIL_SMTP_SECURE')) || MAIL_CONSTANTS.SMTP.SECURE,
         auth: {
           user: this.configService.get<string>('GMAIL_USER') || MAIL_CONSTANTS.AUTH.USER,
           pass: this.configService.get<string>('GMAIL_APP_PASSWORD') || MAIL_CONSTANTS.AUTH.PASS,
@@ -36,7 +36,7 @@ export class MailService implements OnModuleInit {
         return;
       }
 
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: mailConfig.host,
         port: mailConfig.port,
         secure: mailConfig.secure,
@@ -54,6 +54,11 @@ export class MailService implements OnModuleInit {
       this.logger.error('Failed to initialize email service:', error);
       this.isConfigured = false;
     }
+  }
+
+  private parseBoolean(value: string | undefined): boolean {
+    if (!value) return false;
+    return value.toLowerCase() === 'true';
   }
 
   private isMailServiceAvailable(): boolean {
@@ -154,14 +159,14 @@ export class MailService implements OnModuleInit {
     }
   }
 
-  getConfigurationStatus(): { isConfigured: boolean; isAvailable: boolean; config: any } {
+  getConfigurationStatus(): { isConfigured: boolean; is_available: boolean; config: any } {
     return {
       isConfigured: this.isConfigured,
-      isAvailable: this.isMailServiceAvailable(),
+      is_available: this.isMailServiceAvailable(),
       config: {
         host: this.configService.get<string>('GMAIL_SMTP_HOST') || MAIL_CONSTANTS.SMTP.HOST,
         port: this.configService.get<number>('GMAIL_SMTP_PORT') || MAIL_CONSTANTS.SMTP.PORT,
-        secure: this.configService.get<boolean>('GMAIL_SMTP_SECURE') || MAIL_CONSTANTS.SMTP.SECURE,
+        secure: this.parseBoolean(this.configService.get<string>('GMAIL_SMTP_SECURE')) || MAIL_CONSTANTS.SMTP.SECURE,
         from: this.configService.get<string>('MAIL_FROM') || MAIL_CONSTANTS.EMAIL.FROM,
         hasCredentials: !!(this.configService.get<string>('GMAIL_USER') && this.configService.get<string>('GMAIL_APP_PASSWORD')),
       },

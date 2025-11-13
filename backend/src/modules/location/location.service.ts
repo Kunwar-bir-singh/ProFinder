@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CitiesModel, CityAttributes } from './model/cities.model';
+import { CitiesModel, CityAttributes } from './models/cities.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { handleError } from 'src/utils/handle.error';
 import { Sequelize } from 'sequelize-typescript';
@@ -22,7 +22,7 @@ export class LocationService {
   async getAllCitiesDropDown() {
     try {
       return await this.citiesModel.findAll({
-        attributes: ['cityID', 'cityName', 'rawName'],
+        attributes: ['city_id', 'city_name', 'raw_name'],
       });
     } catch (error) {
       handleError(error);
@@ -34,21 +34,21 @@ export class LocationService {
   ): Promise<CityAttributes | undefined> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { city, cityID } = dto;
+      const { city, city_id } = dto;
 
-      if (!city && !cityID) return undefined;
+      if (!city && !city_id) return undefined;
 
-      const rawName = formatName(city, 'raw');
+      const raw_name = formatName(city, 'raw');
       const formattedName = formatName(city, 'formatted');
 
-      const cityExists = await this.checkCityExists<string>(cityID || rawName);
+      const cityExists = await this.checkCityExists<string>(city_id || raw_name);
 
       if (cityExists) {
         return cityExists as CityAttributes;
       }
 
       const newCity = await this.citiesModel.create(
-        { cityName: formattedName, rawName },
+        { city_name: formattedName, raw_name },
         { transaction },
       );
 
@@ -66,9 +66,9 @@ export class LocationService {
       const cityExists = await this.citiesModel.findOne({
         where: {
           [Op.or]: [
-            { cityName: { [Op.eq]: String(value || '') } },
-            { rawName: { [Op.eq]: String(value || '') } },
-            { cityID: { [Op.eq]: Number(value) || -1 } },
+            { city_name: { [Op.eq]: String(value || '') } },
+            { raw_name: { [Op.eq]: String(value || '') } },
+            { city_id: { [Op.eq]: Number(value) || -1 } },
           ],
         },
         raw: true,
@@ -84,11 +84,11 @@ export class LocationService {
     }
   }
 
-  async deleteCity(cityID: number): Promise<Boolean> {
+  async deleteCity(city_id: number): Promise<Boolean> {
     try {
-      await RecordNotFoundException(CitiesModel, { cityID }, 'City not found');
+      await RecordNotFoundException(CitiesModel, { city_id }, 'City not found');
 
-      await this.citiesModel.destroy({ where: { cityID } });
+      await this.citiesModel.destroy({ where: { city_id } });
       return true;
     } catch (error) {
       handleError(error);

@@ -1,10 +1,10 @@
 export class IDProviderProfessionDto {
-  providerID: number;
-  professionID: number;
-  cityID: number;
+  provider_id: number;
+  profession_id: number;
+  city_id: number;
 }
 export class GetProviderProfessionDto {
-  providerID: number;
+  provider_id: number;
   city: string;
   profession: string;
 }

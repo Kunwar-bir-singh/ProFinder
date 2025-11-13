@@ -1,8 +1,8 @@
 import { BelongsTo, Column, DataType, ForeignKey, Index, Model, PrimaryKey, Table } from "sequelize-typescript";
-import { UsersModel } from "src/modules/users/model/users.model";
+import { UsersModel } from "src/modules/users/models/users.model";
 
 interface RefreshTokenAttributes {
-    userID: number;
+    user_id: number;
     token: string;
     expiresAt: Date;
 }
@@ -19,7 +19,7 @@ export class RefreshTokenModel extends Model<RefreshTokenAttributes> {
         type: DataType.INTEGER,
         allowNull: false,
     })
-    userID!: number;
+    user_id!: number;
 
     @Index
     @Column({

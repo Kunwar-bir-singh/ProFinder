@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import {
   OTPData,
   OTPGenerationOptions,
@@ -7,26 +7,21 @@ import {
 } from './interfaces/otp.interface';
 import { MAIL_CONSTANTS } from './constants/mail.constants';
 import { MailService } from './mail.service';
-
+import { InjectModel } from '@nestjs/sequelize';
+import { OTPModel } from './models/otp.model';
+import { handleError } from 'src/utils/handle.error';
+import { Exception } from 'src/common/interface/exception.interface';
+import { ValidateOtpDto } from './dto/otp.dto';
 @Injectable()
 export class OTPService {
   private readonly logger = new Logger(OTPService.name);
+  private MAX_ATTEMPTS = 3;
 
-  // In-memory storage for OTPs (in production, use Redis or database)
-  private otpStore = new Map<string, OTPData>();
-
-  // Cleanup interval (5 minutes)
-  private cleanupInterval: NodeJS.Timeout;
-
-  constructor(private readonly mailService: MailService) {
-    // Start cleanup interval
-    this.cleanupInterval = setInterval(
-      () => {
-        this.cleanupExpiredOTPs();
-      },
-      5 * 60 * 1000,
-    ); // 5 minutes
-  }
+  constructor(
+    @InjectModel(OTPModel)
+    private readonly otpModel: typeof OTPModel,
+    private readonly mailService: MailService,
+  ) {}
 
   /**
    * Generate a secure 6-digit OTP
@@ -51,20 +46,17 @@ export class OTPService {
         expiresAt.getMinutes() + (options.expiresInMinutes || 10),
       );
 
-      // Create unique key for storage
-      const storageKey = `${email}_${options.purpose}`;
-
       // Store OTP data
       const otpData: OTPData = {
         otp,
         email,
-        purpose: options.purpose,
-        expiresAt,
-        attempts: 0,
-        maxAttempts: options.maxAttempts || 3,
+        otp_type: options.purpose,
+        expires_at: expiresAt,
+        current_attempts: 0,
+        max_attempts: this.MAX_ATTEMPTS || 3,
       };
 
-      this.otpStore.set(storageKey, otpData);
+      await this.otpModel.create(otpData);
 
       this.logger.log(
         `Generated OTP for ${email} (${options.purpose}): ${otp}`,
@@ -91,25 +83,36 @@ export class OTPService {
   /**
    * Validate an OTP for the specified email and purpose
    */
-  async validateOTP(
-    email: string,
-    inputOTP: string,
-    purpose: 'password_reset' | 'email_verification' | 'two_factor',
-  ): Promise<OTPValidationResult> {
+  async validateOTP(dto : ValidateOtpDto): Promise<OTPValidationResult | undefined> {
     try {
-      const storageKey = `${email}_${purpose}`;
-      const otpData = this.otpStore.get(storageKey);
+      const { email, otp: inputOTP, purpose } = dto;
+      
+      const whereClause = {
+        email,
+        otp_type: purpose,
+        otp: inputOTP,
+      };
+
+      const otpData = await this.otpModel.findOne({
+        where: whereClause,
+        raw: true,
+      });
 
       if (!otpData) {
-        return {
-          isValid: false,
-          error: 'OTP not found or expired',
-        };
+        const exception : Exception = {
+          errors: [
+            { message: 'Invalid OTP'},
+          ],
+          message: 'OTP validation failed',
+        } 
+        throw new BadRequestException(exception);
       }
 
       // Check if OTP is expired
-      if (new Date() > otpData.expiresAt) {
-        this.otpStore.delete(storageKey);
+      if (new Date() > otpData.expires_at) {
+        await this.otpModel.destroy({
+          where: whereClause,
+        });
         return {
           isValid: false,
           isExpired: true,
@@ -118,8 +121,11 @@ export class OTPService {
       }
 
       // Check if max attempts reached
-      if (otpData.attempts >= otpData.maxAttempts) {
-        this.otpStore.delete(storageKey);
+      if (otpData?.current_attempts as number >= this.MAX_ATTEMPTS) {
+        await this.otpModel.destroy({
+          where: whereClause,
+        });
+
         return {
           isValid: false,
           maxAttemptsReached: true,
@@ -128,30 +134,34 @@ export class OTPService {
       }
 
       // Increment attempts
-      otpData.attempts++;
-      this.otpStore.set(storageKey, otpData);
+      const attempts = otpData?.current_attempts as number + 1;
+      await this.otpModel.update(
+        { attempts },
+        {
+          where: whereClause,
+        },
+      );
 
       // Validate OTP
       if (otpData.otp === inputOTP) {
         // OTP is valid, remove it from store (one-time use)
-        this.otpStore.delete(storageKey);
+        await this.otpModel.destroy({
+          where: whereClause,
+        });
+
         return {
           isValid: true,
-          remainingAttempts: otpData.maxAttempts - otpData.attempts,
         };
       } else {
         return {
           isValid: false,
-          remainingAttempts: otpData.maxAttempts - otpData.attempts,
+          remainingAttempts: this.MAX_ATTEMPTS - (otpData?.current_attempts || 0 ) - 1,
           error: 'Invalid OTP',
         };
       }
     } catch (error) {
       this.logger.error('Failed to validate OTP:', error);
-      return {
-        isValid: false,
-        error: 'Failed to validate OTP',
-      };
+      handleError(error);
     }
   }
 
@@ -329,45 +339,26 @@ If you didn't attempt to log in, please secure your account immediately.
   }
 
   /**
-   * Clean up expired OTPs
-   */
-  private cleanupExpiredOTPs(): void {
-    const now = new Date();
-    let cleanedCount = 0;
-
-    for (const [key, otpData] of this.otpStore.entries()) {
-      if (now > otpData.expiresAt) {
-        this.otpStore.delete(key);
-        cleanedCount++;
-      }
-    }
-
-    if (cleanedCount > 0) {
-      this.logger.log(`Cleaned up ${cleanedCount} expired OTPs`);
-    }
-  }
-
-  /**
   /**
    * Get OTP status for monitoring/debugging
    */
-  getOTPStatus(
-    email: string,
-    purpose: 'password_reset' | 'email_verification' | 'two_factor',
-  ) {
-    const storageKey = `${email}_${purpose}`;
-    const otpData = this.otpStore.get(storageKey);
+  // getOTPStatus(
+  //   email: string,
+  //   purpose: 'password_reset' | 'email_verification' | 'two_factor',
+  // ) {
+  //   const storageKey = `${email}_${purpose}`;
+  //   const otpData = this.otpStore.get(storageKey);
 
-    if (!otpData) {
-      return { exists: false };
-    }
+  //   if (!otpData) {
+  //     return { exists: false };
+  //   }
 
-    return {
-      exists: true,
-      expiresAt: otpData.expiresAt,
-      attempts: otpData.attempts,
-      maxAttempts: otpData.maxAttempts,
-      isExpired: new Date() > otpData.expiresAt,
-    };
-  }
+  //   return {
+  //     exists: true,
+  //     expiresAt: otpData.expiresAt,
+  //     attempts: otpData.attempts,
+  //     maxAttempts: otpData.maxAttempts,
+  //     isExpired: new Date() > otpData.expiresAt,
+  //   };
+  // }
 }

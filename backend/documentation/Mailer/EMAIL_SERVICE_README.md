@@ -230,8 +230,8 @@ import { MailService } from '../mail/mail.service';
 export class UsersService {
   constructor(private readonly mailService: MailService) {}
 
-  async updateProfile(userId: number, updateData: UpdateUserDto) {
-    const user = await this.userRepository.update(updateData, { where: { id: userId } });
+  async updateProfile(user_id: number, updated_ata: UpdateUserDto) {
+    const user = await this.userRepository.update(updated_ata, { where: { id: user_id } });
     
     // Send confirmation email for profile updates
     await this.mailService.sendEmail({

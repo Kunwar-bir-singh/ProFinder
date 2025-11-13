@@ -7,16 +7,16 @@ import {
   AutoIncrement,
 } from 'sequelize-typescript';
 export interface ProfessionAttributes {
-  professionID?: number;
-  professionName: string;
-  rawName: string;
+  profession_id?: number;
+  profession_name: string;
+  raw_name: string;
 }
 @Table({
   tableName: 'professions',
   schema: 'main', // Specify the schema name here
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
 })
 export class ProfessionsModel extends Model<ProfessionAttributes> {
   // Use a class name Projsubmodule
@@ -28,17 +28,17 @@ export class ProfessionsModel extends Model<ProfessionAttributes> {
     primaryKey: true,
     autoIncrement: true,
   })
-  professionID?: number;
+  profession_id?: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  professionName?: string;
+  profession_name?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  rawName?: string;
+  raw_name?: string;
 }

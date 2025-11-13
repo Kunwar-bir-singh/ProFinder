@@ -7,17 +7,17 @@ import {
 } from 'sequelize-typescript';
 
 interface ProviderProfessionAttributes {
-  providerID: number;
-  cityID: number;
-  professionID: number;
+  provider_id: number;
+  city_id: number;
+  profession_id: number;
 }
 
 @Table({
   tableName: 'provider_profession',
   schema: 'main', // Specify the schema name here
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
 })
 export class ProviderProfessionModel extends Model<ProviderProfessionAttributes> {
   // Use a class name Projsubmodule
@@ -26,19 +26,19 @@ export class ProviderProfessionModel extends Model<ProviderProfessionAttributes>
     type: DataType.INTEGER,
     primaryKey: true,
   })
-  providerID?: number;
+  provider_id?: number;
 
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
-  cityID?: number;
+  city_id?: number;
 
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
   })
-  professionID?: number;
+  profession_id?: number;
 }

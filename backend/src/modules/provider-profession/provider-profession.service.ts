@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ProfessionService } from '../profession/profession.service';
-import { ProviderProfessionModel } from './model/provider-profession.model';
+import { ProviderProfessionModel } from './models/provider-profession.model';
 import { LocationService } from '../location/location.service';
 import {
   GetProviderProfessionDto,
@@ -23,9 +23,9 @@ export class ProviderProfessionService {
 
   async linkProviderProfession(dto: IDProviderProfessionDto) {
     try {
-      const { providerID, cityID, professionID } = dto;
+      const { provider_id, city_id, profession_id } = dto;
 
-      if (!providerID) {
+      if (!provider_id) {
         const exception: Exception = {
           errors: [
             {
@@ -38,7 +38,7 @@ export class ProviderProfessionService {
       }
 
       const alreadyLinked = await this.providerProfessionModel.findOne({
-        where: { providerID, cityID, professionID },
+        where: { provider_id, city_id, profession_id },
       });
       if (alreadyLinked)
         throw new BadRequestException('Profession already linked to provider');
@@ -53,16 +53,16 @@ export class ProviderProfessionService {
 
   async unLinkProviderProfession(dto: IDProviderProfessionDto) {
     try {
-      const { providerID, cityID, professionID } = dto;
+      const { provider_id, city_id, profession_id } = dto;
 
       const alreadyLinked = await this.providerProfessionModel.findOne({
-        where: { providerID, cityID, professionID },
+        where: { provider_id, city_id, profession_id },
       });
       if (!alreadyLinked)
         throw new BadRequestException('Profession not linked to provider');
 
       await this.providerProfessionModel.destroy({
-        where: { providerID, cityID, professionID },
+        where: { provider_id, city_id, profession_id },
       });
 
       return { message: 'Profession unlinked from provider successfully!' };
@@ -74,24 +74,24 @@ export class ProviderProfessionService {
   async getProviderPerProfessionPerCity(dto: GetProviderProfessionDto) {
     try {
       const { city, profession } = dto;
-      const rawCityName = formatName(city);
-      const rawProfessionName = formatName(profession);
+      const rawcity_name = formatName(city);
+      const rawprofession_name = formatName(profession);
 
       const professionExists =
-        await this.professionService.checkProfessionExists(rawProfessionName);
+        await this.professionService.checkProfessionExists(rawprofession_name);
 
       if (!professionExists)
         throw new BadRequestException('Profession not found');
 
       const cityExists =
-        await this.locationService.checkCityExists(rawCityName);
+        await this.locationService.checkCityExists(rawcity_name);
       if (!cityExists) throw new BadRequestException('City not found');
 
       const { rows, count } =
         await this.providerProfessionModel.findAndCountAll({
           where: {
-            cityID: cityExists?.cityID,
-            professionID: professionExists?.professionID,
+            city_id: cityExists?.city_id,
+            profession_id: professionExists?.profession_id,
           },
           raw: true,
         });

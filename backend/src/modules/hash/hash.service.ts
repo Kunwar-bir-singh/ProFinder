@@ -10,6 +10,10 @@ export class HashService {
         this.saltRounds = parseInt(this.configService.get('SALT_ROUNDS', '12'));
     }
 
+    async hashToken(): Promise<string> {
+        return bcrypt.hash(Date.now().toString(), this.saltRounds);
+    }
+
     async hashPassword(password: string): Promise<string> {
         return bcrypt.hash(password, this.saltRounds);
     }

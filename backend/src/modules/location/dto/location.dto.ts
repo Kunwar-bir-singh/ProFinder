@@ -5,7 +5,7 @@ export class findOrCreateCityDto {
     @Column
     @IsInt()
     @IsOptional()
-    cityID: string
+    city_id: string
 
     @Column
     @IsString()
@@ -15,5 +15,5 @@ export class findOrCreateCityDto {
     @Column
     @IsInt()
     @IsOptional()
-    userID : number 
+    user_id : number 
 }

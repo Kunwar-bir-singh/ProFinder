@@ -1,12 +1,12 @@
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, BelongsTo, ForeignKey } from 'sequelize-typescript';
-import { UsersModel } from 'src/modules/users/model/users.model';
+import { UsersModel } from 'src/modules/users/models/users.model';
 
 @Table({
     tableName: 'providers',
     schema: 'main', // Specify the schema name here
     timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
 })
 export class ProvidersModel extends Model<ProvidersModel> { // Use a class name Projsubmodule
     @AutoIncrement
@@ -17,13 +17,13 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
         primaryKey: true,
         autoIncrement: true,
     })
-    providerID?: number;
+    provider_id?: number;
 
     @ForeignKey(() => UsersModel)
     @Column({
         type: DataType.INTEGER,
     })
-    userID!: number;
+    user_id!: number;
 
     @Column({
         type: DataType.STRING,
@@ -39,7 +39,7 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
     @Column({
         type: DataType.BOOLEAN,
     })
-    isAvailable: boolean
+    is_available: boolean
 
     @BelongsTo(() => UsersModel)
     user: UsersModel;

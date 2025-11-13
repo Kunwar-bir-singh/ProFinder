@@ -26,10 +26,10 @@ export class ProvidersProfessionController {
     @Body() dto: IDProviderProfessionDto,
     @Req() req,
   ) {
-    const { providerID } = req.user!;
+    const { provider_id } = req.user!;
     console.log('Req', req.user);
 
-    dto.providerID = providerID;
+    dto.provider_id = provider_id;
     return this.providerProfessionService.linkProviderProfession(dto);
   }
 

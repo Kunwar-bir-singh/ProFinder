@@ -8,25 +8,25 @@ import {
   BelongsTo,
   HasMany,
 } from 'sequelize-typescript';
-import { UsersModel } from 'src/modules/users/model/users.model';
+import { UsersModel } from 'src/modules/users/models/users.model';
 
 export interface CityCreationAttributes extends Partial<CityAttributes> {
-  cityName: string;
-  rawName: string;
+  city_name: string;
+  raw_name: string;
 }
 
 export interface CityAttributes {
-  cityID?: number;
-  cityName?: string;
-  rawName?: string;
+  city_id?: number;
+  city_name?: string;
+  raw_name?: string;
 }
 
 @Table({
   tableName: 'cities',
   schema: 'main', // Specify the schema name here
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
 })
 export class CitiesModel extends Model<CityAttributes, CityCreationAttributes> {
   // Use a class name Projsubmodule
@@ -38,19 +38,19 @@ export class CitiesModel extends Model<CityAttributes, CityCreationAttributes> {
     primaryKey: true,
     autoIncrement: true,
   })
-  cityID?: number;
+  city_id?: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  cityName?: string;
+  city_name?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  rawName?: string;
+  raw_name?: string;
 
   @HasMany(() => UsersModel, { as: 'users' })
   users: UsersModel[];

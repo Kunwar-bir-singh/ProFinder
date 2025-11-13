@@ -1,14 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { UsersModel } from './model/users.model';
+import { UsersModel } from './models/users.model';
 import { handleError } from 'src/utils/handle.error';
 import { UserAndProviderDTo } from '../global/dto/common.dto';
-import { UsersBookmarkModel } from './model/users-bookmark.model';
+import { UsersBookmarkModel } from './models/users-bookmark.model';
 import { Op, Transaction } from 'sequelize';
 import { ProvidersService } from '../providers/providers.service';
 import { Sequelize } from 'sequelize-typescript';
 import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
-import { ProvidersModel } from '../providers/model/providers.model';
+import { ProvidersModel } from '../providers/models/providers.model';
 import { UserExistsDto } from '../auth/dto/auth.dto';
 import { LocationService } from '../location/location.service';
 
@@ -39,7 +39,7 @@ export class UsersService {
       const city = await this.locationService.findOrCreateCity(dto);
 
       const userCreated = await this.userModel.create(
-        { ...dto, cityID: city?.cityID },
+        { ...dto, city_id: city?.city_id },
         { transaction },
       );
 
@@ -47,7 +47,7 @@ export class UsersService {
 
       if (dto.isProvider) {
         await this.providersService.createProvider(
-          { ...dto, userID: plainUser.userID },
+          { ...dto, user_id: plainUser.user_id },
           transaction,
         );
       }
@@ -92,17 +92,17 @@ export class UsersService {
     }
   }
 
-  async getUserDetails(userID: number) {
+  async getUserDetails(user_id: number) {
     try {
       return await this.userModel.findOne({
-        where: { userID },
+        where: { user_id },
         raw: true,
         attributes: { exclude: ['password'] },
         include: [
           {
             model: this.providersModel,
             as: 'provider',
-            attributes: ['providerID', 'description'],
+            attributes: ['provider_id', 'description'],
           },
         ],
       });
@@ -111,10 +111,10 @@ export class UsersService {
     }
   }
 
-  async getBookmarkedPrvoiders(userID: number) {
+  async getBookmarkedPrvoiders(user_id: number) {
     try {
       const { rows, count} = await this.usersBookmarkModel.findAndCountAll({
-        where: { userID },
+        where: { user_id },
         raw: true,
       });
 
@@ -127,18 +127,18 @@ export class UsersService {
   async updateUserDetails(dto: any): Promise<Boolean> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { userID } = dto;
+      const { user_id } = dto;
 
       await RecordNotFoundException(
-        userID,
-        await this.userModel.findOne({ where: { userID }, raw: true }),
+        user_id,
+        await this.userModel.findOne({ where: { user_id }, raw: true }),
       );
 
       const city = await this.locationService.findOrCreateCity(dto);
 
       await this.userModel.update(
-        { ...dto, cityID: city?.cityID },
-        { where: { userID }, transaction },
+        { ...dto, city_id: city?.city_id },
+        { where: { user_id }, transaction },
       );
 
       if (dto.isProvider) {
@@ -154,26 +154,26 @@ export class UsersService {
 
   async createOrUpdateProviderBookmark(dto: UserAndProviderDTo) {
     try {
-      const { userID, providerID } = dto;
+      const { user_id, provider_id } = dto;
 
       await RecordNotFoundException(
         this.userModel,
-        { userID },
+        { user_id },
         'User not found',
       );
       await RecordNotFoundException(
         this.providersModel,
-        { providerID },
+        { provider_id },
         'Provider not found',
       );
 
       const alreadyBookmarked = await this.usersBookmarkModel.findOne({
-        where: { userID, providerID },
+        where: { user_id, provider_id },
       });
 
       if (alreadyBookmarked) {
         await this.usersBookmarkModel.destroy({
-          where: { userID, providerID },
+          where: { user_id, provider_id },
         });
         return { message: 'Provider un-bookmarked successfully!' };
       }

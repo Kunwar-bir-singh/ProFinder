@@ -144,12 +144,12 @@ function SearchResults() {
 ```tsx
 import { useGetProviderByIdQuery } from '@/lib/hooks'
 
-function ProviderDetails({ providerId }: { providerId?: string }) {
-  const { data, error, isLoading } = useGetProviderByIdQuery(providerId!, {
-    skip: !providerId // Only run query if providerId exists
+function ProviderDetails({ provider_id }: { provider_id?: string }) {
+  const { data, error, isLoading } = useGetProviderByIdQuery(provider_id!, {
+    skip: !provider_id // Only run query if provider_id exists
   })
 
-  if (!providerId) return <div>No provider selected</div>
+  if (!provider_id) return <div>No provider selected</div>
   if (isLoading) return <div>Loading provider...</div>
   if (error) return <div>Error loading provider</div>
 

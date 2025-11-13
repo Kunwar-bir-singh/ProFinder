@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UsersModel } from './model/users.model';
-import { CitiesModel } from '../location/model/cities.model';
-import { UsersBookmarkModel } from './model/users-bookmark.model';
+import { UsersModel } from './models/users.model';
+import { CitiesModel } from '../location/models/cities.model';
+import { UsersBookmarkModel } from './models/users-bookmark.model';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { ProvidersModule } from '../providers/providers.module';

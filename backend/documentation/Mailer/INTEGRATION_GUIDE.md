@@ -166,22 +166,22 @@ export class UsersService {
     }
   }
 
-  async updateProfile(userId: number, updateData: UpdateUserDto) {
+  async updateProfile(user_id: number, updated_ata: UpdateUserDto) {
     try {
-      const user = await this.userRepository.update(updateData, { 
-        where: { id: userId } 
+      const user = await this.userRepository.update(updated_ata, { 
+        where: { id: user_id } 
       });
       
       // Send confirmation email for important profile updates
-      if (updateData.email) {
+      if (updated_ata.email) {
         const emailResult = await this.mailService.sendEmail({
-          to: updateData.email,
+          to: updated_ata.email,
           subject: 'Email Updated - ProFinder',
-          html: `<p>Your email has been successfully updated to ${updateData.email}.</p>`
+          html: `<p>Your email has been successfully updated to ${updated_ata.email}.</p>`
         });
 
         if (emailResult.success) {
-          this.logger.log(`Profile update confirmation sent to ${updateData.email}`);
+          this.logger.log(`Profile update confirmation sent to ${updated_ata.email}`);
         }
       }
 

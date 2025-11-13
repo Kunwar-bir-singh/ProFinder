@@ -1,13 +1,13 @@
 export interface JwtPayload {
-    userID: number;
-    providerID?: number;
+    user_id: number;
+    provider_id?: number;
     username: string;
     email: string;
-    lastPasswordChange: Date;
+    last_password_change: Date;
     isProvider?: boolean;
 }
 
 export interface AuthenticatedUser {
-  userID: number;
+  user_id: number;
 }
 

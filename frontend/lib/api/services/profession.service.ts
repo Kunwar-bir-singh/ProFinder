@@ -1,20 +1,21 @@
-import { ApiResponse } from "@/lib/utils/types/types";
-import { api } from "../api";
-
+import { ApiResponse, Profession, CreateProfessionRequest, PaginationParams } from "@/lib/utils/types/types";
+import { api } from "@/lib/api/api";
 
 export const professionService = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get all professions
     getProfessions: builder.query<
       ApiResponse<Profession[]>,
-      PaginationParams
-       | void
+      PaginationParams | void
     >({
-      query: (params = {}) => ({
-        url: "/professions",
-        method: "GET",
-        params,
-      }),
+      query: (params) => {
+        const queryParams = params ? params : undefined;
+        return {
+          url: "/professions",
+          method: "GET",
+          params: queryParams,
+        };
+      },
       providesTags: ["Profession"],
     }),
 

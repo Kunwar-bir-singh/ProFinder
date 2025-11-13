@@ -1,9 +1,9 @@
 export function formatName(
-  cityName: string,
+  city_name: string,
   type: 'raw' | 'formatted' = 'raw',
 ): string {
-  if (type === 'raw') return cityName.trim().toLowerCase().replace(/\s+/g, '');
-  return cityName
+  if (type === 'raw') return city_name.trim().toLowerCase().replace(/\s+/g, '');
+  return city_name
     .trim()
     .toLowerCase()
     .split(/\s+/)

@@ -1,4 +1,4 @@
 export class UserAndProviderDTo {
-    userID: number;
-    providerID: number;
+    user_id: number;
+    provider_id: number;
 }

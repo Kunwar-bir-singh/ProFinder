@@ -19,15 +19,15 @@ export class LocationController {
     @Post()
     @UseGuards(AuthGuard('jwt'))
     async findOrCreateCity(@Body() dto: findOrCreateCityDto, @Req() req) {
-        const { userID } = req.user!;
-        dto.userID = userID;
+        const { user_id } = req.user!;
+        dto.user_id = user_id;
         return await this.locationService.findOrCreateCity(dto);
     }
 
     @Delete()
     @UseGuards(AuthGuard('jwt'))
-    async deleteCity(@Query('cityID') cityID: number) {
-        return await this.locationService.deleteCity(cityID);
+    async deleteCity(@Query('city_id') city_id: number) {
+        return await this.locationService.deleteCity(city_id);
     }
 
 }

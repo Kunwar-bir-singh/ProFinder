@@ -29,15 +29,11 @@ export class AuthController {
     return await this.authService.loginUser(dto, res);
   }
 
-  @Post('change-password')
+  @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
-  async changePassword(@Body() dto: any, @Req() req: Request) {
-    const { userID } = req.user!;
+  async changePassword(@Body() dto: any ) {
 
-    const data = { userID, ...dto };
-
-    await this.authService.changePassword(data);
+    await this.authService.changePassword(dto);
   }
 
   @Post('refresh')
@@ -48,9 +44,9 @@ export class AuthController {
   ) {
     console.log(' req:', req);
     const { refreshToken } = req.cookies;
-    const { userID } = req.user!;
+    const { user_id } = req.user!;
 
-    return await this.authService.refreshTokens(userID, refreshToken, res);
+    return await this.authService.refreshTokens(user_id, refreshToken, res);
   }
 
   @Delete('logout')
@@ -59,9 +55,9 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { userID } = req.user!;
+    const { user_id } = req.user!;
 
-    await this.authService.logoutUser(userID, res);
+    await this.authService.logoutUser(user_id, res);
   }
 
   @Get('google')

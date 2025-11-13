@@ -34,8 +34,8 @@ export interface RegisterRequest  {
 }
 
 export interface UserResponse {
-  userID: number;
-  providerID: number | null;
+  user_id: number;
+  provider_id: number | null;
   username: string;
   email?: string;
   isProvider?: boolean;
@@ -50,4 +50,29 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
+}
+
+// Pagination parameters
+export interface PaginationParams {
+  pageNumber?: number;
+  rowsPerPage?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+// Profession types
+export interface Profession {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Create profession request
+export interface CreateProfessionRequest {
+  name: string;
+  category: string;
+  description?: string;
 }

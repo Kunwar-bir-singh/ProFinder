@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpStatus, HttpCode } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { OTPService } from './otp.service';
+import { ValidateOtpDto } from './dto/otp.dto';
 
 @Controller('mail')
 export class MailController {
@@ -48,26 +49,20 @@ export class MailController {
       success: true,
       message: 'OTP sent successfully',
       expiresAt: result.expiresAt,
-      // Don't return the actual OTP in response for security
     };
   }
 
   @Post('validate-otp')
-  async validateOTP(@Body() data: { 
-    email: string; 
-    otp: string; 
-    purpose: 'password_reset' | 'email_verification' | 'two_factor';
-  }) {
-    const result = await this.otpService.validateOTP(
-      data.email,
-      data.otp,
-      data.purpose
-    );
+  @HttpCode(HttpStatus.OK)
+  async validateOTP(@Body() dto: ValidateOtpDto) {
+    console.log("dto", dto);
+    
+    const result = await this.otpService.validateOTP(dto);
     return result;
   }
 
-  @Get('otp-status/:email/:purpose')
-  getOTPStatus(@Param('email') email: string, @Param('purpose') purpose: 'password_reset' | 'email_verification' | 'two_factor') {
-    return this.otpService.getOTPStatus(email, purpose);
-  }
+  // @Get('otp-status/:email/:purpose')
+  // getOTPStatus(@Param('email') email: string, @Param('purpose') purpose: 'password_reset' | 'email_verification' | 'two_factor') {
+  //   return this.otpService.getOTPStatus(email, purpose);
+  // }
 }

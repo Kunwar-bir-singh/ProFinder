@@ -11,11 +11,11 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { UsersBookmarkModel } from './users-bookmark.model';
-import { ProvidersModel } from 'src/modules/providers/model/providers.model';
-import { CitiesModel } from 'src/modules/location/model/cities.model';
+import { ProvidersModel } from 'src/modules/providers/models/providers.model';
+import { CitiesModel } from 'src/modules/location/models/cities.model';
 
 export interface UsersAttributes {
-  userID?: number;
+  user_id?: number;
   username: string;
   password: string;
   fullname: string;
@@ -23,11 +23,11 @@ export interface UsersAttributes {
   phone?: string;
   address?: string;
   city?: string;
-  profileImageUrl?: string;
-  lastPasswordChange?: Date;
-  isVerified?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  profile_image_url?: string;
+  last_password_change?: Date;
+  is_verified?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface UsersCreationAttributes extends Partial<UsersAttributes> {
@@ -40,8 +40,8 @@ export interface UsersCreationAttributes extends Partial<UsersAttributes> {
   tableName: 'users',
   schema: 'main',
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
 })
 export class UsersModel extends Model<
   UsersAttributes,
@@ -54,14 +54,14 @@ export class UsersModel extends Model<
     primaryKey: true,
     autoIncrement: true,
   })
-  userID!: number;
+  user_id!: number;
 
   @ForeignKey(() => CitiesModel)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
-  cityID?: number;
+  city_id?: number;
 
   @Column({
     type: DataType.STRING,
@@ -104,13 +104,13 @@ export class UsersModel extends Model<
     type: DataType.DATE,
     allowNull: true,
   })
-  lastPasswordChange?: Date;
+  last_password_change?: Date;
 
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
-  isVerified?: boolean;
+  is_verified?: boolean;
 
   @HasOne(() => ProvidersModel)
   provider: ProvidersModel;

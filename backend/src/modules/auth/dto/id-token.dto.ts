@@ -4,7 +4,7 @@ export class IDTokenDto {
   @Column({
     type: DataType.INTEGER,
   })
-  userID: number;
+  user_id: number;
 
   @Column({
     type: DataType.STRING,

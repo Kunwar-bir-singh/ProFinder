@@ -1,15 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { Footer } from "@/components/footer"
-import { useSearchProvidersByProfessionAndCityQuery } from "@/lib/api/services/profession.service"
-import { ProviderCard } from "@/components/provider-card"
-import { SearchFilters } from "@/components/search-filters"
-import { SearchEmptyState } from "@/components/search-empty-state"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, MapPin, Users } from "lucide-react"
-import Link from "next/link"
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Footer } from "@/components/footer";
+import { ProviderCard } from "@/components/provider-card";
+import { SearchFilters } from "@/components/search-filters";
+import { SearchEmptyState } from "@/components/search-empty-state";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MapPin, Users } from "lucide-react";
+import Link from "next/link";
 
 // Mock provider data - replace with actual API call
 const mockProviders = [
@@ -117,23 +116,27 @@ const mockProviders = [
     yearsExperience: 20,
     profileImage: "/professional-musician-headshot.jpg",
   },
-]
+];
 
 export default function SearchResultsPage() {
-  const searchParams = useSearchParams()
-  const profession = searchParams.get("profession") || ""
-  const city = searchParams.get("city") || ""
+  const searchParams = useSearchParams();
+  const profession = searchParams.get("profession") || "";
+  const city = searchParams.get("city") || "";
 
-  const { data: providersData, isLoading, error } = useSearchProvidersByProfessionAndCityQuery(
+  const {
+    data: providersData,
+    isLoading,
+    error,
+  } = useSearchProvidersByProfessionAndCityQuery(
     { profession, city },
     { skip: !profession || !city }
-  )
+  );
 
-  const [sortBy, setSortBy] = useState("rating")
-  const [filterVerified, setFilterVerified] = useState(false)
+  const [sortBy, setSortBy] = useState("rating");
+  const [filterVerified, setFilterVerified] = useState(false);
 
-  const isSuccess = providersData?.success === true
-  const providers = isSuccess ? (providersData.data || []) : []
+  const isSuccess = providersData?.success === true;
+  const providers = isSuccess ? providersData.data || [] : [];
 
   // Filter and sort providers
   const filteredProviders = providers
@@ -141,19 +144,18 @@ export default function SearchResultsPage() {
     .sort((a, b) => {
       switch (sortBy) {
         case "rating":
-          return b.rating - a.rating
+          return b.rating - a.rating;
         case "reviews":
-          return b.reviewCount - a.reviewCount
+          return b.reviewCount - a.reviewCount;
         case "experience":
-          return b.yearsExperience - a.yearsExperience
+          return b.yearsExperience - a.yearsExperience;
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   return (
     <div className="min-h-screen bg-background">
-
       <main className="container mx-auto px-4 py-8">
         {/* Back button and breadcrumb */}
         <div className="mb-6">
@@ -179,7 +181,9 @@ export default function SearchResultsPage() {
         {!profession || !city ? (
           <div className="text-center py-8">
             <h2 className="text-xl font-semibold mb-2">Start Your Search</h2>
-            <p className="text-muted-foreground">Enter a profession and city to find providers</p>
+            <p className="text-muted-foreground">
+              Enter a profession and city to find providers
+            </p>
           </div>
         ) : isLoading ? (
           <div className="flex items-center justify-center min-h-[400px]">
@@ -201,7 +205,10 @@ export default function SearchResultsPage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-2">
-                  <span className="text-primary">{filteredProviders.length}</span> Providers Found!
+                  <span className="text-primary">
+                    {filteredProviders.length}
+                  </span>{" "}
+                  Providers Found!
                 </h1>
                 <p className="text-muted-foreground flex items-center gap-2">
                   <Users className="w-4 h-4" />
@@ -236,5 +243,5 @@ export default function SearchResultsPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

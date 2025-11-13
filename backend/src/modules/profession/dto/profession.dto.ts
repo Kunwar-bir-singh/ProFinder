@@ -1,6 +1,6 @@
 export class ProfessionDto {
-    professionID?: number;
+    profession_id?: number;
     
-    professionName: string;
+    profession_name: string;
 
 }
