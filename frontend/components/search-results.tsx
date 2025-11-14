@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ProviderCard } from "@/components/provider-card";
 import { SearchFilters } from "@/components/search-filters";
 import { SearchEmptyState } from "@/components/search-empty-state";
+import { SearchErrorState } from "@/components/search-error-state";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
-import Link from "next/link";
 
 interface SearchResultsProps {
   isLoading?: boolean;
@@ -49,6 +50,10 @@ export function SearchResults({
       }
     });
 
+  // Show loading state if we have search params but no data yet
+  const shouldShowLoading =
+    isLoading || (!error && providersData === undefined && profession && city);
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -78,54 +83,59 @@ export function SearchResults({
               Enter a profession and city to find providers
             </p>
           </div>
-        ) : isLoading ? (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      ) : error ? (
-        <div className="text-center text-red-500 py-8">
-          An error occurred while fetching providers. Please try again.
-        </div>
-      ) : filteredProviders.length === 0 ? (
-        <SearchEmptyState searchTerm={profession} city={city} />
-      ) : (
-        <>
-          {/* Results header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                <span className="text-primary">{filteredProviders.length}</span>{" "}
-                Providers Found!
-              </h1>
-              <p className="text-muted-foreground flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Professional {profession}s in {city}
-              </p>
+        ) : shouldShowLoading ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <SearchErrorState
+            error={error}
+            searchTerm={profession}
+            city={city}
+            onBack={onBack}
+          />
+        ) : isSuccess && filteredProviders.length === 0 ? (
+          <SearchEmptyState searchTerm={profession} city={city} />
+        ) : (
+          <>
+            {/* Results header */}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                  <span className="text-primary">
+                    {filteredProviders.length}
+                  </span>{" "}
+                  Providers Found!
+                </h1>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Professional {profession}s in {city}
+                </p>
+              </div>
+
+              <SearchFilters
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                filterVerified={filterVerified}
+                setFilterVerified={setFilterVerified}
+              />
             </div>
 
-            <SearchFilters
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              filterVerified={filterVerified}
-              setFilterVerified={setFilterVerified}
-            />
-          </div>
+            {/* Provider grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProviders.map((provider) => (
+                <ProviderCard key={provider.id} provider={provider} />
+              ))}
+            </div>
 
-          {/* Provider grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProviders.map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} />
-            ))}
-          </div>
-
-          {/* Load more button */}
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Providers
-            </Button>
-          </div>
-        </>
-      )}
+            {/* Load more button */}
+            <div className="text-center mt-12">
+              <Button variant="outline" size="lg">
+                Load More Providers
+              </Button>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

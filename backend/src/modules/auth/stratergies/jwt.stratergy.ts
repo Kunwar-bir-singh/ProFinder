@@ -25,6 +25,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload) {
+    const { exp } = payload;
+
+    const expirationDate = new Date((exp as number) * 1000);
+
+    if (expirationDate < new Date()) {
+      throw new UnauthorizedException('Token has expired.');
+    }
     const user = await this.userService.getUserDetails(payload.user_id);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -41,8 +48,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return {
       user_id: user.user_id,
       username: user.username,
-      provider_id : user?.["provider.provider_id"]
-    }
+      provider_id: user?.['provider.provider_id'],
+    };
   }
 }
 
@@ -67,7 +74,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(req: any, payload: JwtPayload) {
-
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken)

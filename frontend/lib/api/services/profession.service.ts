@@ -1,4 +1,9 @@
-import { ApiResponse, Profession, CreateProfessionRequest, PaginationParams } from "@/lib/utils/types/types";
+import {
+  ApiResponse,
+  Profession,
+  CreateProfessionRequest,
+  PaginationParams,
+} from "@/lib/utils/types/types";
 import { api } from "@/lib/api/api";
 
 export const professionService = api.injectEndpoints({
@@ -82,7 +87,7 @@ export const professionService = api.injectEndpoints({
       providesTags: ["Profession"],
     }),
     // Search providers by profession and city
-    searchProvidersByProfessionAndCity: builder.mutation<
+    searchProvidersByProfessionAndCity: builder.query<
       ApiResponse<any[]>,
       { city: string; profession: string }
     >({
@@ -91,6 +96,7 @@ export const professionService = api.injectEndpoints({
         method: "GET",
         params: { city, profession },
       }),
+      providesTags: ["Provider"],
     }),
   }),
 });
@@ -103,5 +109,5 @@ export const {
   useDeleteProfessionMutation,
   useGetProfessionsByCategoryQuery,
   useSearchProfessionsQuery,
-  useSearchProvidersByProfessionAndCityMutation,
+  useSearchProvidersByProfessionAndCityQuery,
 } = professionService;

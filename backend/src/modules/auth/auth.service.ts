@@ -227,19 +227,6 @@ export class AuthService {
   /* Function to delete the refresh token 
     Used in : refreshTokens() */
   async deleteRefreshToken(user_id: number) {
-    // const record = await this.refreshTokenModel.findOne({
-    //   where: { user_id },
-    //   raw: true,
-    // });
-
-    // if (record && refreshToken) {
-    //   const isValid = await this.hashService.comparePassword(
-    //     refreshToken,
-    //     record.token,
-    //   );
-
-    //   if (!isValid) throw new UnauthorizedException('Invalid refresh token');
-    // }
 
     await this.refreshTokenModel.destroy({
       where: {

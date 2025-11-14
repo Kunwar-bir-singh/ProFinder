@@ -1,28 +1,37 @@
-"use client";
-
-import type React from "react";
-import { useState } from "react";
+'use client';
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useSearchProvidersByProfessionAndCityMutation } from "@/lib/api/services/profession.service";
+import { useSearchProvidersByProfessionAndCityQuery } from "@/lib/api/services/profession.service";
 import { SearchResults } from "./search-results";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, MapPin, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import type { KeyboardEvent } from "react";
 
 export function SearchSection() {
   const [profession, setProfession] = useState("");
   const [city, setCity] = useState("");
-  const router = useRouter();
+  const [searchParams, setSearchParams] = useState<{
+    city: string;
+    profession: string;
+  } | null>(null);
   const { toast } = useToast();
-  const [searchProviders, { isLoading }] =
-    useSearchProvidersByProfessionAndCityMutation();
+
+  const {
+    data: queryData,
+    isLoading,
+    error,
+  } = useSearchProvidersByProfessionAndCityQuery(
+    searchParams || { city: "", profession: "" },
+    {
+      skip: !searchParams, // Only run the query when we have search params
+    }
+  );
 
   const [showResults, setShowResults] = useState(false);
-  const [searchResult, setSearchResult] = useState<any>(null);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!profession.trim()) {
       toast({
         title: "Error",
@@ -32,54 +41,70 @@ export function SearchSection() {
       return;
     }
 
-    try {
-      const result = await searchProviders({
-        profession: profession.trim(),
-        city: city.trim() || "Your City",
-      }).unwrap();
+    // Set search parameters to trigger the query
+    setSearchParams({
+      profession: profession.trim(),
+      city: city.trim() || "Your City",
+    });
+    setShowResults(true);
+  };
 
-      if (result.success) {
-        setSearchResult(result);
-        setShowResults(true);
-      } else {
-        toast({
-          title: "No Results",
-          description:
-            result.message ||
-            "No providers found for your search. Please try different criteria.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+  const handleReset = () => {
+    setProfession("");
+    setCity("");
+    setSearchParams(null);
+    setShowResults(false);
+  };
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // Handle query errors
+  useEffect(() => {
+    if (error) {
       toast({
         title: "Error",
         description: "Failed to search providers. Please try again.",
         variant: "destructive",
       });
     }
-  };
+  }, [error, toast]);
 
-  const handleReset = () => {
-    setProfession("");
-    setCity("");
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
+  // Handle search results - only show "no results" when we have complete data
+  useEffect(() => {
+    // Only process results when:
+    // 1. We have queryData (not undefined)
+    // 2. We have searchParams (query was triggered)
+    // 3. We're not loading (data is complete)
+    // 4. The query was actually successful (success: false means no providers found)
+    if (queryData && searchParams && !isLoading) {
+      if (!queryData.success && queryData.data?.length === 0) {
+        toast({
+          title: "No Results",
+          description:
+            queryData.message ||
+            "No providers found for your search. Please try different criteria.",
+          variant: "destructive",
+        });
+      }
     }
-  };
+  }, [queryData, searchParams, isLoading, toast]);
 
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden">
       {showResults ? (
         <SearchResults
-          providersData={searchResult}
+          providersData={queryData}
+          isLoading={isLoading}
+          error={error}
           profession={profession}
           city={city}
           onBack={() => {
             setShowResults(false);
-            setSearchResult(null);
+            setSearchParams(null);
           }}
         />
       ) : (
@@ -171,47 +196,31 @@ export function SearchSection() {
                   Popular searches:
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  {["Plumber", "Electrician", "Carpenter", "Painter", "Cleaner"].map(
-                    (term) => (
-                      <Button
-                        key={term}
-                        variant="secondary"
-                        size="sm"
-                        className="rounded-full"
-                        onClick={async () => {
-                          setProfession(term);
-                          try {
-                            const result = await searchProviders({
-                              profession: term,
-                              city: city.trim() || "Your City",
-                            }).unwrap();
-
-                            if (result.success) {
-                              setSearchResult(result);
-                              setShowResults(true);
-                            } else {
-                              toast({
-                                title: "No Results",
-                                description:
-                                  result.message ||
-                                  "No providers found for your search. Please try different criteria.",
-                                variant: "destructive",
-                              });
-                            }
-                          } catch (error) {
-                            toast({
-                              title: "Error",
-                              description:
-                                "Failed to search providers. Please try again.",
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                      >
-                        {term}
-                      </Button>
-                    )
-                  )}
+                  {[
+                    "Plumber",
+                    "Electrician",
+                    "Carpenter",
+                    "Painter",
+                    "Cleaner",
+                  ].map((term) => (
+                    <Button
+                      key={term}
+                      variant="secondary"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => {
+                        setProfession(term);
+                        setSearchParams({
+                          profession: term,
+                          city: city.trim() || "Your City",
+                        });
+                        setShowResults(true);
+                      }}
+                      disabled={isLoading}
+                    >
+                      {term}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>

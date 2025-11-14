@@ -5,6 +5,8 @@ export interface JwtPayload {
     email: string;
     last_password_change: Date;
     isProvider?: boolean;
+    iat? : number;
+    exp? : number;
 }
 
 export interface AuthenticatedUser {
