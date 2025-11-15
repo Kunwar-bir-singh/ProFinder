@@ -28,7 +28,6 @@ export const authService = api.injectEndpoints({
           const { data } = response.data;
           // Store both the access token and user data in Redux store
           if (data.accessToken && data.user) {
-            
             setStoredToken(data.accessToken, data.user);
           }
         } catch (error) {
@@ -89,7 +88,7 @@ export const authService = api.injectEndpoints({
     }),
 
     // Request password reset
-    requestPasswordReset: builder.mutation<
+    requestPasswordOTPReset: builder.mutation<
       ApiResponse<null>,
       { email: string }
     >({
@@ -100,10 +99,21 @@ export const authService = api.injectEndpoints({
       }),
     }),
 
+    validateResetPasswordOTP: builder.mutation<
+      ApiResponse<null>,
+      { email: string; otp: string }
+    >({
+      query: (data) => ({
+        url: "/auth/validate-otp",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
     // Reset password
     resetPassword: builder.mutation<
       ApiResponse<null>,
-      { token: string; password: string }
+      { email: string; password: string }
     >({
       query: (data) => ({
         url: "/auth/reset-password",
@@ -140,7 +150,8 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-  useRequestPasswordResetMutation,
+  useRequestPasswordOTPResetMutation,
+  useValidateResetPasswordOTPMutation,
   useResetPasswordMutation,
   useRefreshTokenMutation,
   useGoogleLoginQuery,

@@ -11,6 +11,6 @@ import { OTPModel } from './models/otp.model';
   imports: [SequelizeModule.forFeature([OTPModel]), ConfigModule],
   controllers: [MailController],
   providers: [MailService, OTPService],
-  exports: [MailService, OTPService],
+  exports: [SequelizeModule, MailService, OTPService],
 })
 export class MailModule {}

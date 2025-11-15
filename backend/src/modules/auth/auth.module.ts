@@ -13,6 +13,7 @@ import { UsersModel } from '../users/models/users.model';
 import { ProfessionModule } from '../profession/profession.module';
 import { ProvidersModule } from '../providers/providers.module';
 import { HashModule } from '../hash/hash.module';
+import { MailModule } from '../mail/mail.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { HashModule } from '../hash/hash.module';
     ProfessionModule,
     ProvidersModule,
     HashModule,
+    MailModule,
     JwtModule.register({}),
     SequelizeModule.forFeature([UsersModel, RefreshTokenModel])
   ],

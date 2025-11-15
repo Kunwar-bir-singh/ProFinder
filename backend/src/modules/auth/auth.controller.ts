@@ -19,7 +19,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async registerUser(@Body() dto: any, @Res({ passthrough: true }) res: Response) {
+  async registerUser(
+    @Body() dto: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     return await this.authService.registerUser(dto, res);
   }
 
@@ -29,10 +32,20 @@ export class AuthController {
     return await this.authService.loginUser(dto, res);
   }
 
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: { email: string }) {
+    await this.authService.forgotPassword(dto);
+  }
+  @Post('validate-otp')
+  @HttpCode(HttpStatus.OK)
+  async validateOTP(@Body() dto: { email: string, otp: string }) {
+    await this.authService.validateOTP(dto);
+  }
+
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  async changePassword(@Body() dto: any ) {
-
+  async changePassword(@Body() dto: any) {
     await this.authService.changePassword(dto);
   }
 

@@ -22,6 +22,8 @@ import Link from "next/link";
 import { useLoginMutation } from "@/lib/hooks/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { ForgotPasswordModal } from "@/components/forgot-password-modal";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,6 +37,7 @@ export default function LoginPage() {
     mobile: "",
     password: "",
   });
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   // RTK Query hook
   const [login, { isLoading, error }] = useLoginMutation();
@@ -234,12 +237,13 @@ export default function LoginPage() {
 
                 {/* Forgot Password */}
                 <div className="text-right">
-                  <Link
-                    href="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPasswordModal(true)}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Forgot password?
-                  </Link>
+                  </button>
                 </div>
 
                 {/* Login Button */}
@@ -313,6 +317,12 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        open={showForgotPasswordModal}
+        onOpenChange={setShowForgotPasswordModal}
+      />
     </div>
   );
 }

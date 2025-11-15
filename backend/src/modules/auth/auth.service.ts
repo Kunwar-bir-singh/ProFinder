@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import { UsersService } from '../users/users.service';
 import { HashService } from '../hash/hash.service';
+import { OTPService } from '../mail/otp.service';
 
 // This service is used to hash and compare passwords
 
@@ -31,6 +32,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly hashService: HashService,
+    private readonly otpService: OTPService,
     private readonly sequelize: Sequelize,
   ) {}
   async registerUser(dto: any, res: Response): Promise<any> {
@@ -78,6 +80,41 @@ export class AuthService {
     if (!isPasswordValid) throw new UnauthorizedException('Invalid password');
 
     return this.generateTokens(userExists, res);
+  }
+
+  async forgotPassword(dto: { email: string }) {
+    try {
+      console.log('The DTO is: ', dto);
+      const userExists = await this.usersService.checkUserExists(dto);
+
+      if (!userExists) throw new NotFoundException('User does not exist');
+
+      await this.otpService.generateOTPForEmail(
+        userExists.email as string,
+        userExists.username,
+        {
+          purpose: 'password_reset',
+          expiresInMinutes: 15,
+        },
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async validateOTP(dto: { email: string; otp: string }) {
+    try {
+      console.log('The DTO is: ', dto);
+      const { email, otp } = dto;
+
+      return await this.otpService.validateOTP({
+        email,
+        otp,
+        purpose: 'password_reset',
+      });
+    } catch (error) {
+      handleError(error);
+    }
   }
 
   async changePassword(dto: any) {
@@ -227,7 +264,6 @@ export class AuthService {
   /* Function to delete the refresh token 
     Used in : refreshTokens() */
   async deleteRefreshToken(user_id: number) {
-
     await this.refreshTokenModel.destroy({
       where: {
         user_id: user_id,
