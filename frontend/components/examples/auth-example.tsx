@@ -104,7 +104,7 @@ export function AuthExample() {
           <h3 className="font-semibold">Current User</h3>
           <p>Name: {user.data.name}</p>
           <p>Email: {user.data.email}</p>
-          <p>Verified: {user.data.isVerified ? 'Yes' : 'No'}</p>
+          <p>Verified: {user.data.is_verified ? 'Yes' : 'No'}</p>
         </div>
       )}
 

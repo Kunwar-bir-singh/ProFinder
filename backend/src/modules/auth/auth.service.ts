@@ -304,6 +304,6 @@ export class AuthService {
       }
     }
 
-    return this.generateTokens(existingUser, res);
+    return await this.generateTokens(existingUser, res);
   }
 }

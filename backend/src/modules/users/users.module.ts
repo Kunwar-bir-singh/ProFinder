@@ -10,14 +10,20 @@ import { LocationService } from '../location/location.service';
 import { ProvidersService } from '../providers/providers.service';
 import { ProfessionModule } from '../profession/profession.module';
 import { LocationModule } from '../location/location.module';
+import { MailModule } from '../mail/mail.module';
+import { ProviderProfessionModule } from '../provider-profession/provider-profession.module';
 
 @Module({
-   imports: [
-      SequelizeModule.forFeature([UsersModel, UsersBookmarkModel]),
-      ProvidersModule,LocationModule, ProfessionModule
-    ],
+  imports: [
+    SequelizeModule.forFeature([UsersModel, UsersBookmarkModel]),
+    LocationModule,
+    ProvidersModule,
+    ProfessionModule,
+    ProviderProfessionModule,
+    MailModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, ProvidersService, LocationService],
-  exports: [UsersService, SequelizeModule]
+  exports: [UsersService, SequelizeModule],
 })
 export class UsersModule {}

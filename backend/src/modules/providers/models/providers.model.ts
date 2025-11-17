@@ -32,6 +32,11 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
     description?: string;
 
     @Column({
+        type: DataType.STRING,
+    })
+    service_area?: string;
+
+    @Column({
         type: DataType.JSON,
     })
     rating: object

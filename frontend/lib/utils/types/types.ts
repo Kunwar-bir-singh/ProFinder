@@ -11,7 +11,7 @@ export type User = {
   experience?: number;
   serviceArea?: string;
   type?: string;
-  isVerified?: boolean;
+  is_verified?: boolean;
 };
 
 // lib/types.ts

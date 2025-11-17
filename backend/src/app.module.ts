@@ -35,6 +35,9 @@ import { MailModule } from './modules/mail/mail.module';
         max: 3,
         timeout: 3000,
       },
+      dialectOptions: {
+        multipleStatements: true,
+      },
     }),
 
     SequelizeModule.forFeature([TestModel]),
@@ -44,7 +47,7 @@ import { MailModule } from './modules/mail/mail.module';
     ProvidersModule,
     ProfessionModule,
     ProviderProfessionModule,
-    MailModule
+    MailModule,
   ],
 
   controllers: [AppController],

@@ -8,7 +8,7 @@ interface RefreshTokenAttributes {
 }
 
 @Table({
-    tableName: 'refreshTokens',
+    tableName: 'refresh_tokens',
     schema: 'main',
     timestamps: true
 })

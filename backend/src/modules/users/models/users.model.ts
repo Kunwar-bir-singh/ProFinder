@@ -30,12 +30,6 @@ export interface UsersAttributes {
   updated_at?: Date;
 }
 
-export interface UsersCreationAttributes extends Partial<UsersAttributes> {
-  username: string;
-  password: string;
-  fullname: string;
-}
-
 @Table({
   tableName: 'users',
   schema: 'main',
@@ -43,10 +37,7 @@ export interface UsersCreationAttributes extends Partial<UsersAttributes> {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
 })
-export class UsersModel extends Model<
-  UsersAttributes,
-  UsersCreationAttributes
-> {
+export class UsersModel extends Model<UsersAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column({
@@ -93,6 +84,12 @@ export class UsersModel extends Model<
     allowNull: true,
   })
   email?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  address?: string;
 
   @Column({
     type: DataType.STRING,

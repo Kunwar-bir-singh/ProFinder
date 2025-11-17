@@ -21,19 +21,37 @@ export const userService = api.injectEndpoints({
     // Update user profile
     updateProfile: builder.mutation<ApiResponse<User>, Partial<User>>({
       query: (userData) => ({
-        url: "/auth/profile",
-        method: "PUT",
+        url: "/user/profile",
+        method: "PATCH",
         body: userData,
       }),
-      invalidatesTags: ["User"],
+      // invalidatesTags: ["User"],
     }),
 
-    // Verify email
-    verifyEmail: builder.mutation<ApiResponse<null>, { token: string }>({
-      query: ({ token }) => ({
-        url: "/auth/verify-email",
+    // // Verify email
+    // verifyEmail: builder.mutation<ApiResponse<null>, { token: string }>({
+    //   query: ({ token }) => ({
+    //     url: "/auth/verify-email",
+    //     method: "POST",
+    //     body: { token },
+    //   }),
+    //   invalidatesTags: ["User"],
+    // }),
+
+    // Request verification (for user profile verification)
+    requestVerification: builder.mutation<ApiResponse<null>, void>({
+      query: () => ({
+        url: "/user/request-verification",
         method: "POST",
-        body: { token },
+      }),
+    }),
+
+    // Verify profile with OTP
+    verifyProfile: builder.mutation<ApiResponse<null>, { otp: string; email: string }>({
+      query: (data) => ({
+        url: "/user/verify-profile",
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ["User"],
     }),
@@ -43,5 +61,6 @@ export const userService = api.injectEndpoints({
 export const {
   useGetUserDetailsQuery,
   useUpdateProfileMutation,
-  useVerifyEmailMutation,
+  useRequestVerificationMutation,
+  useVerifyProfileMutation,
 } = userService;

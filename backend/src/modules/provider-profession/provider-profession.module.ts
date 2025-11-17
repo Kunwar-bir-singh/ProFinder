@@ -10,6 +10,6 @@ import { ProfessionModule } from '../profession/profession.module';
   imports: [SequelizeModule.forFeature([ProviderProfessionModel]), LocationModule, ProfessionModule],
   providers: [ProviderProfessionService],
   controllers: [ProvidersProfessionController],
-  exports: [ProviderProfessionService],
+  exports: [SequelizeModule, ProviderProfessionService],
 })
 export class ProviderProfessionModule {}

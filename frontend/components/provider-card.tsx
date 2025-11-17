@@ -42,7 +42,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
     bio: `Experienced ${provider?.profession} with ${provider?.yearsExperience}+ years in the field. Committed to providing high-quality services and customer satisfaction.`,
     serviceArea: provider?.address,
     availability: "Mon-Sat, 8:00 AM - 6:00 PM",
-    isVerified: provider?.verified,
+    is_verified: provider?.verified,
     profileImage: provider?.profileImage,
     completedJobs: Math.floor(Math.random() * 100) + 50,
     responseTime: "< 2 hours",

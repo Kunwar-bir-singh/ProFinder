@@ -31,6 +31,22 @@ export class OTPService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
+  async checkExistingOTP(
+    email: string,
+    purpose: 'password_reset' | 'email_verification' | 'two_factor',
+  ) {
+    try {
+      return await this.otpModel.findOne({
+        where: {
+          email,
+          otp_type: purpose,
+        },
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
   /**
    * Create a new OTP for the specified email and purpose
    */
@@ -56,7 +72,14 @@ export class OTPService {
         max_attempts: this.MAX_ATTEMPTS || 3,
       };
 
-      await this.otpModel.create(otpData);
+      if (await this.checkExistingOTP(email, options.purpose)) {
+        await this.otpModel.update(otpData, {
+          where: {
+            email,
+            otp_type: options.purpose,
+          },
+        });
+      } else await this.otpModel.create(otpData);
 
       this.logger.log(
         `Generated OTP for ${email} (${options.purpose}): ${otp}`,
@@ -83,10 +106,12 @@ export class OTPService {
   /**
    * Validate an OTP for the specified email and purpose
    */
-  async validateOTP(dto : ValidateOtpDto): Promise<OTPValidationResult | undefined> {
+  async validateOTP(
+    dto: ValidateOtpDto,
+  ): Promise<OTPValidationResult | undefined> {
     try {
       const { email, otp: inputOTP, purpose } = dto;
-      
+
       const whereClause = {
         email,
         otp_type: purpose,
@@ -99,42 +124,42 @@ export class OTPService {
       });
 
       if (!otpData) {
-        const exception : Exception = {
-          errors: [
-            { message: 'Invalid OTP'},
-          ],
-          message: 'OTP validation failed',
-        } 
+        const exception: Exception = {
+          errors: [{ message: 'OTP validation failed. Kindly regenerate OTP' }],
+          message: 'OTP validation failed. Kindly regenerate OTP',
+        };
         throw new BadRequestException(exception);
       }
 
-      // Check if OTP is expired
       if (new Date() > otpData.expires_at) {
         await this.otpModel.destroy({
           where: whereClause,
         });
-        return {
-          isValid: false,
-          isExpired: true,
-          error: 'OTP has expired',
+
+        const exception: Exception = {
+          errors: [{ message: 'OTP has expired. Kindly regenerate OTP' }],
+          message: 'OTP has expired. Kindly regenerate OTP',
         };
+        throw new BadRequestException(exception);
       }
 
       // Check if max attempts reached
-      if (otpData?.current_attempts as number >= this.MAX_ATTEMPTS) {
+      if ((otpData?.current_attempts as number) >= this.MAX_ATTEMPTS) {
         await this.otpModel.destroy({
           where: whereClause,
         });
 
-        return {
-          isValid: false,
-          maxAttemptsReached: true,
-          error: 'Maximum attempts exceeded. Please request a new OTP.',
+        const exception: Exception = {
+          errors: [
+            { message: 'Maximum OTP attempts exceeded, Kindly regenerate OTP' },
+          ],
+          message: 'Maximum OTP attempts exceeded, Kindly regenerate OTP',
         };
+        throw new BadRequestException(exception);
       }
 
       // Increment attempts
-      const attempts = otpData?.current_attempts as number + 1;
+      const attempts = (otpData?.current_attempts as number) + 1;
       await this.otpModel.update(
         { attempts },
         {
@@ -153,11 +178,11 @@ export class OTPService {
           isValid: true,
         };
       } else {
-        return {
-          isValid: false,
-          remainingAttempts: this.MAX_ATTEMPTS - (otpData?.current_attempts || 0 ) - 1,
-          error: 'Invalid OTP',
+        const exception: Exception = {
+          errors: [{ message: 'Invalid OTP' }],
+          message: 'Invalid OTP',
         };
+        throw new BadRequestException(exception);
       }
     } catch (error) {
       this.logger.error('Failed to validate OTP:', error);

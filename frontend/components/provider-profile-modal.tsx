@@ -20,7 +20,7 @@ interface Provider {
   bio: string
   serviceArea: string
   availability: string
-  isVerified: boolean
+  is_verified: boolean
   profileImage: string
   completedJobs: number
   responseTime: string
@@ -72,7 +72,7 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              {provider?.isVerified && (
+              {provider?.is_verified && (
                 <div className="absolute -top-1 -right-1">
                   <CheckCircle className="h-6 w-6 text-green-600 bg-white rounded-full" />
                 </div>
@@ -82,7 +82,7 @@ export function ProviderProfileModal({ isOpen, onClose, provider }: ProviderProf
             <div className="flex-1 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                 <h2 className="text-2xl font-bold text-slate-900">{provider?.name}</h2>
-                {provider?.isVerified && (
+                {provider?.is_verified && (
                   <Badge
                     variant="default"
                     className="bg-green-100 text-green-800 border-green-200 w-fit mx-auto sm:mx-0"

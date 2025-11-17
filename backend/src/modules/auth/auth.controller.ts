@@ -39,7 +39,7 @@ export class AuthController {
   }
   @Post('validate-otp')
   @HttpCode(HttpStatus.OK)
-  async validateOTP(@Body() dto: { email: string, otp: string }) {
+  async validateOTP(@Body() dto: { email: string; otp: string }) {
     await this.authService.validateOTP(dto);
   }
 
@@ -62,16 +62,7 @@ export class AuthController {
     return await this.authService.refreshTokens(user_id, refreshToken, res);
   }
 
-  @Delete('logout')
-  @UseGuards(AuthGuard('jwt'))
-  async logoutUser(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { user_id } = req.user!;
-
-    await this.authService.logoutUser(user_id, res);
-  }
+  // Routes for Google OAuth
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -87,5 +78,16 @@ export class AuthController {
   ) {
     await this.authService.googleLogin(req, res);
     return res.redirect('http://localhost:3000/');
+  }
+
+  @Delete('logout')
+  @UseGuards(AuthGuard('jwt'))
+  async logoutUser(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user_id } = req.user!;
+
+    await this.authService.logoutUser(user_id, res);
   }
 }

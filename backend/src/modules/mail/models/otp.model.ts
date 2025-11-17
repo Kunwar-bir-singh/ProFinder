@@ -5,10 +5,9 @@ import {
   Model,
   PrimaryKey,
   AutoIncrement,
-  BelongsTo,
+
   Default,
 } from 'sequelize-typescript';
-import { UsersModel } from 'src/modules/users/models/users.model';
 
 interface OTPAttributes {
   email: string;
@@ -17,12 +16,14 @@ interface OTPAttributes {
   expires_at: Date;
   attempts?: number;
   created_at?: Date;
+  updated_at?: Date;
 }
-
 @Table({
   tableName: 'otp',
   schema: 'main',
-  timestamps: false, // created_at is manually defined
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
 })
 export class OTPModel extends Model<OTPAttributes> {
   @PrimaryKey
@@ -65,11 +66,4 @@ export class OTPModel extends Model<OTPAttributes> {
     allowNull: true,
   })
   current_attempts?: number;
-
-  @Default(DataType.NOW)
-  @Column({
-    type: DataType.DATE,
-    field: 'created_at',
-  })
-  created_at?: Date;
 }

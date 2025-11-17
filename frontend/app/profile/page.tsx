@@ -14,13 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Camera,
   MapPin,
@@ -42,7 +36,7 @@ export default function EditProfilePage() {
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   const [userType, setUserType] = useState<"user" | "provider">("user");
-  const [isVerified, setIsVerified] = useState(false);
+  const [is_verified, setIs_verified] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   const [profileData, setProfileData] = useState<UserType>();
@@ -62,10 +56,10 @@ export default function EditProfilePage() {
         experience: user.experience || 0,
         serviceArea: user.serviceArea || "",
         type: user.type as "user" | "provider",
-        isVerified: user.isVerified || false,
+        is_verified: user.is_verified || false,
       });
       setUserType(user.type as "user" | "provider");
-      setIsVerified(user.isVerified || false);
+      setIs_verified(user.is_verified || false);
     }
   }, [userData]);
 
@@ -81,7 +75,7 @@ export default function EditProfilePage() {
 
   const handleSave = async () => {
     try {
-      const response = await updateProfile({
+      await updateProfile({
         ...profileData,
         experience: profileData?.experience || 0,
         type: userType,
@@ -102,7 +96,7 @@ export default function EditProfilePage() {
   };
 
   const handleVerificationSuccess = () => {
-    setIsVerified(true);
+    setIs_verified(true);
     setShowVerificationModal(false);
   };
 
@@ -188,14 +182,14 @@ export default function EditProfilePage() {
                         Account Verification
                       </Label>
                       <p className="text-sm text-slate-600 mt-1">
-                        {isVerified
+                        {is_verified
                           ? "Your account is verified"
                           : "Verify your account to build trust with users"}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    {isVerified ? (
+                    {is_verified ? (
                       <Badge
                         variant="default"
                         className="bg-green-100 text-green-800 border-green-200"
@@ -250,7 +244,7 @@ export default function EditProfilePage() {
                         <Upload className="h-4 w-4" />
                       </Button>
                       {/* Verification Badge on Avatar */}
-                      {isVerified && (
+                      {is_verified && (
                         <div className="absolute -top-1 -right-1">
                           <CheckCircle className="h-6 w-6 text-green-600 bg-white rounded-full" />
                         </div>
@@ -274,7 +268,7 @@ export default function EditProfilePage() {
                             </span>
                           </div>
                           <div className="flex items-center justify-center gap-2 text-slate-600">
-                            <MapPin className="h-4 w-4" />
+                            <MapPin className="text-sm capitalize" />
                             <span className="text-sm">{profileData?.city}</span>
                           </div>
                           <Badge variant="outline" className="mt-2">
@@ -363,30 +357,14 @@ export default function EditProfilePage() {
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="profession">Profession</Label>
-                            <Select
+                            <Input
                               value={profileData?.profession}
-                              onValueChange={(value) =>
-                                handleInputChange("profession", value)
+                              onChange={(e) =>
+                                handleInputChange("profession", e.target.value)
                               }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select profession" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="plumber">Plumber</SelectItem>
-                                <SelectItem value="electrician">
-                                  Electrician
-                                </SelectItem>
-                                <SelectItem value="carpenter">
-                                  Carpenter
-                                </SelectItem>
-                                <SelectItem value="painter">Painter</SelectItem>
-                                <SelectItem value="mechanic">
-                                  Mechanic
-                                </SelectItem>
-                                <SelectItem value="cleaner">Cleaner</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              id="profession"
+                              placeholder="Enter your profession"
+                            />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="experience">
