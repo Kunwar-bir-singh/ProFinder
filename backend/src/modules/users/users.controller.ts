@@ -51,7 +51,7 @@ export class UsersController {
   async getUser(@Request() req) {
     const { user_id } = req.user!;
 
-    return await this.usersService.getUserDetails(user_id);
+    return await this.usersService.getUserProfileDetails(user_id);
   }
 
   @Get('bookmarks')
@@ -67,6 +67,8 @@ export class UsersController {
   async updateProfile(@Request() req, @Body() dto: any) {
     const { user_id } = req.user!;
     dto = { ...dto, user_id };
+    console.log("DTO", dto);
+    
     return await this.usersService.updateProfile(dto);
   }
 }

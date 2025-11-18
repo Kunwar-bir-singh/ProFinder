@@ -7,7 +7,6 @@ import { api } from "@/lib/api/api";
 
 export const userService = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Login user
 
     // Get current user
     getUserDetails: builder.query<ApiResponse<User>, Partial<User>>({
@@ -25,7 +24,7 @@ export const userService = api.injectEndpoints({
         method: "PATCH",
         body: userData,
       }),
-      // invalidatesTags: ["User"],
+      invalidatesTags: ["User"],
     }),
 
     // // Verify email

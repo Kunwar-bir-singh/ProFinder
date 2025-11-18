@@ -25,28 +25,27 @@ export class ProfessionService {
   async findOrCreateProfession(
     dto: ProfessionDto,
   ): Promise<ProfessionAttributes | undefined> {
-    const transaction = await this.sequelize.transaction();
     try {
-      const { profession_id, profession_name } = dto;
+      const { profession_id, profession } = dto;
 
-      const raw_name = formatName(profession_name, 'raw');
-      const formattedName = formatName(profession_name, 'formatted');
+      const raw_name = formatName(profession, 'raw');
+      const formattedName = formatName(profession, 'formatted');
 
-      const professionExists = await this.checkProfessionExists<number | string>(profession_id || raw_name);
+      const professionExists = await this.checkProfessionExists<
+        number | string
+      >(profession_id || raw_name);
 
       if (professionExists) {
         return professionExists as ProfessionAttributes;
       }
 
-      const newProfession = await this.professionModel.create(
-        { profession_name: formattedName, raw_name },
-        { transaction },
-      );
+      const newProfession = await this.professionModel.create({
+        profession_name: formattedName,
+        raw_name,
+      });
 
-      await transaction.commit();
       return newProfession.get({ plain: true });
     } catch (error) {
-      await transaction.rollback();
       handleError(error);
     }
   }
@@ -70,10 +69,9 @@ export class ProfessionService {
         return professionExists;
       }
 
-      return ;
+      return;
     } catch (error) {
       handleError(error);
-      
     }
   }
 

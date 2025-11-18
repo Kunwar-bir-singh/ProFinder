@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from './models/users.model';
@@ -18,6 +19,8 @@ import { LocationService } from '../location/location.service';
 import { OTPService } from '../mail/otp.service';
 import { ProfessionService } from '../profession/profession.service';
 import { ProviderProfessionService } from '../provider-profession/provider-profession.service';
+
+const logger = new Logger('UsersService');
 
 @Injectable()
 export class UsersService {
@@ -112,10 +115,25 @@ export class UsersService {
           {
             model: this.providersModel,
             as: 'provider',
-            attributes: ['provider_id', 'description'],
+            attributes: ['provider_id', 'bio', 'service_area'],
           },
         ],
       });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async getUserProfileDetails(user_id: number) {
+    try {
+      const [rows] = await this.sequelize.query(`
+        select * from main.get_user_details(:user_id);`, {
+        replacements: { user_id },
+        type: 'SELECT', raw: true,
+      });
+      console.log(rows);
+      
+      return rows;
     } catch (error) {
       handleError(error);
     }
@@ -182,13 +200,25 @@ export class UsersService {
   async updateProfile(dto: any): Promise<Boolean> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { user_id } = dto;
+      const { user_id, changeProfession, isProvider } = dto;
 
+      // If the user wants to change profession or is a provider or city, handle those first
       const city = await this.locationService.findOrCreateCity(dto);
-      if (dto.changeProfession) {
-        const profession =  await this.professionService.findOrCreateProfession(dto);
+
+      if (changeProfession || isProvider) {
+        // If user is a provider, create a provider profile for them
+        if (isProvider) {
+          const newProvider = await this.providersService.createProvider(
+            { ...dto, user_id },
+            transaction,
+          );
+          dto.provider_id = newProvider?.provider_id;
+        }
 
         // If profession is created or found, link it to provider
+        const profession =
+          await this.professionService.findOrCreateProfession(dto);
+
         await this.providerProfessionService.linkProviderProfession({
           provider_id: dto.provider_id,
           city_id: city?.city_id!,
@@ -204,6 +234,8 @@ export class UsersService {
       if (dto.isProvider) {
         await this.providersService.updateProvider(dto, transaction);
       }
+
+      await transaction.commit();
       return true;
     } catch (error) {
       await transaction.rollback();
@@ -211,6 +243,28 @@ export class UsersService {
       return false;
     }
   }
+
+  // async updateProfile(dto: any): Promise<Boolean | undefined> {
+  //   const { user_id } = dto;
+  //   const transaction = await this.sequelize.transaction();
+
+  //   try {
+  //     // Your update logic here
+  //     await this.userModel.update(
+  //       { ...dto },
+  //       { where: { user_id }, transaction },
+  //     );
+
+  //     // Commit the transaction
+  //     await transaction.commit();
+  //     return;
+  //   } catch (error) {
+  //     // Rollback the transaction in case of an error
+  //     await transaction.rollback();
+  //     console.error('Transaction failed:', error);
+  //     throw error; // Re-throw the error so it can be handled elsewhere
+  //   }
+  // }
 
   async createOrUpdateProviderBookmark(dto: UserAndProviderDTo) {
     try {

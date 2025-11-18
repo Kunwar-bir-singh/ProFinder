@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { TestModel } from './others/test.model';
 import { ApiClientGuard } from './common/guards/apiClientGuard';
@@ -17,7 +17,7 @@ export class AppController {
     return this.appService.getTest();
   }
 
-  @Post('delete-user/:user_id')
+  @Delete('delete-user/:user_id')
   @UseGuards(ApiClientGuard)
   async deleteUser(@Param('user_id') user_id: number): Promise<void> {
     return await this.appService.deleteUsers(user_id);

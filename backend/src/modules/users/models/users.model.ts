@@ -45,17 +45,17 @@ export class UsersModel extends Model<UsersAttributes> {
     primaryKey: true,
     autoIncrement: true,
   })
-  user_id!: number;
+  user_id: number;
 
   @ForeignKey(() => CitiesModel)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
-  city_id?: number;
+  city_id: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(50),
     allowNull: false,
   })
   username!: string;
@@ -67,20 +67,20 @@ export class UsersModel extends Model<UsersAttributes> {
   password!: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(50),
     allowNull: true,
   })
   fullname!: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(11),
     allowNull: true,
     unique: true,
   })
   phone?: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(50),
     allowNull: true,
   })
   email?: string;
@@ -92,7 +92,7 @@ export class UsersModel extends Model<UsersAttributes> {
   address?: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(50),
     allowNull: true,
   })
   auth_provider?: string;

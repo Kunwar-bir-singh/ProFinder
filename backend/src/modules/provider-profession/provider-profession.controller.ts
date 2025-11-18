@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Query,
   Req,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ProviderProfessionService } from './provider-profession.service';
@@ -33,9 +35,12 @@ export class ProvidersProfessionController {
     return this.providerProfessionService.linkProviderProfession(dto);
   }
 
-  @Post('unlink')
+  @Post('un-link')
   @UseGuards(AuthGuard('jwt'))
-  async unLinkProviderProfession(@Body() dto: IDProviderProfessionDto) {
+  @HttpCode(200)
+  async unLinkProviderProfession(@Req() req, @Body() dto: IDProviderProfessionDto) {
+    const { provider_id } = req.user!;
+    dto.provider_id = provider_id;
     return this.providerProfessionService.unLinkProviderProfession(dto);
   }
 

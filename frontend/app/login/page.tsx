@@ -10,8 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
-  User,
-  Building2,
   Phone,
   Mail,
   Eye,
@@ -27,7 +25,6 @@ import { ForgotPasswordModal } from "@/components/forgot-password-modal";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [userType, setUserType] = useState<"user" | "provider">("user");
   const [loginMethod, setLoginMethod] = useState<"username" | "mobile">(
     "username"
   );
@@ -85,33 +82,42 @@ export default function LoginPage() {
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-4">
-              {/* User Type Selection */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">
-                  I am a:
-                </Label>
-                <Tabs
-                  value={userType}
-                  onValueChange={(value) =>
-                    setUserType(value as "user" | "provider")
-                  }
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                    <TabsTrigger
-                      value="user"
-                      className="flex items-center gap-2"
+              {/* Username/Mobile Toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="login-method-toggle"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Login Method
+                  </Label>
+                  <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("username")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                        loginMethod === "username"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
                     >
-                      <User className="w-4 h-4" /> User
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="provider"
-                      className="flex items-center gap-2"
+                      <Mail className="w-3 h-3" /> Username
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("mobile")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                        loginMethod === "mobile"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
                     >
-                      <Building2 className="w-4 h-4" /> Provider
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                      <Phone className="w-3 h-3" /> Mobile
+                    </button>
+                  </div>
+                </div>
               </div>
             </CardHeader>
 
@@ -132,43 +138,12 @@ export default function LoginPage() {
               <form onSubmit={handleLogin} className="space-y-4">
                 {/* Username/Mobile Field */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label
-                      htmlFor="login-field"
-                      className="text-sm font-medium text-slate-700"
-                    >
-                      {loginMethod === "username"
-                        ? "Username"
-                        : "Mobile Number"}
-                    </Label>
-                    <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
-                      <button
-                        type="button"
-                        onClick={() => setLoginMethod("username")}
-                        disabled={isLoading}
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                          loginMethod === "username"
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        <Mail className="w-3 h-3" /> Username
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setLoginMethod("mobile")}
-                        disabled={isLoading}
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                          loginMethod === "mobile"
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        <Phone className="w-3 h-3" /> Mobile
-                      </button>
-                    </div>
-                  </div>
-
+                  <Label
+                    htmlFor="login-field"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    {loginMethod === "username" ? "Username" : "Mobile Number"}
+                  </Label>
                   <div className="relative">
                     <Input
                       id="login-field"
@@ -258,7 +233,7 @@ export default function LoginPage() {
                       Signing In...
                     </div>
                   ) : (
-                    `Sign In as ${userType === "user" ? "User" : "Provider"}`
+                    "Sign In"
                   )}
                 </Button>
               </form>
@@ -278,9 +253,9 @@ export default function LoginPage() {
                 type="button"
                 variant="outline"
                 onClick={handleGoogleLogin}
-                className="w-full h-12 border-slate-200 hover:bg-slate-50 font-medium bg-transparent"
+                className="w-full h-12 border-0 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 font-medium shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
               >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -298,7 +273,9 @@ export default function LoginPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                <span className="text-slate-700 group-hover:text-slate-900 transition-colors duration-300 font-medium">
+                  Continue with Google
+                </span>
               </Button>
 
               {/* Sign Up Link */}

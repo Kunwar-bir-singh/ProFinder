@@ -17,24 +17,24 @@ export class ProvidersModel extends Model<ProvidersModel> { // Use a class name 
         primaryKey: true,
         autoIncrement: true,
     })
-    provider_id?: number;
+    provider_id: number;
 
     @ForeignKey(() => UsersModel)
     @Column({
         type: DataType.INTEGER,
     })
-    user_id!: number;
+    user_id: number;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    description?: string;
+    bio: string;
 
     @Column({
         type: DataType.STRING,
     })
-    service_area?: string;
+    service_area: string;
 
     @Column({
         type: DataType.JSON,

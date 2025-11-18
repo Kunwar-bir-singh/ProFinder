@@ -36,6 +36,8 @@ export default function EditProfilePage() {
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   const [userType, setUserType] = useState<"user" | "provider">("user");
+  const [originalUserType, setOriginalUserType] = useState<"user" | "provider">("user");
+  const [originalProfession, setOriginalProfession] = useState<string>("");
   const [is_verified, setIs_verified] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
 
@@ -59,6 +61,8 @@ export default function EditProfilePage() {
         is_verified: user.is_verified || false,
       });
       setUserType(user.type as "user" | "provider");
+      setOriginalUserType(user.type as "user" | "provider");
+      setOriginalProfession(user.profession || "");
       setIs_verified(user.is_verified || false);
     }
   }, [userData]);
@@ -73,13 +77,31 @@ export default function EditProfilePage() {
     );
   };
 
+  // Helper function to check if user toggled to provider
+  const hasToggledToProvider = userType === "provider" && originalUserType !== "provider";
+  
+  // Helper function to check if profession has changed
+  const hasChangedProfession = profileData?.profession && profileData.profession !== originalProfession;
+
   const handleSave = async () => {
     try {
-      await updateProfile({
+      // Create the base update payload
+      const updatePayload: any = {
         ...profileData,
         experience: profileData?.experience || 0,
         type: userType,
-      }).unwrap();
+      };
+
+      // Add boolean fields based on user actions
+      if (hasToggledToProvider) {
+        updatePayload.isProvider = true;
+      }
+      
+      if (hasChangedProfession) {
+        updatePayload.changeProfession = true;
+      }
+
+      await updateProfile(updatePayload).unwrap();
 
       toast({
         title: "Success",
@@ -268,8 +290,8 @@ export default function EditProfilePage() {
                             </span>
                           </div>
                           <div className="flex items-center justify-center gap-2 text-slate-600">
-                            <MapPin className="text-sm capitalize" />
-                            <span className="text-sm">{profileData?.city}</span>
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm capitalize">{profileData?.city}</span>
                           </div>
                           <Badge variant="outline" className="mt-2">
                             {profileData?.experience}+ Years Experience

@@ -26,19 +26,19 @@ export class ProviderProfessionModel extends Model<ProviderProfessionAttributes>
     type: DataType.INTEGER,
     primaryKey: true,
   })
-  provider_id?: number;
+  provider_id: number;
 
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
-  city_id?: number;
+  city_id: number;
 
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
   })
-  profession_id?: number;
+  profession_id: number;
 }

@@ -1,98 +1,310 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ProFinder - Find Trusted Professionals Near You
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+ProFinder is a modern full-stack platform that connects people with verified professional service providers in their area. Whether you need a plumber, electrician, carpenter, or any other skilled professional, ProFinder makes it easy to find and hire the right person for the job.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## What This Project Does
 
-## Description
+Think of ProFinder as your go-to directory for finding reliable professionals. Instead of scrolling through endless Google results or asking friends for recommendations, you can search for exactly what you need and see verified providers with real ratings, experience, and reviews.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The platform works for both sides: people looking for services get a clean, easy way to find trustworthy professionals, and service providers get a straightforward way to showcase their work and connect with potential clients.
 
-## Project setup
+## Key Features
 
-```bash
-$ npm install
+### For People Looking for Services
+- **Smart Search**: Find professionals by typing what you need (like "plumber") and your city
+- **Verified Providers**: All professionals go through verification so you know who's legitimate
+- **Detailed Profiles**: See experience years, ratings, service areas, and professional bios
+- **Filter & Sort**: Filter by verified status and sort by rating, reviews, or experience
+- **No More Guesswork**: Provider profiles include photos, service areas, and contact info
+- **Bookmark Favorites**: Save providers you like for quick access later
+
+### For Professional Service Providers
+- **Easy Registration**: Sign up and create a professional profile in minutes
+- **Showcase Your Work**: Add photos, experience, service areas, and a professional bio
+- **Get Verified**: Complete verification process to build trust with potential clients
+- **Stand Out**: Display your ratings, years of experience, and customer reviews
+- **Google Integration**: Sign in with your Google account for quick setup
+- **Professional Dashboard**: Manage your profile, services, and client interactions
+
+### User Experience
+- **Clean Design**: Modern, responsive interface that works great on mobile and desktop
+- **Smooth Interactions**: Fast loading, intuitive navigation, and helpful notifications
+- **Account Types**: Separate experiences for regular users and service providers
+- **Secure**: JWT-based authentication with email verification
+- **Multiple Sign-in Options**: Email/password or Google OAuth
+
+## Complete Tech Stack
+
+This is a full-stack application with a modern tech stack:
+
+**Frontend**
+- **Next.js** for fast, SEO-friendly React applications
+- **TypeScript** for better code reliability and developer experience
+- **RTK Query** for efficient data fetching and caching
+- **shadcn/ui** for consistent, accessible UI components
+- **Tailwind CSS** for responsive, utility-first styling
+
+**Backend**
+- **NestJS** for the backend structure
+- **TypeScript** for type safety (because surprises are rarely good)
+- **PostgreSQL** for reliable data storage
+- **Sequelize ORM** for database operations and relationships
+
+**Authentication & Security**
+- **Passport.js** for authentication strategies
+- **JWT** for secure token-based auth
+- **bcrypt** for password hashing
+- **Google OAuth** integration
+
+**Development Tools**
+- **ESLint and Prettier** for code quality
+- **Jest** for testing (unit and integration)
+- **Sequelize CLI** for database migrations
+- **Hot reload** for development
+
+## How It Works
+
+1. **Sign Up**: Create an account as either a user or service provider
+2. **Get Verified**: Providers complete verification to build trust
+3. **Search or Create Profile**: Users search for services, providers create compelling profiles
+4. **Connect**: Browse profiles, check reviews, and contact the right professional
+
+## Getting Started
+
+### Prerequisites
+- Node.js (version 18 or higher)
+- PostgreSQL database
+- npm or yarn package manager
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd ProFinder
+   ```
+
+2. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   ```
+
+   Create a `.env` file in the backend directory:
+   ```env
+   # Database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=your_password
+   DB_NAME=profinder
+
+   # JWT Secrets
+   JWT_ACCESS_SECRET=your_access_token_secret
+   JWT_REFRESH_SECRET=your_refresh_token_secret
+   JWT_ACCESS_TIME=15m
+   JWT_REFRESH_TIME=7d
+
+   # Google OAuth
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+   # Email Service
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASS=your_email_password
+
+   # Environment
+   NODE_ENVIRONMENT=development
+   ```
+
+   Set up the database:
+   ```bash
+   npm run migrate
+   npm run start:dev
+   ```
+
+   The backend API will be running at `http://localhost:3000`
+
+3. **Frontend Setup**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+   Create a `.env.local` file in the frontend directory:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3000
+   ```
+
+   Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+   The frontend will be available at `http://localhost:3000`
+
+## Project Structure
+
+```
+ProFinder/
+├── backend/                   # NestJS backend
+│   ├── src/
+│   │   ├── modules/          # Feature modules
+│   │   │   ├── auth/         # Authentication & security
+│   │   │   ├── users/        # User management
+│   │   │   ├── providers/    # Provider profiles & services
+│   │   │   ├── profession/   # Service categories
+│   │   │   ├── location/     # Location & city data
+│   │   │   └── mail/         # Email & notifications
+│   │   ├── common/           # Shared utilities & guards
+│   │   └── main.ts           # Application entry point
+│   ├── migrations/           # Database migrations
+│   └── package.json
+├── frontend/                 # Next.js frontend
+│   ├── app/                  # Next.js app directory
+│   │   ├── auth/             # Authentication pages
+│   │   ├── profile/          # User profile management
+│   │   ├── search/           # Provider search functionality
+│   │   └── ...
+│   ├── components/           # Reusable UI components
+│   │   ├── ui/              # Base UI components
+│   │   └── providers/       # Context providers
+│   ├── lib/                 # Core application logic
+│   │   ├── api/             # API services
+│   │   ├── hooks/           # Custom React hooks
+│   │   └── utils/           # Utility functions
+│   └── package.json
+└── README.md
 ```
 
-## Compile and run the project
+## Backend API
 
-```bash
-# development
-$ npm run start
+### Authentication
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - User login
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/logout` - User logout
+- `GET /auth/google` - Google OAuth redirect
+- `GET /auth/google/callback` - Google OAuth callback
 
-# watch mode
-$ npm run start:dev
+### Users
+- `GET /users/profile` - Get user profile
+- `PUT /users/profile` - Update user profile
+- `GET /users/bookmarks` - Get bookmarked providers
+- `POST /users/bookmarks` - Add provider to bookmarks
+- `DELETE /users/bookmarks/:provider_id` - Remove bookmark
 
-# production mode
-$ npm run start:prod
-```
+### Providers
+- `GET /providers` - Get all providers
+- `POST /providers` - Create provider profile
+- `PUT /providers/:id` - Update provider info
+- `GET /providers/:id` - Get specific provider details
 
-## Run tests
+### Professions & Locations
+- `GET /professions` - Get all professions
+- `POST /professions` - Create new profession
+- `GET /locations` - Get all locations
+- `POST /locations` - Create new location
 
-```bash
-# unit tests
-$ npm run test
+## Database Schema
 
-# e2e tests
-$ npm run test:e2e
+The application uses a well-structured relational database:
 
-# test coverage
-$ npm run test:cov
-```
+- **Users** - Store user account information and profiles
+- **Providers** - Service provider information linked to users
+- **Professions** - Different types of services offered
+- **Cities/Locations** - Geographic location data
+- **UserBookmarks** - User's favorite providers
+- **RefreshTokens** - Session management for JWT tokens
+- **OTP** - One-time password verification codes
 
-## Deployment
+## Available Scripts
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Backend
+- `npm run start:dev` - Start development server with hot reload
+- `npm run start:debug` - Start with debugging enabled
+- `npm run start:prod` - Start production build
+- `npm run build` - Build the application
+- `npm run test` - Run unit tests
+- `npm run test:e2e` - Run end-to-end tests
+- `npm run test:cov` - Run tests with coverage report
+- `npm run lint` - Check code quality with ESLint
+- `npm run format` - Format code with Prettier
+- `npm run migrate` - Run database migrations
+- `npm run migrate:undo` - Undo last migration
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Frontend
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Check code quality
+- `npm run type-check` - Run TypeScript checks
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Key Features Explained
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Authentication System
+- **Login/Register**: Traditional email/password authentication
+- **Google OAuth**: Quick sign-in with Google accounts
+- **Password Recovery**: Forgot password functionality with email verification
+- **Email Verification**: Users verify their email addresses during registration
+- **Session Management**: JWT-based with automatic refresh
 
-## Resources
+### Search & Discovery
+- **Location-based Search**: Find providers in your city or service area
+- **Profession Filtering**: Search by specific services (plumbing, electrical work, etc.)
+- **Smart Results**: Empty states and error handling for better user experience
+- **Real-time Data**: Live search results with loading states
 
-Check out a few resources that may come in handy when working with NestJS:
+### Profile Management
+- **User Profiles**: Personal information, preferences, and account settings
+- **Provider Profiles**: Professional information, services, and verification status
+- **Profile Editing**: Update information, change account type, manage verification
+- **Verification System**: Email-based verification with OTP for security
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Security Features
 
-## Support
+- JWT tokens with automatic expiration
+- Password hashing with bcrypt
+- Refresh token rotation
+- Google OAuth integration
+- Email verification system
+- OTP-based authentication
+- SQL injection protection through Sequelize ORM
+- Global exception handling for consistent error responses
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Development Notes
 
-## Stay in touch
+The codebase follows best practices with proper separation of concerns, dependency injection, and modular architecture. All code is written in TypeScript with strict type checking enabled.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Backend**: NestJS provides a robust structure with modules, controllers, services, and proper dependency injection. Database operations use Sequelize ORM with migrations for version control.
+
+**Frontend**: Next.js app directory structure with RTK Query for efficient data management, shadcn/ui for consistent components, and Tailwind for responsive design.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Commit your changes (`git commit -m 'Add some amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you run into any issues or have questions:
+1. Check the existing GitHub issues
+2. Create a new issue with detailed information
+3. Include steps to reproduce any bugs
+4. Provide information about your environment (browser, OS, Node.js version, etc.)
+
+---
+
+Built with care for people who want to find reliable professionals and for professionals who want to grow their business. The stack brings together the reliability of NestJS and PostgreSQL on the backend with the modern UX of Next.js and React on the frontend.

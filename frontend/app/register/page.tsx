@@ -1,31 +1,40 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
+import type React from "react";
+import { useState } from "react";
 
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
-import { User, Building2, Phone, Mail, Eye, EyeOff, MapPin } from "lucide-react"
-import { useRegisterMutation } from "@/lib/hooks/hooks"
-import { toast } from "sonner"
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  User,
+  Building2,
+  Phone,
+  Mail,
+  Eye,
+  EyeOff,
+  MapPin,
+} from "lucide-react";
+import { useRegisterMutation } from "@/lib/hooks/hooks";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [register, { isLoading }] = useRegisterMutation()
+  const router = useRouter();
+  const [register, { isLoading }] = useRegisterMutation();
 
-  const [userType, setUserType] = useState<"user" | "provider">("user")
-  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">("username")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [userType, setUserType] = useState<"user" | "provider">("user");
+  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">(
+    "username"
+  );
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     username: "",
@@ -36,17 +45,17 @@ export default function RegisterPage() {
     address: "",
     profession: "",
     bio: "",
-  })
+  });
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!")
-      return
+      toast.error("Passwords do not match!");
+      return;
     }
 
     try {
@@ -60,29 +69,33 @@ export default function RegisterPage() {
         city: userType === "provider" ? formData.address : undefined,
         bio: userType === "provider" ? formData.bio : undefined,
         type: userType,
-      }
+      };
 
-      await register(registerData).unwrap()
-      toast.success("Account created successfully!")
-      router.push("/")
+      await register(registerData).unwrap();
+      toast.success("Account created successfully!");
+      router.push("/");
     } catch (error: any) {
-      console.error("Registration failed:", error)
-      toast.error(error?.data?.message || "Registration failed. Please try again.")
+      console.error("Registration failed:", error);
+      toast.error(
+        error?.data?.message || "Registration failed. Please try again."
+      );
     }
-  }
+  };
 
   const handleGoogleRegister = () => {
-    console.log("Google register for:", userType)
-    // Add Google OAuth logic here
-  }
+    window.location.href = `${
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    }/auth/google`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Create Account</h1>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Create Account
+            </h1>
             <p className="text-slate-600">Join our platform to get started</p>
           </div>
 
@@ -90,18 +103,30 @@ export default function RegisterPage() {
             <CardHeader className="space-y-4">
               {/* User Type Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">I want to join as:</Label>
+                <Label className="text-sm font-medium text-slate-700">
+                  I want to join as:
+                </Label>
                 <Tabs
                   value={userType}
-                  onValueChange={(value) => setUserType(value as "user" | "provider")}
+                  onValueChange={(value) =>
+                    setUserType(value as "user" | "provider")
+                  }
                   className="w-full"
                 >
                   <TabsList className="grid w-full grid-cols-2 bg-slate-100">
-                    <TabsTrigger value="user" disabled={isLoading} className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="user"
+                      disabled={isLoading}
+                      className="flex items-center gap-2"
+                    >
                       <User className="w-4 h-4" />
                       User
                     </TabsTrigger>
-                    <TabsTrigger value="provider" disabled={isLoading} className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="provider"
+                      disabled={isLoading}
+                      className="flex items-center gap-2"
+                    >
                       <Building2 className="w-4 h-4" />
                       Provider
                     </TabsTrigger>
@@ -109,20 +134,41 @@ export default function RegisterPage() {
                 </Tabs>
               </div>
 
-              {/* Login Method Toggle */}
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-600" />
-                  <span className="text-sm font-medium text-slate-700">Username</span>
-                </div>
-                <Switch
-                  checked={loginMethod === "mobile"}
-                  onCheckedChange={(checked) => setLoginMethod(checked ? "mobile" : "username")}
-                  disabled={isLoading}
-                />
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-600" />
-                  <span className="text-sm font-medium text-slate-700">Mobile</span>
+              {/* Username/Mobile Toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="login-method-toggle"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Login Method
+                  </Label>
+                  <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("username")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                        loginMethod === "username"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      <Mail className="w-3 h-3" /> Username
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod("mobile")}
+                      disabled={isLoading}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                        loginMethod === "mobile"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      <Phone className="w-3 h-3" /> Mobile
+                    </button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -131,7 +177,10 @@ export default function RegisterPage() {
               <form onSubmit={handleRegister} className="space-y-4">
                 {/* Full Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="fullName"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     Full Name
                   </Label>
                   <Input
@@ -139,7 +188,9 @@ export default function RegisterPage() {
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                     disabled={isLoading}
                     className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     required
@@ -148,16 +199,29 @@ export default function RegisterPage() {
 
                 {/* Username/Mobile Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="login-field" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="login-field"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     {loginMethod === "username" ? "Username" : "Mobile Number"}
                   </Label>
                   <div className="relative">
                     <Input
                       id="login-field"
                       type={loginMethod === "username" ? "text" : "tel"}
-                      placeholder={loginMethod === "username" ? "Choose a username" : "Enter your mobile number"}
-                      value={loginMethod === "username" ? formData.username : formData.mobile}
-                      onChange={(e) => handleInputChange(loginMethod, e.target.value)}
+                      placeholder={
+                        loginMethod === "username"
+                          ? "Choose a username"
+                          : "Enter your mobile number"
+                      }
+                      value={
+                        loginMethod === "username"
+                          ? formData.username
+                          : formData.mobile
+                      }
+                      onChange={(e) =>
+                        handleInputChange(loginMethod, e.target.value)
+                      }
                       disabled={isLoading}
                       className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
@@ -174,7 +238,10 @@ export default function RegisterPage() {
 
                 {/* Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     Email Address
                   </Label>
                   <Input
@@ -193,7 +260,10 @@ export default function RegisterPage() {
                 {userType === "provider" && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="profession" className="text-sm font-medium text-slate-700">
+                      <Label
+                        htmlFor="profession"
+                        className="text-sm font-medium text-slate-700"
+                      >
                         Profession
                       </Label>
                       <Input
@@ -201,7 +271,9 @@ export default function RegisterPage() {
                         type="text"
                         placeholder="e.g., Plumber, Electrician, etc."
                         value={formData.profession}
-                        onChange={(e) => handleInputChange("profession", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("profession", e.target.value)
+                        }
                         disabled={isLoading}
                         className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                         required
@@ -209,7 +281,10 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="address" className="text-sm font-medium text-slate-700">
+                      <Label
+                        htmlFor="address"
+                        className="text-sm font-medium text-slate-700"
+                      >
                         Service Area
                       </Label>
                       <div className="relative">
@@ -218,7 +293,9 @@ export default function RegisterPage() {
                           type="text"
                           placeholder="Enter your service area/city"
                           value={formData.address}
-                          onChange={(e) => handleInputChange("address", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("address", e.target.value)
+                          }
                           disabled={isLoading}
                           className="pl-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                           required
@@ -228,14 +305,19 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="bio" className="text-sm font-medium text-slate-700">
+                      <Label
+                        htmlFor="bio"
+                        className="text-sm font-medium text-slate-700"
+                      >
                         Bio (Optional)
                       </Label>
                       <Textarea
                         id="bio"
                         placeholder="Tell us about your experience and services..."
                         value={formData.bio}
-                        onChange={(e) => handleInputChange("bio", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("bio", e.target.value)
+                        }
                         disabled={isLoading}
                         className="border-slate-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                         rows={3}
@@ -246,7 +328,10 @@ export default function RegisterPage() {
 
                 {/* Password Fields */}
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     Password
                   </Label>
                   <div className="relative">
@@ -255,13 +340,20 @@ export default function RegisterPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
                       disabled={isLoading}
                       className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-4 h-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -275,13 +367,20 @@ export default function RegisterPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium text-slate-700"
+                  >
                     Confirm Password
                   </Label>
                   <div className="relative">
@@ -290,13 +389,20 @@ export default function RegisterPage() {
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm your password"
                       value={formData.confirmPassword}
-                      onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("confirmPassword", e.target.value)
+                      }
                       disabled={isLoading}
                       className="pl-10 pr-10 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                     <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-4 h-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -307,10 +413,16 @@ export default function RegisterPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -327,7 +439,9 @@ export default function RegisterPage() {
                       Creating Account...
                     </div>
                   ) : (
-                    `Create ${userType === "user" ? "User" : "Provider"} Account`
+                    `Create ${
+                      userType === "user" ? "User" : "Provider"
+                    } Account`
                   )}
                 </Button>
               </form>
@@ -336,7 +450,9 @@ export default function RegisterPage() {
               <div className="relative">
                 <Separator className="bg-slate-200" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-white px-3 text-sm text-slate-500">or</span>
+                  <span className="bg-white px-3 text-sm text-slate-500">
+                    or
+                  </span>
                 </div>
               </div>
 
@@ -345,9 +461,9 @@ export default function RegisterPage() {
                 type="button"
                 variant="outline"
                 onClick={handleGoogleRegister}
-                className="w-full h-12 border-slate-200 hover:bg-slate-50 font-medium bg-transparent"
+                className="w-full h-12 border-0 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 font-medium shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
               >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -365,14 +481,19 @@ export default function RegisterPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                <span className="text-slate-700 group-hover:text-slate-900 transition-colors duration-300 font-medium">
+                  Continue with Google
+                </span>
               </Button>
 
               {/* Sign In Link */}
               <div className="text-center pt-4">
                 <p className="text-sm text-slate-600">
                   Already have an account?{" "}
-                  <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link
+                    href="/login"
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
                     Sign in here
                   </Link>
                 </p>
@@ -382,5 +503,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

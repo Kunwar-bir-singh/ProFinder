@@ -31,9 +31,9 @@ export class AppService {
      `delete from main.providers where user_id = :user_id;
       delete from main.users where user_id = :user_id;
       delete from main.refresh_tokens where user_id = :user_id;
-      delete from main.users_bookmarks where user_id = :user_id;
+      delete from main.users_bookmark where user_id = :user_id;
       delete from main.provider_profession where provider_id = :provider_id;
-      delete from main.otp where user_id = :user_id;`,
+      `,
       {
         replacements: { user_id, provider_id: provider?.provider_id || null },
         type: QueryTypes.DELETE,

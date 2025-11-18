@@ -24,6 +24,17 @@ export class ProvidersService {
 
       const profession =  await this.professionService.findOrCreateProfession(dto);
 
+      const providerExits = await this.providerModel.findOne({
+        where: { user_id: dto.user_id },
+      });
+
+      if (providerExits) {
+        return {
+          provider_id: providerExits?.provider_id as number,
+          profession_id: profession?.profession_id as number,
+        };
+      }
+
       const provider = await this.providerModel.create(dto, {
         transaction: transaction || null,
       });
@@ -64,12 +75,16 @@ export class ProvidersService {
     try {
       const { provider_id } = dto;
 
-      await this.providerModel.update(dto, {
+      if (!provider_id) {
+        throw new Error('provider_id is required for provider update');
+      }
+
+      const result = await this.providerModel.update(dto, {
         where: { provider_id },
         transaction: transaction || null,
       });
 
-      return true;
+      return result[0] > 0; // Sequelize update returns [affectedCount]
     } catch (error) {
       handleError(error);
       return false;
