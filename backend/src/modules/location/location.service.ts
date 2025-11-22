@@ -32,31 +32,30 @@ export class LocationService {
   async findOrCreateCity(
     dto: findOrCreateCityDto,
   ): Promise<CityAttributes | undefined> {
-    const transaction = await this.sequelize.transaction();
     try {
       const { city, city_id } = dto;
 
       if (!city && !city_id) return undefined;
+      console.log('city', city);
 
       const raw_name = formatName(city, 'raw');
       const formattedName = formatName(city, 'formatted');
 
-      const cityExists = await this.checkCityExists<string>(city_id || raw_name);
+      const cityExists = await this.checkCityExists<string>(
+        city_id || raw_name,
+      );
 
       if (cityExists) {
         return cityExists as CityAttributes;
       }
 
-      const newCity = await this.citiesModel.create(
-        { city_name: formattedName, raw_name },
-        { transaction },
-      );
-
-      await transaction.commit();
+      const newCity = await this.citiesModel.create({
+        city_name: formattedName,
+        raw_name,
+      });
 
       return newCity.get({ plain: true });
     } catch (error) {
-      await transaction.rollback();
       handleError(error);
     }
   }

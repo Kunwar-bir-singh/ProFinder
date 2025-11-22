@@ -16,8 +16,7 @@ export class ProvidersService {
   ) {}
 
   async createProvider(
-    dto: any,
-    transaction?: Transaction,
+    dto: any, transaction?: Transaction,
   ): Promise<Omit<IDProviderProfessionDto, 'city_id'> | undefined> {
     try {
       console.log('Dto bro', dto);
@@ -35,9 +34,7 @@ export class ProvidersService {
         };
       }
 
-      const provider = await this.providerModel.create(dto, {
-        transaction: transaction || null,
-      });
+      const provider = await this.providerModel.create(dto, {transaction});
 
       const plainProvider = provider.get({ plain: true });
 

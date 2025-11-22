@@ -4,14 +4,14 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import { Op, Transaction } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from './models/users.model';
 import { handleError } from 'src/utils/handle.error';
 import { UserAndProviderDTo } from '../global/dto/common.dto';
 import { UsersBookmarkModel } from './models/users-bookmark.model';
-import { Op, Transaction } from 'sequelize';
 import { ProvidersService } from '../providers/providers.service';
-import { Sequelize } from 'sequelize-typescript';
 import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { ProvidersModel } from '../providers/models/providers.model';
 import { UserExistsDto } from '../auth/dto/auth.dto';
@@ -59,10 +59,10 @@ export class UsersService {
       const plainUser = userCreated.get({ plain: true });
 
       if (dto.isProvider) {
-        await this.providersService.createProvider(
-          { ...dto, user_id: plainUser.user_id },
-          transaction,
-        );
+        await this.providersService.createProvider({
+          ...dto,
+          user_id: plainUser.user_id,
+        }, transaction,);
       }
 
       return plainUser;
@@ -80,6 +80,7 @@ export class UsersService {
             { username: { [Op.eq]: username } },
             { email: { [Op.eq]: email } },
             { phone: { [Op.eq]: phone } },
+            {},
           ],
         },
         raw: true,
@@ -126,13 +127,17 @@ export class UsersService {
 
   async getUserProfileDetails(user_id: number) {
     try {
-      const [rows] = await this.sequelize.query(`
-        select * from main.get_user_details(:user_id);`, {
-        replacements: { user_id },
-        type: 'SELECT', raw: true,
-      });
+      const [rows] = await this.sequelize.query(
+        `
+        select * from main.get_user_details(:user_id);`,
+        {
+          replacements: { user_id },
+          type: 'SELECT',
+          raw: true,
+        },
+      );
       console.log(rows);
-      
+
       return rows;
     } catch (error) {
       handleError(error);
@@ -208,10 +213,10 @@ export class UsersService {
       if (changeProfession || isProvider) {
         // If user is a provider, create a provider profile for them
         if (isProvider) {
-          const newProvider = await this.providersService.createProvider(
-            { ...dto, user_id },
-            transaction,
-          );
+          const newProvider = await this.providersService.createProvider({
+            ...dto,
+            user_id,
+          });
           dto.provider_id = newProvider?.provider_id;
         }
 
@@ -238,7 +243,11 @@ export class UsersService {
       await transaction.commit();
       return true;
     } catch (error) {
-      await transaction.rollback();
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        // Transaction may already be rolled back
+      }
       handleError(error);
       return false;
     }

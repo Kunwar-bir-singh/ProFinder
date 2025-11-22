@@ -7,49 +7,45 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star, MapPin, Phone, Shield, Clock } from "lucide-react"
 import { ProviderProfileModal } from "@/components/provider-profile-modal"
-
-interface Provider {
-  id: number
-  username: string
-  fullname: string
-  profession: string
-  phone: string
-  address: string
-  rating: number
-  reviewCount: number
-  verified: boolean
-  yearsExperience: number
-  profileImage: string
-}
+import { TransformedProvider } from "@/lib/utils/types/types"
 
 interface ProviderCardProps {
-  provider: Provider
+  provider: TransformedProvider
 }
 
 export function ProviderCard({ provider }: ProviderCardProps) {
   const [showProfileModal, setShowProfileModal] = useState(false)
 
+  // Handle null values gracefully
+  const displayRating = provider.rating || 0
+  const displayReviewCount = provider.reviewCount || 0
+  const displayExperience = provider.yearsExperience || 0
+  const displayPhone = provider.phone || "Not available"
+  const displayAddress = provider.address || "Address not provided"
+  const displayProfession = provider.profession || "Professional"
+  const displayServiceArea = provider.address || "Service area not specified"
+
   const modalProvider = {
     id : provider?.id,
     name: provider?.fullname,
     profession: provider?.profession,
-    rating: provider?.rating,
-    reviewCount: provider?.reviewCount,
-    experience: `${provider?.yearsExperience}`,
-    location: provider?.address?.split(",")[0] || provider?.address,
-    phone: provider?.phone,
-    email: `${provider?.username}@example.com`,
-    bio: `Experienced ${provider?.profession} with ${provider?.yearsExperience}+ years in the field. Committed to providing high-quality services and customer satisfaction.`,
-    serviceArea: provider?.address,
-    availability: "Mon-Sat, 8:00 AM - 6:00 PM",
-    is_verified: provider?.verified,
+    rating: provider?.rating || 0,
+    reviewCount: provider?.reviewCount || 0,
+    experience: `${provider?.yearsExperience || 0}`,
+    location: provider?.address?.split(",")[0] || provider?.address || "Location not specified",
+    phone: provider?.phone || "Not available",
+    email: provider?.email || `${provider?.username}@example.com`,
+    bio: provider?.bio || `Experienced ${displayProfession} with ${displayExperience}+ years in the field. Committed to providing high-quality services and customer satisfaction.`,
+    serviceArea: displayServiceArea,
+    availability: provider?.isAvailable || "Mon-Sat, 8:00 AM - 6:00 PM",
+    is_verified: provider?.verified || false,
     profileImage: provider?.profileImage,
     completedJobs: Math.floor(Math.random() * 100) + 50,
     responseTime: "< 2 hours",
     services: [
-      `${provider?.profession} Installation`,
-      `${provider?.profession} Repair`,
-      `${provider?.profession} Maintenance`,
+      `${displayProfession} Installation`,
+      `${displayProfession} Repair`,
+      `${displayProfession} Maintenance`,
       "Emergency Service",
     ],
     pricing: {
@@ -84,15 +80,15 @@ export function ProviderCard({ provider }: ProviderCardProps) {
                 )}
               </div>
 
-              <p className="text-sm text-muted-foreground mb-2 capitalize">Professional {provider?.profession}</p>
+              <p className="text-sm text-muted-foreground mb-2 capitalize">Professional {displayProfession}</p>
 
               {/* Rating */}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium text-sm">{provider?.rating}</span>
+                  <span className="font-medium text-sm">{displayRating}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">({provider?.reviewCount} reviews)</span>
+                <span className="text-xs text-muted-foreground">({displayReviewCount} reviews)</span>
               </div>
             </div>
           </div>
@@ -101,7 +97,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-200/10">
             <Badge variant="outline" className="text-xs">
               <Clock className="w-3 h-3 mr-1" />
-              {provider?.yearsExperience} years experience
+              {displayExperience} years experience
             </Badge>
           </div>
 
@@ -109,11 +105,11 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           <div className="space-y-2 mb-6 pb-4 border-b border-slate-200/10">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="w-4 h-4 text-primary" />
-              <span className="font-mono">{provider?.phone}</span>
+              <span className="font-mono">{displayPhone}</span>
             </div>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <span className="line-clamp-2">{provider?.address}</span>
+              <span className="line-clamp-2">{displayAddress}</span>
             </div>
           </div>
 

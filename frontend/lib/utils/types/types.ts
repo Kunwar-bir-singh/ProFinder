@@ -76,3 +76,54 @@ export interface CreateProfessionRequest {
   category: string;
   description?: string;
 }
+
+// Provider types from new API
+export interface RawProviderData {
+  user_id: number;
+  fullname: string;
+  phone: string | null;
+  email: string;
+  is_verified: boolean;
+  address: string | null;
+  bio: string | null;
+  is_available: string | null;
+  rating: number | null;
+  year_of_experience: number | null;
+  service_area: string | null;
+  total_count?: number;
+}
+
+// Transformed provider for UI
+export interface TransformedProvider {
+  id: number;
+  user_id: number;
+  username: string;
+  fullname: string;
+  profession: string;
+  phone: string | null;
+  address: string | null;
+  rating: number | null;
+  reviewCount: number;
+  verified: boolean;
+  yearsExperience: number | null;
+  profileImage: string;
+  email: string;
+  bio: string | null;
+  isAvailable: string | null;
+  serviceArea: string | null;
+}
+
+export interface SearchResponse {
+  success: boolean;
+  data: TransformedProvider[];
+}
+
+// Search filters interface
+export interface SearchFilters {
+  profession?: string;
+  city?: string;
+  location?: string;
+  minRating?: number;
+  verified?: boolean;
+  available?: boolean;
+}

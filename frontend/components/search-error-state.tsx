@@ -15,6 +15,16 @@ interface SearchErrorStateProps {
 export function SearchErrorState({ error, searchTerm, city, onBack }: SearchErrorStateProps) {
   // Determine error type and message
   const getErrorMessage = () => {
+    // Handle specific "no providers found" case (400 status with this exact message)
+    if (error?.status === 400 && error?.data?.message?.includes('No providers found for the given profession')) {
+      return {
+        title: `${searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1)} Not Available`,
+        description: `We couldn't find any ${searchTerm.toLowerCase()} providers in ${city}. This might be because the profession isn't offered in this area yet.`,
+        showCreateOption: true
+      }
+    }
+    
+    // Handle generic 404 "not found" cases
     if (error?.status === 404 || error?.data?.message?.includes('not found')) {
       return {
         title: `${searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1)} Not Available`,
@@ -23,6 +33,7 @@ export function SearchErrorState({ error, searchTerm, city, onBack }: SearchErro
       }
     }
     
+    // Handle server errors (500+)
     if (error?.status >= 500) {
       return {
         title: "Service Temporarily Unavailable",
@@ -31,6 +42,16 @@ export function SearchErrorState({ error, searchTerm, city, onBack }: SearchErro
       }
     }
     
+    // Handle client errors (400-499, excluding our specific case)
+    if (error?.status >= 400 && error?.status < 500) {
+      return {
+        title: "Search Failed",
+        description: "We encountered an issue while searching for providers. Please check your search terms and try again.",
+        showCreateOption: false
+      }
+    }
+    
+    // Generic fallback for unknown errors
     return {
       title: "Search Failed",
       description: "We encountered an issue while searching for providers. Please check your connection and try again.",

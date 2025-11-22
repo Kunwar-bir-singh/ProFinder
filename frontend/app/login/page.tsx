@@ -25,13 +25,13 @@ import { ForgotPasswordModal } from "@/components/forgot-password-modal";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [loginMethod, setLoginMethod] = useState<"username" | "mobile">(
+  const [loginMethod, setLoginMethod] = useState<"username" | "phone">(
     "username"
   );
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
-    mobile: "",
+    phone: "",
     password: "",
   });
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
@@ -48,7 +48,7 @@ export default function LoginPage() {
     try {
       const credentials = {
         [loginMethod]:
-          loginMethod === "username" ? formData.username : formData.mobile,
+          loginMethod === "username" ? formData.username : formData.phone,
         password: formData.password,
       };
       await login(credentials).unwrap();
@@ -82,13 +82,12 @@ export default function LoginPage() {
 
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-4">
-              {/* Username/Mobile Toggle */}
+              {/* Username/Phone Toggle */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label
                     htmlFor="login-method-toggle"
-                    className="text-sm font-medium text-slate-700"
-                  >
+                    className="text-sm font-medium text-slate-700">
                     Login Method
                   </Label>
                   <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
@@ -106,15 +105,15 @@ export default function LoginPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setLoginMethod("mobile")}
+                      onClick={() => setLoginMethod("phone")}
                       disabled={isLoading}
                       className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                        loginMethod === "mobile"
+                        loginMethod === "phone"
                           ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      <Phone className="w-3 h-3" /> Mobile
+                      <Phone className="w-3 h-3" /> Phone
                     </button>
                   </div>
                 </div>
@@ -136,13 +135,13 @@ export default function LoginPage() {
               )}
 
               <form onSubmit={handleLogin} className="space-y-4">
-                {/* Username/Mobile Field */}
+                {/* Username/Phone Field */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="login-field"
                     className="text-sm font-medium text-slate-700"
                   >
-                    {loginMethod === "username" ? "Username" : "Mobile Number"}
+                    {loginMethod === "username" ? "Username" : "Phone Number"}
                   </Label>
                   <div className="relative">
                     <Input
@@ -151,12 +150,12 @@ export default function LoginPage() {
                       placeholder={
                         loginMethod === "username"
                           ? "Enter your username"
-                          : "Enter your mobile number"
+                          : "Enter your phone number"
                       }
                       value={
                         loginMethod === "username"
                           ? formData.username
-                          : formData.mobile
+                          : formData.phone
                       }
                       onChange={(e) =>
                         handleInputChange(loginMethod, e.target.value)

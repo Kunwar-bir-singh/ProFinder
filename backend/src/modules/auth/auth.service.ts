@@ -49,18 +49,22 @@ export class AuthService {
         transaction,
       );
 
-      await transaction.commit();
-
       if (!result || !result?.user_id) {
-        // defensive: if user creation failed for some reason, throw
         throw new BadRequestException('Failed to create user');
       }
+
+      await transaction.commit();
 
       const fullUser = await this.usersService.getUserDetails(result?.user_id);
 
       return this.generateTokens(fullUser, res);
     } catch (error) {
-      await transaction.rollback();
+      // Safely rollback transaction
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        // Transaction may already be rolled back
+      }
       handleError(error);
     }
   }
@@ -71,6 +75,8 @@ export class AuthService {
     const userExists = await this.usersService.checkUserExists(dto);
 
     if (!userExists) throw new UnauthorizedException('User does not exist');
+
+    if(userExists?.auth_provider == 'google') throw new UnauthorizedException('Please log in using Google, or reset your password.');
 
     const isPasswordValid = await this.hashService.comparePassword(
       password,
@@ -295,11 +301,16 @@ export class AuthService {
           'google',
           transaction,
         );
+        
         await transaction.commit();
 
         existingUser = newUser;
       } catch (error) {
-        await transaction.rollback();
+        try {
+          await transaction.rollback();
+        } catch (rollbackError) {
+          // Transaction may already be rolled back
+        }
         handleError(error);
       }
     }

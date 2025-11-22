@@ -27,6 +27,8 @@ export class ProfessionService {
   ): Promise<ProfessionAttributes | undefined> {
     try {
       const { profession_id, profession } = dto;
+    
+      if (!profession && !profession_id) return undefined;
 
       const raw_name = formatName(profession, 'raw');
       const formattedName = formatName(profession, 'formatted');

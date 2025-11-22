@@ -24,6 +24,7 @@ export class ProvidersProfessionController {
 
   @Post('link')
   @UseGuards(AuthGuard('jwt'))
+  @HttpCode(200)
   async linkProviderProfession(
     @Body() dto: IDProviderProfessionDto,
     @Req() req,
@@ -38,14 +39,16 @@ export class ProvidersProfessionController {
   @Post('un-link')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(200)
-  async unLinkProviderProfession(@Req() req, @Body() dto: IDProviderProfessionDto) {
+  async unLinkProviderProfession(
+    @Req() req,
+    @Body() dto: IDProviderProfessionDto,
+  ) {
     const { provider_id } = req.user!;
     dto.provider_id = provider_id;
     return this.providerProfessionService.unLinkProviderProfession(dto);
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
   async getProviderPerProfessionPerCity(
     @Query() dto: GetProviderProfessionDto,
   ) {

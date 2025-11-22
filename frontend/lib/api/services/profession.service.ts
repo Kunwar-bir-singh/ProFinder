@@ -3,8 +3,36 @@ import {
   Profession,
   CreateProfessionRequest,
   PaginationParams,
+  RawProviderData,
+  TransformedProvider,
+  SearchResponse,
 } from "@/lib/utils/types/types";
 import { api } from "@/lib/api/api";
+
+// Transform raw provider data to UI format
+const transformProviderData = (
+  rawData: RawProviderData[],
+  profession: string
+): TransformedProvider[] => {
+  return rawData.map((provider) => ({
+    id: provider.user_id,
+    user_id: provider.user_id,
+    username: provider.email.split("@")[0],
+    fullname: provider.fullname,
+    profession: profession,
+    phone: provider.phone,
+    address: provider.address,
+    rating: provider.rating,
+    reviewCount: Math.floor(Math.random() * 100) + 20, // Mock review count
+    verified: provider.is_verified,
+    yearsExperience: provider.year_of_experience,
+    profileImage: "/placeholder-user.jpg",
+    email: provider.email,
+    bio: provider.bio,
+    isAvailable: provider.is_available,
+    serviceArea: provider.service_area,
+  }));
+};
 
 export const professionService = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -86,9 +114,10 @@ export const professionService = api.injectEndpoints({
       }),
       providesTags: ["Profession"],
     }),
+
     // Search providers by profession and city
     searchProvidersByProfessionAndCity: builder.query<
-      ApiResponse<any[]>,
+      SearchResponse,
       { city: string; profession: string }
     >({
       query: ({ city, profession }) => ({
@@ -96,6 +125,12 @@ export const professionService = api.injectEndpoints({
         method: "GET",
         params: { city, profession },
       }),
+      transformResponse: (response: ApiResponse<RawProviderData[]>, meta, args) => {
+        return {
+          success: true,
+          data: transformProviderData(response.data, args.profession),
+        };
+      },
       providesTags: ["Provider"],
     }),
   }),

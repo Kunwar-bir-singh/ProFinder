@@ -10,6 +10,8 @@ import {
 import { handleError } from 'src/utils/handle.error';
 import { Exception } from 'src/common/interface/exception.interface';
 import { formatName } from 'src/utils/formatName.util';
+import { Sequelize } from 'sequelize-typescript';
+import { raw } from 'express';
 
 @Injectable()
 export class ProviderProfessionService {
@@ -19,6 +21,7 @@ export class ProviderProfessionService {
 
     private readonly professionService: ProfessionService,
     private readonly locationService: LocationService,
+    private readonly sequelize: Sequelize,
   ) {}
 
   async linkProviderProfession(dto: IDProviderProfessionDto) {
@@ -85,16 +88,22 @@ export class ProviderProfessionService {
 
       const cityExists =
         await this.locationService.checkCityExists(rawcity_name);
+
       if (!cityExists) throw new BadRequestException('City not found');
 
-      const { rows, count } =
-        await this.providerProfessionModel.findAndCountAll({
-          where: {
-            city_id: cityExists?.city_id,
-            profession_id: professionExists?.profession_id,
+      const [rows] = await this.sequelize.query(
+        `SELECT * from main.get_profession_providers(:city_id, :profession_id);`,
+        {
+          replacements: {
+            city_id: cityExists.city_id,
+            profession_id: professionExists.profession_id,
           },
           raw: true,
-        });
+        },
+      );
+      console.log('rows,', rows);
+
+      const count = (rows as any[])[0]?.total_count || 0;
 
       if (count == 0) {
         const exception: Exception = {
