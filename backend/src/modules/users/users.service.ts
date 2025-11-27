@@ -10,7 +10,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { UsersModel } from './models/users.model';
 import { handleError } from 'src/utils/handle.error';
 import { UserAndProviderDTo } from '../global/dto/common.dto';
-import { UsersBookmarkModel } from './models/users-bookmark.model';
+import { UserBookmarksModel } from './models/user-bookmarks.model';
 import { ProvidersService } from '../providers/providers.service';
 import { RecordNotFoundException } from 'src/common/utils/throw.exceptions.util';
 import { ProvidersModel } from '../providers/models/providers.model';
@@ -29,8 +29,8 @@ export class UsersService {
     private readonly userModel: typeof UsersModel,
     @InjectModel(ProvidersModel)
     private readonly providersModel: typeof ProvidersModel,
-    @InjectModel(UsersBookmarkModel)
-    private readonly usersBookmarkModel: typeof UsersBookmarkModel,
+    @InjectModel(UserBookmarksModel)
+    private readonly usersBookmarkModel: typeof UserBookmarksModel,
 
     private readonly providersService: ProvidersService,
     private readonly professionService: ProfessionService,
@@ -59,10 +59,13 @@ export class UsersService {
       const plainUser = userCreated.get({ plain: true });
 
       if (dto.isProvider) {
-        await this.providersService.createProvider({
-          ...dto,
-          user_id: plainUser.user_id,
-        }, transaction,);
+        await this.providersService.createProvider(
+          {
+            ...dto,
+            user_id: plainUser.user_id,
+          },
+          transaction,
+        );
       }
 
       return plainUser;
@@ -127,7 +130,7 @@ export class UsersService {
 
   async getUserProfileDetails(user_id: number) {
     try {
-      const [rows] = await this.sequelize.query(
+      const [row] = await this.sequelize.query(
         `
         select * from main.get_user_details(:user_id);`,
         {
@@ -136,9 +139,9 @@ export class UsersService {
           raw: true,
         },
       );
-      console.log(rows);
-
-      return rows;
+      console.log("row", row);
+      
+      return row;
     } catch (error) {
       handleError(error);
     }
@@ -146,10 +149,16 @@ export class UsersService {
 
   async getBookmarkedPrvoiders(user_id: number) {
     try {
-      const { rows, count } = await this.usersBookmarkModel.findAndCountAll({
-        where: { user_id },
-        raw: true,
-      });
+      const rows = await this.sequelize.query(
+        `
+        select * from main.get_user_bookmarks(:user_id);`,
+        {
+          replacements: { user_id },
+          type: 'SELECT',
+          raw: true,
+        },
+      );
+      const count = (rows as any[])[0]?.total_count || 0;
 
       return { rows, count };
     } catch (error) {
@@ -253,31 +262,11 @@ export class UsersService {
     }
   }
 
-  // async updateProfile(dto: any): Promise<Boolean | undefined> {
-  //   const { user_id } = dto;
-  //   const transaction = await this.sequelize.transaction();
-
-  //   try {
-  //     // Your update logic here
-  //     await this.userModel.update(
-  //       { ...dto },
-  //       { where: { user_id }, transaction },
-  //     );
-
-  //     // Commit the transaction
-  //     await transaction.commit();
-  //     return;
-  //   } catch (error) {
-  //     // Rollback the transaction in case of an error
-  //     await transaction.rollback();
-  //     console.error('Transaction failed:', error);
-  //     throw error; // Re-throw the error so it can be handled elsewhere
-  //   }
-  // }
-
   async createOrUpdateProviderBookmark(dto: UserAndProviderDTo) {
     try {
       const { user_id, provider_id } = dto;
+      console.log('userid', user_id);
+      console.log('provider_id', provider_id);
 
       await RecordNotFoundException(
         this.userModel,

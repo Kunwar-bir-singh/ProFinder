@@ -1,6 +1,9 @@
 import {
   ApiResponse,
   User,
+  Bookmark,
+  BookmarkRequest,
+  RawProviderData,
 } from "@/lib/utils/types/types";
 import { api } from "@/lib/api/api";
 
@@ -54,6 +57,31 @@ export const userService = api.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // Get user bookmarks
+    getBookmarks: builder.query<ApiResponse<RawProviderData[]>, void>({
+      query: () => ({
+        url: "/user/bookmarks",
+        method: "GET",
+      }),
+      transformResponse: (response: ApiResponse<{ rows: RawProviderData[]; count: string }>) => ({
+        success: response.success,
+        message: response.message,
+        data: response.data.rows,
+      }),
+      providesTags: ["Bookmarks"],
+    }),
+
+    // Add bookmark
+    toggleBookmark: builder.mutation<ApiResponse<Bookmark>, BookmarkRequest>({
+      query: (bookmarkData) => ({
+        url: "/user/bookmark",
+        method: "POST",
+        body: bookmarkData,
+      }),
+      invalidatesTags: ["Bookmarks"],
+    }),
+
   }),
 });
 
@@ -62,4 +90,6 @@ export const {
   useUpdateProfileMutation,
   useRequestVerificationMutation,
   useVerifyProfileMutation,
+  useGetBookmarksQuery,
+  useToggleBookmarkMutation,
 } = userService;

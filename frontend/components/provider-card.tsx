@@ -1,41 +1,78 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Star, MapPin, Phone, Shield, Clock } from "lucide-react"
-import { ProviderProfileModal } from "@/components/provider-profile-modal"
-import { TransformedProvider } from "@/lib/utils/types/types"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Star,
+  MapPin,
+  Phone,
+  Shield,
+  Clock,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react";
+import { ProviderProfileModal } from "@/components/provider-profile-modal";
+import { TransformedProvider } from "@/lib/utils/types/types";
+import { useToggleBookmarkMutation } from "@/lib/api/services/user/user.service";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 interface ProviderCardProps {
-  provider: TransformedProvider
+  provider: TransformedProvider;
+  bookmarksData: Record<string, any>[];
 }
 
-export function ProviderCard({ provider }: ProviderCardProps) {
-  const [showProfileModal, setShowProfileModal] = useState(false)
+export function ProviderCard({ provider, bookmarksData }: ProviderCardProps) {
+  console.log("provider", provider);
 
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const { isAuthenticated } = useAuth();
+
+  // Bookmark functionality
+
+  const [toggleBookmark] = useToggleBookmarkMutation();
+
+  const isBookmarked =
+    bookmarksData?.some(
+      (bookmark) => bookmark.provider_id === provider.provider_id
+    ) || false;
+
+  const handleBookmarkToggle = async () => {
+    try {
+      await toggleBookmark({ provider_id: provider.provider_id }).unwrap();
+      toast.success(`'${provider.fullname}' has been ${isBookmarked ? "removed from" : "added to"} your bookmarks.`);
+    } catch (error) {
+      toast.error("Failed to update bookmark. Please try again.");
+    }
+  };
   // Handle null values gracefully
-  const displayRating = provider.rating || 0
-  const displayReviewCount = provider.reviewCount || 0
-  const displayExperience = provider.yearsExperience || 0
-  const displayPhone = provider.phone || "Not available"
-  const displayAddress = provider.address || "Address not provided"
-  const displayProfession = provider.profession || "Professional"
-  const displayServiceArea = provider.address || "Service area not specified"
+  const displayRating = provider.rating || 0;
+  const displayReviewCount = provider.reviewCount || 0;
+  const displayExperience = provider.yearsExperience || 0;
+  const displayPhone = provider.phone || "Not available";
+  const displayAddress = provider.address || "Address not provided";
+  const displayProfession = provider.profession || "Professional";
+  const displayServiceArea = provider.address || "Service area not specified";
 
   const modalProvider = {
-    id : provider?.id,
+    provider_id: provider?.provider_id,
     name: provider?.fullname,
     profession: provider?.profession,
     rating: provider?.rating || 0,
     reviewCount: provider?.reviewCount || 0,
     experience: `${provider?.yearsExperience || 0}`,
-    location: provider?.address?.split(",")[0] || provider?.address || "Location not specified",
+    location:
+      provider?.address?.split(",")[0] ||
+      provider?.address ||
+      "Location not specified",
     phone: provider?.phone || "Not available",
     email: provider?.email || `${provider?.username}@example.com`,
-    bio: provider?.bio || `Experienced ${displayProfession} with ${displayExperience}+ years in the field. Committed to providing high-quality services and customer satisfaction.`,
+    bio:
+      provider?.bio ||
+      `Experienced ${displayProfession} with ${displayExperience}+ years in the field. Committed to providing high-quality services and customer satisfaction.`,
     serviceArea: displayServiceArea,
     availability: provider?.isAvailable || "Mon-Sat, 8:00 AM - 6:00 PM",
     is_verified: provider?.verified || false,
@@ -52,18 +89,50 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       hourly: `₹${Math.floor(Math.random() * 500) + 300}/hour`,
       fixed: `₹${Math.floor(Math.random() * 2000) + 1000} (basic service)`,
     },
-  }
+  };
 
   return (
     <>
-      <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-slate-200/30 hover:border-primary/40 bg-card">
+      <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-slate-200/30 hover:border-primary/40 bg-card relative">
+        {/* Bookmark button positioned at top-right */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`absolute top-3 right-3 h-10 w-10 p-0 z-10 ${
+            isAuthenticated
+              ? "hover:bg-primary/10"
+              : "opacity-50 cursor-not-allowed hover:bg-transparent"
+          }`}
+          onClick={isAuthenticated ? handleBookmarkToggle : undefined}
+          title={
+            isAuthenticated
+              ? (isBookmarked ? "Remove bookmark" : "Add bookmark")
+              : "Kindly Login to Bookmark"
+          }
+          disabled={!isAuthenticated}
+        >
+          {isBookmarked ? (
+            <BookmarkCheck className="w-6 h-6 text-primary fill-primary" />
+          ) : (
+            <Bookmark className={`w-6 h-6 ${
+              isAuthenticated
+                ? "text-muted-foreground hover:text-primary"
+                : "text-muted-foreground/50"
+            }`} />
+          )}
+        </Button>
+
         <CardContent className="p-6">
           {/* Header with avatar and basic info */}
           <div className="flex items-start gap-4 mb-4 pb-4 border-b border-slate-200/20">
             <Avatar className="w-16 h-16 border-2 border-primary/20 ring-2 ring-primary/5">
-              <AvatarImage src={provider?.profileImage || "/placeholder.svg"} alt={provider?.fullname} />
+              <AvatarImage
+                src={provider?.profileImage || "/placeholder.svg"}
+                alt={provider?.fullname}
+              />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {provider?.fullname?.split(" ")
+                {provider?.fullname
+                  ?.split(" ")
                   .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
@@ -71,16 +140,23 @@ export function ProviderCard({ provider }: ProviderCardProps) {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-foreground truncate">{provider?.fullname}</h3>
+                <h3 className="font-semibold text-foreground truncate">
+                  {provider?.fullname}
+                </h3>
                 {provider?.verified && (
-                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-green-700 border-green-200"
+                  >
                     <Shield className="w-3 h-3 mr-1" />
                     Verified
                   </Badge>
                 )}
               </div>
 
-              <p className="text-sm text-muted-foreground mb-2 capitalize">Professional {displayProfession}</p>
+              <p className="text-sm text-muted-foreground mb-2 capitalize">
+                Professional {displayProfession}
+              </p>
 
               {/* Rating */}
               <div className="flex items-center gap-2">
@@ -88,7 +164,9 @@ export function ProviderCard({ provider }: ProviderCardProps) {
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-medium text-sm">{displayRating}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">({displayReviewCount} reviews)</span>
+                <span className="text-xs text-muted-foreground">
+                  ({displayReviewCount} reviews)
+                </span>
               </div>
             </div>
           </div>
@@ -118,7 +196,11 @@ export function ProviderCard({ provider }: ProviderCardProps) {
             <Button className="flex-1" size="sm">
               Contact Now
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowProfileModal(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowProfileModal(true)}
+            >
               View Profile
             </Button>
           </div>
@@ -131,5 +213,5 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         provider={modalProvider}
       />
     </>
-  )
+  );
 }

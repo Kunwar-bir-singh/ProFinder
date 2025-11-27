@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useSelector } from 'react-redux'
-import { LogOut, Settings, User } from 'lucide-react'
+import { LogOut, Settings, User, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { useLogoutMutation } from '@/lib/api/services'
@@ -110,6 +110,14 @@ export function Header() {
                     >
                       <User className="h-4 w-4" />
                       My Profile
+                    </Link>
+
+                    <Link
+                      href="/bookmarks"
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+                    >
+                      <Bookmark className="h-4 w-4" />
+                      Bookmarks
                     </Link>
 
                     <Link

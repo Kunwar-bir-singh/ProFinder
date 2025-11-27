@@ -20,6 +20,8 @@ export const setStoredToken = (token: string, user: any): void => {
 };
 
 export const removeStoredToken = (): void => {
+  console.log("LOGGING OUT");
+  
   storeRef?.dispatch(clearAuth());
 };
 

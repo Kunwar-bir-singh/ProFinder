@@ -46,7 +46,7 @@ export class ProvidersModel extends Model<ProvidersModel> {
   bio: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
   })
   service_area: string;
 

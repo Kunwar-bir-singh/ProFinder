@@ -7,13 +7,13 @@ interface UserBookmarkAttributes {
 }
 
 @Table({
-    tableName: 'users_bookmark',
+    tableName: 'user_bookmarks',
     schema: 'main',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
 })
-export class UsersBookmarkModel extends Model<UserBookmarkAttributes> {
+export class UserBookmarksModel extends Model<UserBookmarkAttributes> {
     @ForeignKey(() => UsersModel)
     @PrimaryKey
     @Column({

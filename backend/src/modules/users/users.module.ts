@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModel } from './models/users.model';
 import { CitiesModel } from '../location/models/cities.model';
-import { UsersBookmarkModel } from './models/users-bookmark.model';
+import { UserBookmarksModel } from './models/user-bookmarks.model';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { ProvidersModule } from '../providers/providers.module';
@@ -15,7 +15,7 @@ import { ProviderProfessionModule } from '../provider-profession/provider-profes
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([UsersModel, UsersBookmarkModel]),
+    SequelizeModule.forFeature([UsersModel, UserBookmarksModel]),
     LocationModule,
     ProvidersModule,
     ProfessionModule,

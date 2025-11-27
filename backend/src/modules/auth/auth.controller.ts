@@ -55,7 +55,6 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log(' req:', req);
     const { refreshToken } = req.cookies;
     const { user_id } = req.user!;
 

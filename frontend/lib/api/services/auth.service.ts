@@ -123,7 +123,13 @@ export const authService = api.injectEndpoints({
     }),
 
     // Refresh token
-    refreshToken: builder.mutation<ApiResponse<{ accessToken: string }>, void>({
+    refreshToken: builder.mutation<
+      ApiResponse<{
+        accessToken: string;
+        user: { user_id: string; isProvider: boolean; username: string };
+      }>,
+      void
+    >({
       query: () => ({
         url: "/auth/refresh",
         method: "POST",

@@ -17,15 +17,6 @@ import { UserAndProviderDTo } from '../global/dto/common.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('bookmark')
-  @UseGuards(AuthGuard('jwt'))
-  async updateBookmark(@Req() req, @Body() dto: UserAndProviderDTo) {
-    const { user_id } = req.user!;
-
-    dto = { ...dto, user_id };
-
-    return await this.usersService.createOrUpdateProviderBookmark(dto);
-  }
 
   @Post('request-verification')
   @UseGuards(AuthGuard('jwt'))
@@ -39,6 +30,17 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   async verifyProfile(@Body() dto: { otp: string; email: string }) {
     return await this.usersService.verifyProfile(dto);
+  }
+
+  
+  @Post('bookmark')
+  @UseGuards(AuthGuard('jwt'))
+  async updateBookmark(@Req() req, @Body() dto: UserAndProviderDTo) {
+    const { user_id } = req.user!;
+
+    dto = { ...dto, user_id };
+
+    return await this.usersService.createOrUpdateProviderBookmark(dto);
   }
 
     @Get('all')

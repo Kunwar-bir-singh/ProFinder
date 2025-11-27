@@ -10,7 +10,7 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { UsersBookmarkModel } from './users-bookmark.model';
+import { UserBookmarksModel } from './user-bookmarks.model';
 import { ProvidersModel } from 'src/modules/providers/models/providers.model';
 import { CitiesModel } from 'src/modules/location/models/cities.model';
 
@@ -86,7 +86,7 @@ export class UsersModel extends Model<UsersAttributes> {
   email?: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
     allowNull: true,
   })
   address?: string;
@@ -115,6 +115,6 @@ export class UsersModel extends Model<UsersAttributes> {
   @BelongsTo(() => CitiesModel, { as: 'city' })
   city: CitiesModel;
 
-  @HasMany(() => UsersBookmarkModel)
-  bookmarkedProviders: UsersBookmarkModel[];
+  @HasMany(() => UserBookmarksModel)
+  bookmarkedProviders: UserBookmarksModel[];
 }

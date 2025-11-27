@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, Phone, Mail, Star, Clock, CheckCircle, Briefcase, Calendar, MessageCircle, Heart } from "lucide-react"
 
 interface Provider {
-  id: number
+  provider_id: number
   name: string
   profession: string
   rating: number

@@ -57,7 +57,7 @@ export class AuthService {
 
       const fullUser = await this.usersService.getUserDetails(result?.user_id);
 
-      return this.generateTokens(fullUser, res);
+      return await this.generateTokens(fullUser, res);
     } catch (error) {
       // Safely rollback transaction
       try {
@@ -76,7 +76,10 @@ export class AuthService {
 
     if (!userExists) throw new UnauthorizedException('User does not exist');
 
-    if(userExists?.auth_provider == 'google') throw new UnauthorizedException('Please log in using Google, or reset your password.');
+    if (userExists?.auth_provider == 'google')
+      throw new UnauthorizedException(
+        'Please log in using Google, or reset your password.',
+      );
 
     const isPasswordValid = await this.hashService.comparePassword(
       password,
@@ -167,6 +170,8 @@ export class AuthService {
 
   /*--------------------- FUNCTIONS RELATED TO JWT TOKENS ---------------------*/
   async generateTokens(user: any, res: Response) {
+    console.log("user", user);
+    
     const payload: JwtPayload = {
       user_id: user.user_id,
       provider_id: user?.['provider.provider_id'],
@@ -190,7 +195,6 @@ export class AuthService {
     const refreshExpiry = new Date();
     refreshExpiry.setDate(refreshExpiry.getDate() + 7);
 
-    console.log('The isProvider is: ', user.isProvider);
 
     const hashedRefreshToken =
       await this.hashService.hashPassword(refreshToken);
@@ -221,7 +225,8 @@ export class AuthService {
   }
 
   async refreshTokens(user_id: number, refreshToken: string, res: Response) {
-    const userExists = await this.userModel.findByPk(user_id);
+    const userExists = await this.usersService.getUserDetails(user_id);
+
     if (!userExists) throw new UnauthorizedException('The User does not exist');
 
     const user = await this.validateRefreshToken(user_id, refreshToken);
@@ -232,7 +237,7 @@ export class AuthService {
     await this.deleteRefreshToken(user_id);
 
     // Create new refresh token
-    return this.generateTokens(user, res);
+    return await this.generateTokens(userExists, res);
   }
 
   /* Function to validate the refresh token 
@@ -301,7 +306,7 @@ export class AuthService {
           'google',
           transaction,
         );
-        
+
         await transaction.commit();
 
         existingUser = newUser;

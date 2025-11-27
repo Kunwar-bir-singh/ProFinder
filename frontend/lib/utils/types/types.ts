@@ -80,6 +80,7 @@ export interface CreateProfessionRequest {
 // Provider types from new API
 export interface RawProviderData {
   user_id: number;
+  provider_id: number;
   fullname: string;
   phone: string | null;
   email: string;
@@ -97,6 +98,7 @@ export interface RawProviderData {
 export interface TransformedProvider {
   id: number;
   user_id: number;
+  provider_id: number;
   username: string;
   fullname: string;
   profession: string;
@@ -126,4 +128,16 @@ export interface SearchFilters {
   minRating?: number;
   verified?: boolean;
   available?: boolean;
+}
+
+// Bookmark types
+export interface Bookmark {
+  id: number;
+  userId: number;
+  provider_id: number;
+  createdAt: string;
+}
+
+export interface BookmarkRequest {
+  provider_id: number;
 }

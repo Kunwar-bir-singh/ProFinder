@@ -10,13 +10,14 @@ import {
 import { api } from "@/lib/api/api";
 
 // Transform raw provider data to UI format
-const transformProviderData = (
+export const transformProviderData = (
   rawData: RawProviderData[],
   profession: string
 ): TransformedProvider[] => {
   return rawData.map((provider) => ({
-    id: provider.user_id,
+    id: provider.provider_id,
     user_id: provider.user_id,
+    provider_id: provider.provider_id,
     username: provider.email.split("@")[0],
     fullname: provider.fullname,
     profession: profession,

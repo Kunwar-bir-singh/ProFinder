@@ -8,6 +8,7 @@ import { SearchEmptyState } from "@/components/search-empty-state";
 import { SearchErrorState } from "@/components/search-error-state";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
+import { useGetBookmarksQuery } from "@/lib/api/services/user/user.service";
 
 interface SearchResultsProps {
   isLoading?: boolean;
@@ -33,10 +34,11 @@ export function SearchResults({
   const providers = isSuccess ? providersData.data || [] : [];
   const [sortBy, setSortBy] = useState("rating");
   const [filterVerified, setFilterVerified] = useState(false);
+  const { data: bookmarksData } = useGetBookmarksQuery();
 
   // Filter and sort providers
   const filteredProviders = providers
-    .filter((provider) => !filterVerified || provider.verified)
+    .filter((provider) => !filterVerified || provider.is_verified)
     .sort((a, b) => {
       switch (sortBy) {
         case "rating":
@@ -124,7 +126,7 @@ export function SearchResults({
             {/* Provider grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProviders.map((provider) => (
-                <ProviderCard key={provider.id} provider={provider} />
+                <ProviderCard key={provider.provider_id} provider={provider} bookmarksData={bookmarksData?.data || []} />
               ))}
             </div>
 

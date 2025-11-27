@@ -101,7 +101,6 @@ export class ProviderProfessionService {
           raw: true,
         },
       );
-      console.log('rows,', rows);
 
       const count = (rows as any[])[0]?.total_count || 0;
 

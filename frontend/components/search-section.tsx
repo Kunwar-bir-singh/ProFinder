@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -85,13 +85,14 @@ export function SearchSection() {
         toast({
           title: "No Results",
           description:
-            queryData.message ||
             "No providers found for your search. Please try different criteria.",
           variant: "destructive",
         });
       }
     }
   }, [queryData, searchParams, isLoading, toast]);
+
+  console.log("queryData.data", queryData?.data);
 
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden">

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import { useSearchProvidersByProfessionAndCityQuery } from "@/lib/api/services";
+import { useGetBookmarksQuery } from "@/lib/api/services/user/user.service";
 import { SearchErrorState } from "@/components/search-error-state";
 
 export default function SearchResultsPage() {
@@ -26,6 +27,8 @@ export default function SearchResultsPage() {
     { skip: !profession || !city }
   );
 
+  const { data: bookmarksData } = useGetBookmarksQuery();
+
   const [sortBy, setSortBy] = useState("rating");
   const [filterVerified, setFilterVerified] = useState(false);
 
@@ -38,11 +41,11 @@ export default function SearchResultsPage() {
     .sort((a, b) => {
       switch (sortBy) {
         case "rating":
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0); ;
         case "reviews":
           return b.reviewCount - a.reviewCount;
         case "experience":
-          return b.yearsExperience - a.yearsExperience;
+          return (b.yearsExperience || 0) - (a.yearsExperience || 0 );
         default:
           return 0;
       }
@@ -126,7 +129,7 @@ export default function SearchResultsPage() {
             {/* Provider grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProviders.map((provider) => (
-                <ProviderCard key={provider.id} provider={provider} />
+                <ProviderCard key={provider.provider_id} provider={provider} bookmarksData={bookmarksData?.data || []} />
               ))}
             </div>
 
