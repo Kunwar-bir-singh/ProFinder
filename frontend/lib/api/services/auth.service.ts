@@ -3,13 +3,11 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
-  User,
 } from "@/lib/utils/types/types";
 import { api } from "@/lib/api/api";
 import {
   clearAuthData,
   setStoredToken,
-  updateStoredToken,
 } from "@/lib/utils/auth-utils";
 
 export const authService = api.injectEndpoints({
@@ -138,9 +136,9 @@ export const authService = api.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          // Update the access token in Redux store
-          if (data.data.accessToken) {
-            updateStoredToken(data.data.accessToken);
+          const { accessToken, user } = data.data;
+          if (accessToken && user) {
+            setStoredToken(accessToken, user);
           }
         } catch (error) {
           // Refresh failed, clear auth data

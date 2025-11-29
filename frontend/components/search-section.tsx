@@ -92,8 +92,6 @@ export function SearchSection() {
     }
   }, [queryData, searchParams, isLoading, toast]);
 
-  console.log("queryData.data", queryData?.data);
-
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden">
       {showResults ? (

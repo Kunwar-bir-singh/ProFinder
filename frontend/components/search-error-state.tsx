@@ -10,9 +10,10 @@ interface SearchErrorStateProps {
   searchTerm: string
   city: string
   onBack?: () => void
+  onRetry?: () => void
 }
 
-export function SearchErrorState({ error, searchTerm, city, onBack }: SearchErrorStateProps) {
+export function SearchErrorState({ error, searchTerm, city, onBack, onRetry }: SearchErrorStateProps) {
   // Determine error type and message
   const getErrorMessage = () => {
     // Handle specific "no providers found" case (400 status with this exact message)
@@ -76,7 +77,7 @@ export function SearchErrorState({ error, searchTerm, city, onBack }: SearchErro
 
         <div className="space-y-4 mb-6 pb-6 border-b border-slate-200/20">
           <Button asChild className="w-full">
-            <button onClick={() => window.location.reload()}>
+            <button onClick={onRetry || (() => window.location.reload())}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
             </button>

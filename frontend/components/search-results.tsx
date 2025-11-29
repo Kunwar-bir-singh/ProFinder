@@ -20,6 +20,7 @@ interface SearchResultsProps {
   profession: string;
   city: string;
   onBack?: () => void;
+  onRetry?: () => void;
 }
 
 export function SearchResults({
@@ -29,6 +30,7 @@ export function SearchResults({
   profession,
   city,
   onBack,
+  onRetry,
 }: SearchResultsProps) {
   const isSuccess = providersData?.success === true;
   const providers = isSuccess ? providersData.data || [] : [];
@@ -95,7 +97,51 @@ export function SearchResults({
             searchTerm={profession}
             city={city}
             onBack={onBack}
+            onRetry={onRetry}
           />
+        ) : isSuccess && providers.length > 0 && filteredProviders.length === 0 ? (
+          // Show filters when we have providers but filtering removed them all
+          <div className="space-y-8">
+            {/* Results header with filters */}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                  <span className="text-primary">
+                    0
+                  </span>{" "}
+                  Providers Found!
+                </h1>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  No {profession}s match your filters in {city}
+                </p>
+              </div>
+
+              <SearchFilters
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                filterVerified={filterVerified}
+                setFilterVerified={setFilterVerified}
+              />
+            </div>
+
+            {/* No results message */}
+            <div className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-semibold mb-2">No providers match your filters</h3>
+                <p className="text-muted-foreground mb-6">
+                  Try adjusting your filters to see more results.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => setFilterVerified(false)}
+                  disabled={!filterVerified}
+                >
+                  Show All Providers
+                </Button>
+              </div>
+            </div>
+          </div>
         ) : isSuccess && filteredProviders.length === 0 ? (
           <SearchEmptyState searchTerm={profession} city={city} />
         ) : (
